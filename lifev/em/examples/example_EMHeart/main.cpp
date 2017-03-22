@@ -534,23 +534,23 @@ int main (int argc, char** argv)
         circulationSolver.exportSolution( circulationOutputFile );
     }
     
-    for (int k (1); k <= heartSolver.data().maxiter(); k++)
+    for (int k (1); k <= maxiter; k++)
     {
         if ( 0 == comm->MyPID() )
         {
             std::cout << "\n*****************************************************************";
-            std::cout << "\nTIME = " << t + heartSolver.data().dt_activation();
+            std::cout << "\nTIME = " << t+dt_activation;
             std::cout << "\n*****************************************************************\n";
         }
 
-        t = t + heartSolver.data().dt_activation();
+        t = t + dt_activation;
 
         //============================================//
         // Solve electrophysiology and activation
         //============================================//
 
         solver.solveElectrophysiology (stim, t);
-        solver.solveActivation (heartSolver.data().dt_activation());
+        solver.solveActivation (dt_activation);
 
         
         //============================================//
@@ -558,9 +558,8 @@ int main (int argc, char** argv)
         //============================================//
 
         auto minActivationValue ( solver.activationModelPtr() -> fiberActivationPtr() -> minValue() );
-        auto mechanicsCouplingIter = heartSolver.data().mechanicsCouplingIter();
         
-        if ( k % heartSolver.data().mechanicsLoadstepIter() == 0 && mechanicsCouplingIter != 0 && minActivationValue < heartSolver.data().activationLimit_loadstep() )
+        if ( k % mechanicsLoadstepIter == 0 && mechanicsCouplingIter != 0 && minActivationValue < - 0.05 )
         {
             if ( 0 == comm->MyPID() )
             {
