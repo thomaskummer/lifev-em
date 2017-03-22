@@ -68,16 +68,16 @@ public:
     const UInt& preloadSteps () const { return M_preloadSteps; }
     const bool& safePreload () const { return M_safePreload; }
     
-    const UInt& pPerturbationFe () const { return M_pPerturbationFe; }
-    const UInt& pPerturbationCirc () const { return M_pPerturbationCirc; }
-    const UInt& couplingError () const { return M_couplingError; }
+    const Real& pPerturbationFe () const { return M_pPerturbationFe; }
+    const Real& pPerturbationCirc () const { return M_pPerturbationCirc; }
+    const Real& couplingError () const { return M_couplingError; }
     const UInt& couplingJFeSubIter () const { return M_couplingJFeSubIter; }
     const UInt& couplingJFeSubStart () const { return M_couplingJFeSubStart; }
     const UInt& couplingJFeIter () const { return M_couplingJFeIter; }
     
     const std::string& elementOrder () const { return M_elementOrder; }
     
-    const GetPot& datafile () { return M_datafile; }
+    const GetPot& datafile () const { return M_datafile; }
     
 protected:
     
