@@ -41,7 +41,7 @@ public:
     
     Circulation& circulation()
     {
-        return M_heartData;
+        return M_circulationSolver;
     }
     
     const HeartData& data() const
