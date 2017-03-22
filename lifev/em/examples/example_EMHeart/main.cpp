@@ -594,10 +594,10 @@ int main (int argc, char** argv)
         // Iterate mechanics / circulation
         //============================================//
         
-        if ( k % heartSolver.data().mechanicsCouplingIter() == 0 )
+        if ( k % mechanicsCouplingIter == 0 )
         {
             iter = 0;
-            const double dt_circulation ( heartSolver.data().dt_mechanics() / 1000 );
+            const double dt_circulation ( dt_mechanics / 1000 );
             solver.structuralOperatorPtr() -> data() -> dataTime() -> setTime(t);
             
             modifyFeBCPatches(t);
@@ -656,7 +656,7 @@ int main (int argc, char** argv)
             //============================================//
             // Newton iterations
             //============================================//
-            while ( R.norm() > heartSolver.data().couplingError() )
+            while ( R.norm() > couplingError )
             {
                 ++iter;
                 
@@ -665,30 +665,26 @@ int main (int argc, char** argv)
                 //============================================//
                 
                 // Left ventricle
-                circulationSolver.iterate(dt_circulation, bcNames, perturbedPressureComp(bcValues, heartSolver.data().pPerturbationCirc(), 0), iter);
+                circulationSolver.iterate(dt_circulation, bcNames, perturbedPressureComp(bcValues, pPerturbationCirc, 0), iter);
                 VCircPert[0] = VCirc[0] + dt_circulation * ( Q("la", "lv") - Q("lv", "sa") );
                 VCircPert[1] = VCirc[1] + dt_circulation * ( Q("ra", "rv") - Q("rv", "pa") );
 
-                JCirc(0,0) = ( VCircPert[0] - VCircNew[0] ) / heartSolver.data().pPerturbationCirc();
-                JCirc(1,0) = ( VCircPert[1] - VCircNew[1] ) / heartSolver.data().pPerturbationCirc();
+                JCirc(0,0) = ( VCircPert[0] - VCircNew[0] ) / pPerturbationCirc;
+                JCirc(1,0) = ( VCircPert[1] - VCircNew[1] ) / pPerturbationCirc;
                 
                 // Right ventricle
-                circulationSolver.iterate(dt_circulation, bcNames, perturbedPressureComp(bcValues, heartSolver.data().pPerturbationCirc(), 1), iter);
+                circulationSolver.iterate(dt_circulation, bcNames, perturbedPressureComp(bcValues, pPerturbationCirc, 1), iter);
                 VCircPert[0] = VCirc[0] + dt_circulation * ( Q("la", "lv") - Q("lv", "sa") );
                 VCircPert[1] = VCirc[1] + dt_circulation * ( Q("ra", "rv") - Q("rv", "pa") );
                 
-                JCirc(0,1) = ( VCircPert[0] - VCircNew[0] ) / heartSolver.data().pPerturbationCirc();
-                JCirc(1,1) = ( VCircPert[1] - VCircNew[1] ) / heartSolver.data().pPerturbationCirc();
+                JCirc(0,1) = ( VCircPert[0] - VCircNew[0] ) / pPerturbationCirc;
+                JCirc(1,1) = ( VCircPert[1] - VCircNew[1] ) / pPerturbationCirc;
                 
                 //============================================//
                 // Jacobian fe
                 //============================================//
 
-                const UInt couplingJFeSubIter = heartSolver.data().couplingJFeSubIter();
-                const UInt couplingJFeSubStart = heartSolver.data().couplingJFeSubStart();
-                const UInt couplingJFeIter = heartSolver.data().couplingJFeIter();
-                
-                const bool jFeIter ( ! ( k % (couplingJFeIter * heartSolver.data().mechanicsCouplingIter() ) ) );
+                const bool jFeIter ( ! ( k % (couplingJFeIter * mechanicsCouplingIter) ) );
                 const bool jFeSubIter ( ! ( (iter - couplingJFeSubStart) % couplingJFeSubIter) && iter >= couplingJFeSubStart );
                 const bool jFeEmpty ( JFe.norm() == 0 );
                 
@@ -698,28 +694,28 @@ int main (int argc, char** argv)
                     dispCurrent = disp;
                     
                     // Left ventricle
-                    modifyFeBC(perturbedPressureComp(bcValues, heartSolver.data().pPerturbationFe(), 0));
+                    modifyFeBC(perturbedPressureComp(bcValues, pPerturbationFe, 0));
                     solver.bcInterfacePtr() -> updatePhysicalSolverVariables();
                     solver.solveMechanicsLin();
                     
                     VFePert[0] = LV.volume(disp, dETFESpace, - 1);
                     VFePert[1] = RV.volume(disp, dETFESpace, 1);
 
-                    JFe(0,0) = ( VFePert[0] - VFeNew[0] ) / heartSolver.data().pPerturbationFe();
-                    JFe(1,0) = ( VFePert[1] - VFeNew[1] ) / heartSolver.data().pPerturbationFe();
+                    JFe(0,0) = ( VFePert[0] - VFeNew[0] ) / pPerturbationFe;
+                    JFe(1,0) = ( VFePert[1] - VFeNew[1] ) / pPerturbationFe;
                     
                     disp = dispCurrent;
                     
                     // Right ventricle
-                    modifyFeBC(perturbedPressureComp(bcValues, heartSolver.data().pPerturbationFe(), 1));
+                    modifyFeBC(perturbedPressureComp(bcValues, pPerturbationFe, 1));
                     solver.bcInterfacePtr() -> updatePhysicalSolverVariables();
                     solver.solveMechanicsLin();
                     
                     VFePert[0] = LV.volume(disp, dETFESpace, - 1);
                     VFePert[1] = RV.volume(disp, dETFESpace, 1);
                     
-                    JFe(0,1) = ( VFePert[0] - VFeNew[0] ) / heartSolver.data().pPerturbationFe();
-                    JFe(1,1) = ( VFePert[1] - VFeNew[1] ) / heartSolver.data().pPerturbationFe();
+                    JFe(0,1) = ( VFePert[0] - VFeNew[0] ) / pPerturbationFe;
+                    JFe(1,1) = ( VFePert[1] - VFeNew[1] ) / pPerturbationFe;
                     
                     disp = dispCurrent;
                 }
@@ -798,7 +794,7 @@ int main (int argc, char** argv)
         //============================================//
         // Export FE-solution
         //============================================//
-        bool save ( std::abs(std::remainder(t, heartSolver.data().dt_save() )) < 0.01 );
+        bool save ( std::abs(std::remainder(t, dt_save)) < 0.01 );
         if ( save ) solver.saveSolution(t, restart);
 
     }
