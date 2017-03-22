@@ -173,8 +173,7 @@ int main (int argc, char** argv)
     HeartSolver<EMSolver<mesh_Type, monodomain_Type> > heartSolver (solver, circulationSolver);
     
     heartSolver.setup(dataFile);
-    if ( 0 == comm->MyPID() ) heartSolver.data().showMe();
-    std::cout << heartSolver.data().pPerturbationFe();
+
     
     //============================================//
     // Setup material data
@@ -422,9 +421,23 @@ int main (int argc, char** argv)
     //============================================//
     // Set variables and functions
     //============================================//
+    Real dt_activation = solver.data().electroParameter<Real>("timestep");
+    Real dt_loadstep =  dataFile ( "solid/time_discretization/dt_loadstep", 1.0 );
+    Real dt_mechanics = solver.data().solidParameter<Real>("timestep");
+    Real dt_save = dataFile ( "exporter/save", 10. );
+    Real endtime = solver.data().electroParameter<Real>("endtime");
+    UInt mechanicsLoadstepIter = static_cast<UInt>( dt_loadstep / dt_activation );
+    UInt mechanicsCouplingIter = static_cast<UInt>( dt_mechanics / dt_activation );
+    UInt maxiter = static_cast<UInt>( endtime / dt_activation ) ;
     
+    Real pPerturbationFe = dataFile ( "solid/coupling/pPerturbationFe", 1e-2 );
+    Real pPerturbationCirc = dataFile ( "solid/coupling/pPerturbationCirc", 1e-3 );
+    Real couplingError = dataFile ( "solid/coupling/couplingError", 1e-6 );
+    UInt couplingJFeSubIter = dataFile ( "solid/coupling/couplingJFeSubIter", 1 );
+    UInt couplingJFeSubStart = dataFile ( "solid/coupling/couplingJFeSubStart", 1 );
+    UInt couplingJFeIter = dataFile ( "solid/coupling/couplingJFeIter", 1 );
     
-    const Real dpMax = dataFile ( "solid/coupling/dpMax", 0.1 );
+    Real dpMax = dataFile ( "solid/coupling/dpMax", 0.1 );
 
     std::vector<std::vector<std::string> > bcNames { { "lv" , "p" } , { "rv" , "p" } };
     std::vector<double> bcValues { p ( "lv" ) , p ( "rv") };
@@ -526,18 +539,18 @@ int main (int argc, char** argv)
         if ( 0 == comm->MyPID() )
         {
             std::cout << "\n*****************************************************************";
-            std::cout << "\nTIME = " << t + solver.data().electroParameter<Real>("timestep");
+            std::cout << "\nTIME = " << t + heartSolver.data().dt_activation();
             std::cout << "\n*****************************************************************\n";
         }
 
-        t = t + solver.data().electroParameter<Real>("timestep");
+        t = t + heartSolver.data().dt_activation();
 
         //============================================//
         // Solve electrophysiology and activation
         //============================================//
 
         solver.solveElectrophysiology (stim, t);
-        solver.solveActivation (solver.data().electroParameter<Real>("timestep"));
+        solver.solveActivation (heartSolver.data().dt_activation());
 
         
         //============================================//
