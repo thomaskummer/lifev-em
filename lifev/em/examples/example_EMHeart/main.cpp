@@ -526,18 +526,18 @@ int main (int argc, char** argv)
         if ( 0 == comm->MyPID() )
         {
             std::cout << "\n*****************************************************************";
-            std::cout << "\nTIME = " << t + heartSolver.data().dt_activation();
+            std::cout << "\nTIME = " << t + solver.data().electroParameter<Real>("timestep");
             std::cout << "\n*****************************************************************\n";
         }
 
-        t = t + heartSolver.data().dt_activation();
+        t = t + solver.data().electroParameter<Real>("timestep");
 
         //============================================//
         // Solve electrophysiology and activation
         //============================================//
 
         solver.solveElectrophysiology (stim, t);
-        solver.solveActivation (heartSolver.data().dt_activation());
+        solver.solveActivation (solver.data().electroParameter<Real>("timestep"));
 
         
         //============================================//
