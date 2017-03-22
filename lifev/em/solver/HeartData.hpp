@@ -29,7 +29,7 @@ public:
         readFile();
     }
     
-    void showMe()
+    void showMe() const
     {
         std::cout << "\nHeartData - showMe() --------------------------";
         std::cout << "\ndt_activation: " << M_dt_activation;
