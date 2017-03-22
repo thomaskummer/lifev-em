@@ -40,7 +40,7 @@ monodomain_xml_file = ParamListE.xml
     [./physics]
     ActivationModel = ActiveStrainRossi14
     CalciumIndex = 3
-    ActiveForceCoefficient = -5.5
+    ActiveForceCoefficient = -5.0
     InverseViscosity = 0.0002
     ChemicalThreshold = 0.21
 
@@ -78,7 +78,7 @@ monodomain_xml_file = ParamListE.xml
     listForcePatchesBC = 'Patch1 Patch2'
     #listDispPatchesBC = 'Patch1 Patch2'
 
-    numPreloadSteps  = 0
+    numPreloadSteps  = 50
 
         [./BaseSemilunar]
         type       = Essential #Robin
@@ -232,7 +232,7 @@ monodomain_xml_file = ParamListE.xml
     endtime                     = 100000.
     timestep                    = 1.0
     dt_loadstep                 = 0.5
-    activation_limit_loadstep   = -0.1
+    activation_limit_loadstep   = -0.12
     theta                       = 0.35
     zeta                        = 0.75
     BDF_order                   = 2
