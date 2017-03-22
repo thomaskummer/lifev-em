@@ -174,7 +174,7 @@ int main (int argc, char** argv)
     
     heartSolver.setup(dataFile);
     if ( 0 == comm->MyPID() ) heartSolver.data().showMe();
-    
+    std::cout << heartSolver.data().pPerturbationFe();
     
     //============================================//
     // Setup material data
