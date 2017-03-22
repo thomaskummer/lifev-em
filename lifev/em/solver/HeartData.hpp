@@ -29,6 +29,33 @@ public:
         readFile();
     }
     
+    void showMe()
+    {
+        std::cout << "\nHeartData - showMe() --------------------------";
+        std::cout << "\ndt_activation: " << M_dt_activation;
+        std::cout << "\ndt_loadstep: " << M_dt_loadstep;
+        std::cout << "\nactivationLimit_loadstep: " << M_activationLimit_loadstep;
+        std::cout << "\ndt_mechanics: " << M_dt_mechanics;
+        std::cout << "\ndt_safe: " << M_dt_save;
+        std::cout << "\nendtime: " << M_endtime;
+        std::cout << "\nmechanicsLoadstepIter: " << M_mechanicsLoadstepIter;
+        std::cout << "\nmechanicsCouplingIter: " << M_mechanicsCouplingIter;
+        std::cout << "\nmaxiter: " << M_maxiter;
+        std::cout << "\npreloadSteps: " << M_preloadSteps;
+        std::cout << "\nsafePreload: " << M_safePreload;
+        
+        std::cout << "\npPerturbationFe: " << M_pPerturbationFe;
+        std::cout << "\npPerturbationCirc: " << M_pPerturbationCirc;
+        std::cout << "\ncouplingError: " << M_couplingError;
+        std::cout << "\ncouplingJFeSubIter: " << M_couplingJFeSubIter;
+        std::cout << "\ncouplingJFeSubStart: " << M_couplingJFeSubStart;
+        std::cout << "\ncouplingJFeIter: " << M_couplingJFeIter;
+        
+        std::cout << "\nelementOrder: " << M_elementOrder;
+        
+        std::cout << "\nHeartData - showMe() --------------------------";
+    }
+    
     const Real& dt_activation () const { return M_dt_activation; }
     const Real& dt_loadstep () const { return M_dt_loadstep; }
     const Real& activationLimit_loadstep () const { return M_activationLimit_loadstep; }
@@ -102,32 +129,6 @@ protected:
         
     }
     
-    void showMe()
-    {
-        std::cout << "\nHeartData - showMe() --------------------------";
-        std::cout << "\ndt_activation: " << M_dt_activation;
-        std::cout << "\ndt_loadstep: " << M_dt_loadstep;
-        std::cout << "\nactivationLimit_loadstep: " << M_activationLimit_loadstep;
-        std::cout << "\ndt_mechanics: " << M_dt_mechanics;
-        std::cout << "\ndt_safe: " << M_dt_save;
-        std::cout << "\nendtime: " << M_endtime;
-        std::cout << "\nmechanicsLoadstepIter: " << M_mechanicsLoadstepIter;
-        std::cout << "\nmechanicsCouplingIter: " << M_mechanicsCouplingIter;
-        std::cout << "\nmaxiter: " << M_maxiter;
-        std::cout << "\npreloadSteps: " << M_preloadSteps;
-        std::cout << "\nsafePreload: " << M_safePreload;
-        
-        std::cout << "\npPerturbationFe: " << M_pPerturbationFe;
-        std::cout << "\npPerturbationCirc: " << M_pPerturbationCirc;
-        std::cout << "\ncouplingError: " << M_couplingError;
-        std::cout << "\ncouplingJFeSubIter: " << M_couplingJFeSubIter;
-        std::cout << "\ncouplingJFeSubStart: " << M_couplingJFeSubStart;
-        std::cout << "\ncouplingJFeIter: " << M_couplingJFeIter;
-        
-        std::cout << "\nelementOrder: " << M_elementOrder;
-
-        std::cout << "\nHeartData - showMe() --------------------------";    
-    }
     
     Real M_dt_activation;
     Real M_dt_loadstep;
