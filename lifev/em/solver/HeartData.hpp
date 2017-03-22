@@ -106,7 +106,7 @@ protected:
     {
         if ( 0 == M_emSolver.comm()->MyPID() )
         {
-            std::cout << "\nHeartData - showMe() --------------------------"
+            std::cout << "\nHeartData - showMe() --------------------------";
             std::cout << "\ndt_activation: " << M_dt_activation;
             std::cout << "\ndt_loadstep: " << M_dt_loadstep;
             std::cout << "\nactivationLimit_loadstep: " << M_activationLimit_loadstep;
@@ -128,8 +128,7 @@ protected:
             
             std::cout << "\nelementOrder: " << M_elementOrder;
 
-            std::cout << "\nHeartData - showMe() --------------------------"
-
+            std::cout << "\nHeartData - showMe() --------------------------";
         }
     }
     
