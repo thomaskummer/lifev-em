@@ -173,7 +173,7 @@ int main (int argc, char** argv)
     HeartSolver<EMSolver<mesh_Type, monodomain_Type> > heartSolver (solver, circulationSolver);
     
     heartSolver.setup(dataFile);
-    heartSolver.data().showMe();
+    if ( 0 == comm->MyPID() ) heartSolver.data().showMe();
     
     
     //============================================//
