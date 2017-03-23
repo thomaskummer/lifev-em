@@ -85,6 +85,9 @@ public:
     const std::string& sheetFileName () const { return M_sheetFileName; }
     const std::string& sheetFieldName () const { return M_sheetFieldName; }
 
+    const std::vector<Real>& scale () const { return M_scale; }
+    const std::vector<Real>& rotate () const { return M_rotate; }
+    const std::vector<Real>& translate () const { return M_translate; }
     
     const GetPot& datafile () const { return M_datafile; }
     
@@ -127,6 +130,9 @@ protected:
         M_fiberFieldName =  M_datafile ( "solid/space_discretization/fiber_fieldname", "fibers");
         M_sheetFieldName =  M_datafile ( "solid/space_discretization/sheet_fieldname", "sheets");
 
+        M_scale = std::vector<Real> (3, M_datafile("solid/space_discretization/mesh_scaling", 1.0));
+        M_rotate = std::vector<Real> { M_datafile("solid/space_discretization/mesh_rotation_0", 0.0) , M_datafile("solid/space_discretization/mesh_rotation_1", 0.0) , M_datafile("solid/space_discretization/mesh_rotation_2", 0.0) };
+        M_translate = std::vector<Real> { M_datafile("solid/space_discretization/mesh_translation_0", 0.0) , M_datafile("solid/space_discretization/mesh_translation_1", 0.0) , M_datafile("solid/space_discretization/mesh_translation_2", 0.0) };
         
         //        const Real dpMax = dataFile ( "solid/coupling/dpMax", 0.1 );
         //
@@ -176,6 +182,10 @@ protected:
     std::string M_fiberFieldName;
     std::string M_sheetFieldName;
 
+    std::vector<Real> M_scale;
+    std::vector<Real> M_rotate;
+    std::vector<Real> M_translate;
+    
     
     GetPot M_datafile;
     

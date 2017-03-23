@@ -490,7 +490,7 @@ int main (int argc, char** argv)
         circulationSolver.exportSolution( circulationOutputFile );
     }
     
-    for (int k (1); k <= heartSolver.data().maxiter(); k++)
+    for (int k (1); k <= heartSolver.data().maxiter(); ++k)
     {
         if ( 0 == comm->MyPID() )
         {

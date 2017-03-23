@@ -61,15 +61,11 @@ public:
     
     void transformMesh()
     {
-        std::vector<Real> scale (3, dataFile("solid/space_discretization/mesh_scaling", 1.0));
-        std::vector<Real> rotate { dataFile("solid/space_discretization/mesh_rotation_0", 0.0) , dataFile("solid/space_discretization/mesh_rotation_1", 0.0) , dataFile("solid/space_discretization/mesh_rotation_2", 0.0) };
-        std::vector<Real> translate { dataFile("solid/space_discretization/mesh_translation_0", 0.0) , dataFile("solid/space_discretization/mesh_translation_1", 0.0) , dataFile("solid/space_discretization/mesh_translation_2", 0.0) };
+        MeshUtility::MeshTransformer transformerFull (* (M_emSolver.fullMeshPtr() ) );
+        MeshUtility::MeshTransformer transformerLocal (* (M_ems$olver.localMeshPtr() ) );
         
-        MeshUtility::MeshTransformer<mesh_Type> transformerFull (* (solver.fullMeshPtr() ) );
-        MeshUtility::MeshTransformer<mesh_Type> transformerLocal (* (solver.localMeshPtr() ) );
-        
-        transformerFull.transformMesh (scale, rotate, translate);
-        transformerLocal.transformMesh (scale, rotate, translate);
+        transformerFull.transformMesh (M_heartData.scale(), M_heartData.rotate(), M_heartData.translate());
+        transformerLocal.transformMesh (M_heartData.scale, M_heartData.rotate(), M_heartData.translate());
     }
     
     void setupAnisotropyFields()
