@@ -142,14 +142,6 @@ int main (int argc, char** argv)
 
     
     //============================================//
-    // Heart solver
-    //============================================//
-    HeartSolver heartSolver (displayer);
-    
-    heartSolver.readData(dataFile);
-
-    
-    //============================================//
     // Read data file and create output folder
     //============================================//
     GetPot command_line (argc, argv);
@@ -157,6 +149,14 @@ int main (int argc, char** argv)
     GetPot dataFile (data_file_name);
     std::string problemFolder = EMUtility::createOutputFolder (command_line, *comm);
 
+    
+    //============================================//
+    // Heart solver
+    //============================================//
+    HeartSolver heartSolver (displayer);
+    
+    heartSolver.readData(dataFile);
+    
     
     //============================================//
     // Electromechanic solver

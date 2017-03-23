@@ -58,7 +58,7 @@ public:
     {
         M_heartData = HeartData();
         M_emSolver = EMSolver<mesh_Type, monodomain_Type> (displayer.comm());
-        M_circulationSolver = Circulation ();
+        M_circulationSolver = Circulation();
     }
     
     virtual ~HeartSolver() {}
