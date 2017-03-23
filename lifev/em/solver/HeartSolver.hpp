@@ -54,7 +54,7 @@ public:
     
     
     HeartSolver(Displayer& displayer) :
-        M_displayer         (displayer)
+        M_displayer (displayer)
     {
         M_heartData = HeartData();
         M_emSolver = EMSolver<mesh_Type, monodomain_Type> (displayer.comm());
@@ -63,7 +63,7 @@ public:
     
     virtual ~HeartSolver() {}
 
-    EmSolver& emSolver()
+    emSolver_type& emSolver()
     {
         return M_emSolver;
     }
