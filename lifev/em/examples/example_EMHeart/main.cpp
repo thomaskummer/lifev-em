@@ -161,7 +161,7 @@ int main (int argc, char** argv)
     //============================================//
     // Electromechanic solver
     //============================================//
-    EMSolver<emSolver_type>& solver = heartSolver.emSolver()
+    emSolver_type& solver = heartSolver.emSolver()
     
     
     //============================================//
