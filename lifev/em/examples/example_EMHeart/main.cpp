@@ -87,7 +87,7 @@ Real potentialMultiplyerFcn (const Real& t, const Real&  X, const Real& Y, const
 int main (int argc, char** argv)
 {
 
-    feenableexcept(FE_INVALID | FE_OVERFLOW);
+    //feenableexcept(FE_INVALID | FE_OVERFLOW);
     
     
     //============================================//
@@ -187,10 +187,7 @@ int main (int argc, char** argv)
     //============================================//
     displayer.leaderPrint ("\nLoading mesh ... ");
 
-    std::string meshName = dataFile("solid/space_discretization/mesh_file", "cube4.mesh");
-    std::string meshPath = dataFile("solid/space_discretization/mesh_dir", "./");
-    
-    solver.loadMesh (meshName, meshPath);
+    heartSolver.loadMesh();
     
     displayer.leaderPrint ("\ndone!");
 
@@ -200,15 +197,7 @@ int main (int argc, char** argv)
     //============================================//
     displayer.leaderPrint ("\nResizing mesh ... ");
 
-    std::vector<Real> scale (3, dataFile("solid/space_discretization/mesh_scaling", 1.0));
-    std::vector<Real> rotate { dataFile("solid/space_discretization/mesh_rotation_0", 0.0) , dataFile("solid/space_discretization/mesh_rotation_1", 0.0) , dataFile("solid/space_discretization/mesh_rotation_2", 0.0) };
-    std::vector<Real> translate { dataFile("solid/space_discretization/mesh_translation_0", 0.0) , dataFile("solid/space_discretization/mesh_translation_1", 0.0) , dataFile("solid/space_discretization/mesh_translation_2", 0.0) };
-    
-    MeshUtility::MeshTransformer<mesh_Type> transformerFull (* (solver.fullMeshPtr() ) );
-    MeshUtility::MeshTransformer<mesh_Type> transformerLocal (* (solver.localMeshPtr() ) );
-    
-    transformerFull.transformMesh (scale, rotate, translate);
-    transformerLocal.transformMesh (scale, rotate, translate);
+    heartSolver.transformMesh();
     
     displayer.leaderPrint ("\ndone!");
     
@@ -228,26 +217,7 @@ int main (int argc, char** argv)
     //============================================//
     displayer.leaderPrint ("\nSetting up anisotropy vectors ... ");
 
-    bool anisotropy = dataFile ( "solid/space_discretization/anisotropic", false );
-
-    if ( anisotropy )
-    {
-        std::string fiberFileName  =  dataFile ( "solid/space_discretization/fiber_name", "FiberDirection");
-        std::string sheetFileName  =  dataFile ( "solid/space_discretization/sheet_name", "SheetsDirection");
-        std::string fiberFieldName =  dataFile ( "solid/space_discretization/fiber_fieldname", "fibers");
-        std::string sheetFieldName =  dataFile ( "solid/space_discretization/sheet_fieldname", "sheets");
-        std::string fiberDir       =  meshPath; //dataFile ( "solid/space_discretization/fiber_dir", "./");
-        std::string sheetDir       =  meshPath; //dataFile ( "solid/space_discretization/sheet_dir", "./");
-        std::string elementOrder   =  dataFile ( "solid/space_discretization/order", "P1");
-
-        solver.setupFiberVector ( fiberFileName, fiberFieldName, fiberDir, elementOrder );
-        solver.setupMechanicalSheetVector ( sheetFileName, sheetFieldName, sheetDir, elementOrder );
-    }
-    else
-    {
-        solver.setupFiberVector (1., 0., 0.);
-        solver.setupSheetVector (0., 1., 0.);
-    }
+    heartSolver.setupAnisotropyFields();
     
     displayer.leaderPrint ("\ndone!");
 

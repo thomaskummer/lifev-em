@@ -77,6 +77,15 @@ public:
     
     const std::string& elementOrder () const { return M_elementOrder; }
     
+    const std::string& meshName () const { return M_meshName; }
+    const std::string& meshPath () const { return M_meshPath; }
+
+    const std::string& fiberFileName () const { return M_fiberFileName; }
+    const std::string& fiberFieldName () const { return M_fiberFieldName; }
+    const std::string& sheetFileName () const { return M_sheetFileName; }
+    const std::string& sheetFieldName () const { return M_sheetFieldName; }
+
+    
     const GetPot& datafile () const { return M_datafile; }
     
 protected:
@@ -110,7 +119,15 @@ protected:
         
         M_elementOrder = M_datafile ( "solid/space_discretization/order", "P2");
         
+        M_meshName = M_datafile("solid/space_discretization/mesh_file", "cube4.mesh");
+        M_meshPath = M_datafile("solid/space_discretization/mesh_dir", "./");
+        
+        M_fiberFileName  =  M_datafile ( "solid/space_discretization/fiber_name", "FiberDirection");
+        M_sheetFileName  =  M_datafile ( "solid/space_discretization/sheet_name", "SheetsDirection");
+        M_fiberFieldName =  M_datafile ( "solid/space_discretization/fiber_fieldname", "fibers");
+        M_sheetFieldName =  M_datafile ( "solid/space_discretization/sheet_fieldname", "sheets");
 
+        
         //        const Real dpMax = dataFile ( "solid/coupling/dpMax", 0.1 );
         //
         //        std::vector<std::vector<std::string> > bcNames { { "lv" , "p" } , { "rv" , "p" } };
@@ -150,6 +167,15 @@ protected:
     UInt M_couplingJFeIter;
     
     std::string M_elementOrder;
+    
+    std::string M_meshName;
+    std::string M_meshPath;
+    
+    std::string M_fiberFileName;
+    std::string M_sheetFileName;
+    std::string M_fiberFieldName;
+    std::string M_sheetFieldName;
+
     
     GetPot M_datafile;
     

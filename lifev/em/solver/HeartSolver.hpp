@@ -54,6 +54,35 @@ public:
         M_heartData.setup(datafile);
     }
     
+    void loadMesh()
+    {
+        M_emSolver.loadMesh ( M_heartData.meshName(), M_heartData.meshPath() );
+    }
+    
+    void transformMesh()
+    {
+        std::vector<Real> scale (3, dataFile("solid/space_discretization/mesh_scaling", 1.0));
+        std::vector<Real> rotate { dataFile("solid/space_discretization/mesh_rotation_0", 0.0) , dataFile("solid/space_discretization/mesh_rotation_1", 0.0) , dataFile("solid/space_discretization/mesh_rotation_2", 0.0) };
+        std::vector<Real> translate { dataFile("solid/space_discretization/mesh_translation_0", 0.0) , dataFile("solid/space_discretization/mesh_translation_1", 0.0) , dataFile("solid/space_discretization/mesh_translation_2", 0.0) };
+        
+        MeshUtility::MeshTransformer<mesh_Type> transformerFull (* (solver.fullMeshPtr() ) );
+        MeshUtility::MeshTransformer<mesh_Type> transformerLocal (* (solver.localMeshPtr() ) );
+        
+        transformerFull.transformMesh (scale, rotate, translate);
+        transformerLocal.transformMesh (scale, rotate, translate);
+    }
+    
+    void setupAnisotropyFields()
+    {
+        std::string fiberDir       =  M_heartData.meshPath();
+        std::string sheetDir       =  M_heartData.meshPath();
+        
+        M_emSolver.structuralOperatorPtr() -> data() -> dataTime() -> setTime(0.0);
+
+        M_emSolver.setupFiberVector ( M_heartData.fiberFileName(), M_heartData.fiberFieldName(), fiberDir, M_heartData.elementOrder() );
+        M_emSolver.setupMechanicalSheetVector ( M_heartData.sheetFileName(), M_heartData.sheetFieldName(), sheetDir, M_heartData.elementOrder() );
+    }
+    
     template <class lambda>
     void preload(const lambda& modifyFeBC, const std::vector<Real>& bcValues)
     {
