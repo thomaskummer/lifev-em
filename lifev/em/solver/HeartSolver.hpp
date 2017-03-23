@@ -54,7 +54,8 @@ public:
     typedef boost::shared_ptr< bcInterface_Type >           bcInterfacePtr_Type;
     
     
-    HeartSolver(EmSolver& emSolver,  Circulation& circulationSolver) :
+    HeartSolver(Displayer& displayer, EmSolver& emSolver,  Circulation& circulationSolver) :
+        M_displayer         (displayer),
         M_emSolver          (emSolver),
         M_circulationSolver (circulationSolver),
         M_heartData         (HeartData())
@@ -93,7 +94,7 @@ public:
         MeshUtility::MeshTransformer<mesh_Type> transformerLocal (* (M_emSolver.localMeshPtr() ) );
         
         transformerFull.transformMesh (M_heartData.scale(), M_heartData.rotate(), M_heartData.translate());
-        transformerLocal.transformMesh (M_heartData.scale, M_heartData.rotate(), M_heartData.translate());
+        transformerLocal.transformMesh (M_heartData.scale(), M_heartData.rotate(), M_heartData.translate());
     }
     
     void setupAnisotropyFields()
@@ -202,6 +203,8 @@ public:
     
 protected:
     
+    Displayer& M_displayer;
+    E
     
     EmSolver& M_emSolver;
     Circulation& M_circulationSolver;

@@ -172,7 +172,7 @@ int main (int argc, char** argv)
     //============================================//
     // Heart solver
     //============================================//
-    HeartSolver<emSolver_type> heartSolver (solver, circulationSolver);
+    HeartSolver<emSolver_type> heartSolver (displayer, solver, circulationSolver);
     
     heartSolver.setup(dataFile);
 
