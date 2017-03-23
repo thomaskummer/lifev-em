@@ -110,6 +110,7 @@ int main (int argc, char** argv)
     typedef boost::shared_ptr<bcVector_Type>                bcVectorPtr_Type;
     
     typedef EMMonodomainSolver<mesh_Type>                   monodomain_Type;
+    typedef EMSolver<mesh_Type, monodomain_Type>            emSolver_type;
 
     typedef FESpace< mesh_Type, MapEpetra >                 solidFESpace_Type;
     typedef boost::shared_ptr<solidFESpace_Type>            solidFESpacePtr_Type;
@@ -122,6 +123,7 @@ int main (int argc, char** argv)
     
     typedef BCHandler                                       bc_Type;
     typedef StructuralOperator< mesh_Type >                 physicalSolver_Type;
+    
     typedef BCInterface3D< bc_Type, physicalSolver_Type >   bcInterface_Type;
     typedef boost::shared_ptr< bcInterface_Type >           bcInterfacePtr_Type;
     
@@ -170,7 +172,7 @@ int main (int argc, char** argv)
     //============================================//
     // Heart solver
     //============================================//
-    HeartSolver<EMSolver<mesh_Type, monodomain_Type> > heartSolver (solver, circulationSolver);
+    HeartSolver<emSolver_type> heartSolver (solver, circulationSolver);
     
     heartSolver.setup(dataFile);
 

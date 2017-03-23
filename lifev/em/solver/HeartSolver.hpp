@@ -36,7 +36,7 @@ public:
     typedef boost::shared_ptr<bcVector_Type>                bcVectorPtr_Type;
     
     typedef EMMonodomainSolver<mesh_Type>                   monodomain_Type;
-    typedef EMSolver<mesh_Type, monodomain_Type>            em_solver;
+    typedef EMSolver<mesh_Type, monodomain_Type>            emSolver_type;
     
     typedef FESpace< mesh_Type, MapEpetra >                 solidFESpace_Type;
     typedef boost::shared_ptr<solidFESpace_Type>            solidFESpacePtr_Type;
@@ -90,7 +90,7 @@ public:
     void transformMesh()
     {
         MeshUtility::MeshTransformer<mesh_Type> transformerFull (* (M_emSolver.fullMeshPtr() ) );
-        MeshUtility::MeshTransformer<mesh_Type> transformerLocal (* (M_ems$olver.localMeshPtr() ) );
+        MeshUtility::MeshTransformer<mesh_Type> transformerLocal (* (M_emSolver.localMeshPtr() ) );
         
         transformerFull.transformMesh (M_heartData.scale(), M_heartData.rotate(), M_heartData.translate());
         transformerLocal.transformMesh (M_heartData.scale, M_heartData.rotate(), M_heartData.translate());
