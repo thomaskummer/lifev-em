@@ -40,7 +40,7 @@ monodomain_xml_file = ParamListE.xml
     [./physics]
     ActivationModel = ActiveStrainRossi14
     CalciumIndex = 3
-    ActiveForceCoefficient = -5.0
+    ActiveForceCoefficient = -5.5
     InverseViscosity = 0.0002
     ChemicalThreshold = 0.21
 
@@ -242,7 +242,7 @@ monodomain_xml_file = ParamListE.xml
     mesh_type           = .mesh
     mesh_dir            = heartVVCoaPatch/
     mesh_file           = heartVVCoaPatch.mesh
-    mesh_scaling        = 1.2
+#    mesh_scaling        = 1.1
 #    mesh_translation_0  = -66
 #    mesh_translation_1  = -72
 #    mesh_translation_2  = -94.5
@@ -250,6 +250,7 @@ monodomain_xml_file = ParamListE.xml
 #    mesh_rotation_1     = 0.0
 #    mesh_rotation_2     = -0.5
     order               = P2
+    anisotropic         = true
     fiber_name          = FiberDirection
     fiber_fieldname     = fibers
     #fiber_dir           = biVentCoarse/
