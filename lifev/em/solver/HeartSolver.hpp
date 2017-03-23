@@ -26,6 +26,34 @@ class HeartSolver {
    
 public:
     
+    typedef RegionMesh<LinearTetra>                         mesh_Type;
+    typedef boost::shared_ptr<mesh_Type>                    meshPtr_Type;
+
+    typedef VectorEpetra                                    vector_Type;
+    typedef boost::shared_ptr<vector_Type>                  vectorPtr_Type;
+    
+    typedef BCVector                                        bcVector_Type;
+    typedef boost::shared_ptr<bcVector_Type>                bcVectorPtr_Type;
+    
+    typedef EMMonodomainSolver<mesh_Type>                   monodomain_Type;
+    typedef EMSolver<mesh_Type, monodomain_Type>            em_solver;
+    
+    typedef FESpace< mesh_Type, MapEpetra >                 solidFESpace_Type;
+    typedef boost::shared_ptr<solidFESpace_Type>            solidFESpacePtr_Type;
+    
+    typedef ETFESpace< mesh_Type, MapEpetra, 3, 3 >         solidETFESpace_Type;
+    typedef boost::shared_ptr<solidETFESpace_Type>          solidETFESpacePtr_Type;
+    
+    typedef StructuralConstitutiveLawData                   constitutiveLaw_Type;
+    typedef boost::shared_ptr<constitutiveLaw_Type>         constitutiveLawPtr_Type;
+    
+    typedef BCHandler                                       bc_Type;
+    typedef StructuralOperator< mesh_Type >                 physicalSolver_Type;
+    
+    typedef BCInterface3D< bc_Type, physicalSolver_Type >   bcInterface_Type;
+    typedef boost::shared_ptr< bcInterface_Type >           bcInterfacePtr_Type;
+    
+    
     HeartSolver(EmSolver& emSolver,  Circulation& circulationSolver) :
         M_emSolver          (emSolver),
         M_circulationSolver (circulationSolver),
@@ -61,8 +89,8 @@ public:
     
     void transformMesh()
     {
-        MeshUtility::MeshTransformer transformerFull (* (M_emSolver.fullMeshPtr() ) );
-        MeshUtility::MeshTransformer transformerLocal (* (M_ems$olver.localMeshPtr() ) );
+        MeshUtility::MeshTransformer<mesh_Type> transformerFull (* (M_emSolver.fullMeshPtr() ) );
+        MeshUtility::MeshTransformer<mesh_Type> transformerLocal (* (M_ems$olver.localMeshPtr() ) );
         
         transformerFull.transformMesh (M_heartData.scale(), M_heartData.rotate(), M_heartData.translate());
         transformerLocal.transformMesh (M_heartData.scale, M_heartData.rotate(), M_heartData.translate());
