@@ -54,13 +54,11 @@ public:
     
     
     HeartSolver(Displayer& displayer) :
-        M_displayer (displayer),
-    M_emSolver ( emSolver_type (displayer.comm()) )
-    {
-        M_heartData = HeartData();
-        
-        M_circulationSolver = Circulation();
-    }
+        M_displayer         (displayer),
+        M_emSolver          (emSolver_type (displayer.comm())),
+        M_heartData         (HeartData()),
+        M_circulationSolver (Circulation())
+    {}
     
     virtual ~HeartSolver() {}
 

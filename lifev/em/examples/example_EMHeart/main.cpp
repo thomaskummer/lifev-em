@@ -172,7 +172,7 @@ int main (int argc, char** argv)
     
     heartSolver.loadCirculation(circulationInputFile);
     
-    Circulation& circulationSolver = heartSolver.circulation()
+    Circulation& circulationSolver = heartSolver.circulation();
     
     // Flow rate between two vertices
     auto Q = [&circulationSolver] (const std::string& N1, const std::string& N2) { return circulationSolver.solution ( std::vector<std::string> {N1, N2} ); };
