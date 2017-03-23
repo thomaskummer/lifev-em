@@ -40,13 +40,22 @@ public:
     
     Circulation(){}
 
-    //Circulation(const Circulation&) = delete;
-
     virtual ~Circulation(){}
     
     Circulation(const std::string& filename) :
         M_time ( 0.0 )
     {
+        // Read Grid and initial conditions
+        readGrid( filename );
+        
+        // Initialize solution vector
+        initialize();
+    }
+    
+    void setup(const std::string& filename)
+    {
+        M_time = 0.0;
+        
         // Read Grid and initial conditions
         readGrid( filename );
         

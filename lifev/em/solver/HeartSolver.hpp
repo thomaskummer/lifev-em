@@ -21,7 +21,6 @@ namespace LifeV
 {
 
     
-template <class EmSolver>
 class HeartSolver {
    
 public:
@@ -54,12 +53,13 @@ public:
     typedef boost::shared_ptr< bcInterface_Type >           bcInterfacePtr_Type;
     
     
-    HeartSolver(Displayer& displayer, EmSolver& emSolver,  Circulation& circulationSolver) :
-        M_displayer         (displayer),
-        M_emSolver          (emSolver),
-        M_circulationSolver (circulationSolver),
-        M_heartData         (HeartData())
-    {}
+    HeartSolver(Displayer& displayer) :
+        M_displayer         (displayer)
+    {
+        M_heartData = HeartData();
+        M_emSolver = EMSolver<mesh_Type, monodomain_Type> (displayer.comm());
+        M_circulationSolver = Circulation ();
+    }
     
     virtual ~HeartSolver() {}
 
@@ -78,7 +78,7 @@ public:
         return M_heartData;
     }
     
-    void setup(const GetPot& datafile)
+    void readData(const GetPot& datafile)
     {
         M_heartData.setup(datafile);
     }
@@ -86,6 +86,11 @@ public:
     void loadMesh()
     {
         M_emSolver.loadMesh ( M_heartData.meshName(), M_heartData.meshPath() );
+    }
+    
+    void loadCirculation(const std::string& circulationFilename)
+    {
+        M_circulationSolver.setup(circulationFilename);
     }
     
     void transformMesh()
@@ -204,10 +209,9 @@ public:
 protected:
     
     Displayer& M_displayer;
-    E
     
-    EmSolver& M_emSolver;
-    Circulation& M_circulationSolver;
+    emSolver_type M_emSolver;
+    Circulation M_circulationSolver;
     
     HeartData M_heartData;
     

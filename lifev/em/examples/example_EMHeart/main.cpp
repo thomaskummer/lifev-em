@@ -142,6 +142,14 @@ int main (int argc, char** argv)
 
     
     //============================================//
+    // Heart solver
+    //============================================//
+    HeartSolver heartSolver (displayer);
+    
+    heartSolver.readData(dataFile);
+
+    
+    //============================================//
     // Read data file and create output folder
     //============================================//
     GetPot command_line (argc, argv);
@@ -153,7 +161,7 @@ int main (int argc, char** argv)
     //============================================//
     // Electromechanic solver
     //============================================//
-    EMSolver<mesh_Type, monodomain_Type> solver(comm);
+    EMSolver<emSolver_type>& solver = heartSolver.emSolver()
     
     
     //============================================//
@@ -162,19 +170,15 @@ int main (int argc, char** argv)
     const std::string circulationInputFile = command_line.follow ("circulation", 2, "-cif", "--cifile");
     const std::string circulationOutputFile = command_line.follow ( (problemFolder + "solution.dat").c_str(), 2, "-cof", "--cofile");
     
-    Circulation circulationSolver( circulationInputFile );
+    heartSolver.loadCirculation(circulationInputFile);
+    
+    Circulation& circulationSolver = heartSolver.circulation()
     
     // Flow rate between two vertices
     auto Q = [&circulationSolver] (const std::string& N1, const std::string& N2) { return circulationSolver.solution ( std::vector<std::string> {N1, N2} ); };
     auto p = [&circulationSolver] (const std::string& N1) { return circulationSolver.solution ( N1 ); };
     
     
-    //============================================//
-    // Heart solver
-    //============================================//
-    HeartSolver<emSolver_type> heartSolver (displayer, solver, circulationSolver);
-    
-    heartSolver.setup(dataFile);
 
     
     //============================================//
