@@ -206,7 +206,7 @@ public:
     
     
     template<class BCVec, class dBCVec>
-    void extrapolate4thOrderAdamBashforth (BCVec& bcValues, Vec& bcValuesPre, dBCVec& ABdplv, dBCVec& ABdprv)
+    void extrapolate4thOrderAdamBashforth (BCVec& bcValues, BCVec& bcValuesPre, dBCVec& ABdplv, dBCVec& ABdprv)
     {
         VectorSmall<4> ABcoef;
         ABcoef (0) = 55/24; ABcoef (1) = -59/24; ABcoef (2) = 37/24; ABcoef (3) = -3/8;
