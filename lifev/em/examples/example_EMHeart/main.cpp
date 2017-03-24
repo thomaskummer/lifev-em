@@ -380,8 +380,7 @@ int main (int argc, char** argv)
     std::vector<double> bcValues { p ( "lv" ) , p ( "rv") };
     std::vector<double> bcValuesPre ( bcValues );
 
-    VectorSmall<4> ABdplv, ABdprv, ABcoef;
-    ABcoef (0) = 55/24; ABcoef (1) = -59/24; ABcoef (2) = 37/24; ABcoef (3) = -3/8;
+    VectorSmall<4> ABdplv, ABdprv;
 
     VectorSmall<2> VCirc, VCircNew, VCircPert, VFe, VFeNew, VFePert, R, dp;
     MatrixSmall<2,2> JFe, JCirc, JR;
@@ -471,6 +470,10 @@ int main (int argc, char** argv)
         circulationSolver.exportSolution( circulationOutputFile );
     }
     
+    LifeChrono chrono;
+    chrono.start();
+
+    
     for (int k (1); k <= heartSolver.data().maxiter(); ++k)
     {
         if ( 0 == comm->MyPID() )
@@ -497,7 +500,7 @@ int main (int argc, char** argv)
         auto minActivationValue ( solver.activationModelPtr() -> fiberActivationPtr() -> minValue() );
         auto mechanicsCouplingIter = heartSolver.data().mechanicsCouplingIter();
         
-        if ( k % heartSolver.data().mechanicsLoadstepIter() == 0 && mechanicsCouplingIter != 0 && minActivationValue < heartSolver.data().activationLimit_loadstep() )
+        if ( k % heartSolver.data().mechanicsLoadstepIter() == 0 && k % mechanicsCouplingIter != 0 && minActivationValue < heartSolver.data().activationLimit_loadstep() )
         {
             if ( 0 == comm->MyPID() )
             {
@@ -543,29 +546,7 @@ int main (int argc, char** argv)
             //============================================//
             // 4th order Adam-Bashforth pressure extrapol.
             //============================================//
-            
-            for ( unsigned int i = ABcoef.size() - 1; i > 0; --i )
-            {
-                ABdplv(i) = ABdplv(i-1);
-                ABdprv(i) = ABdprv(i-1);
-            }
-            
-            ABdplv(0) = bcValues[0] - bcValuesPre[0];
-            ABdprv(0) = bcValues[1] - bcValuesPre[1];
-
-            bcValuesPre = bcValues;
-            
-            bcValues[0] += ABcoef.dot( ABdplv );
-            bcValues[1] += ABcoef.dot( ABdprv );
-            
-            if ( 0 == comm->MyPID() )
-            {
-                std::cout << "\n***************************************************************";
-                std::cout << "\nMinimal activation value = " << minActivationValue;
-                std::cout << "\nLV-Pressure extrapolation from " <<  bcValuesPre[0] << " to " <<  bcValues[0];
-                std::cout << "\nRV-Pressure extrapolation from " <<  bcValuesPre[1] << " to " <<  bcValues[1];
-                std::cout << "\n***************************************************************\n\n";
-            }
+            heartSolver.extrapolate4thOrderAdamBashforth(bcValues, bcValuesPre, ABdplv, ABdprv);
 
             
             //============================================//
@@ -738,7 +719,18 @@ int main (int argc, char** argv)
         //============================================//
         bool save ( std::abs(std::remainder(t, heartSolver.data().dt_save() )) < 0.01 );
         if ( save ) solver.saveSolution(t, restart);
-
+        
+        
+        //============================================//
+        // Time for certain simulation time
+        //============================================//
+        if ( k % heartSolver.data().chronoIter() == 0 )
+        {
+            std::cout << "\n*****************************************************************";
+            std::cout << "\nTime to compute last " << heartSolver.data().dt_chrono() << " ms: " <<  chrono.globalDiff(comm) << " s";
+            std::cout << "\n*****************************************************************\n\n";
+        }
+        
     }
 
     
