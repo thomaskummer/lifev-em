@@ -496,7 +496,7 @@ int main (int argc, char** argv)
         Real meanActivationValue;
         boost::shared_ptr<Real>  meanActivationValuePtr ( new Real );
         *meanActivationValuePtr = meanActivationValue;
-        solver.activationModelPtr() -> fiberActivationPtr() -> meanValue(meanActivationValue) );
+        solver.activationModelPtr() -> fiberActivationPtr() -> meanValue(*meanActivationValue) );
 
         if ( 0 == comm->MyPID() )
         {
