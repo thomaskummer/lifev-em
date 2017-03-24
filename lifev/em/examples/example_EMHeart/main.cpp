@@ -494,7 +494,7 @@ int main (int argc, char** argv)
 
         auto minActivationValue ( solver.activationModelPtr() -> fiberActivationPtr() -> minValue() );
         Real meanActivationValue;
-        solver.activationModelPtr() -> fiberActivationPtr() -> meanValue(meanActivationValue&) );
+        solver.activationModelPtr() -> fiberActivationPtr() -> meanValue(&meanActivationValue) );
 
         if ( 0 == comm->MyPID() )
         {
