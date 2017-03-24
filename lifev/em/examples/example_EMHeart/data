@@ -40,8 +40,8 @@ monodomain_xml_file = ParamListE.xml
     [./physics]
     ActivationModel = ActiveStrainRossi14
     CalciumIndex = 3
-    ActiveForceCoefficient = -5.0
-    InverseViscosity = 0.0003
+    ActiveForceCoefficient = -5.2
+    InverseViscosity = 0.0002
     ChemicalThreshold = 0.21
 
     [../time_discretization]
@@ -243,7 +243,7 @@ monodomain_xml_file = ParamListE.xml
     mesh_type           = .mesh
     mesh_dir            = heartVVCoaPatch/
     mesh_file           = heartVVCoaPatch.mesh
-    mesh_scaling        = 1.25
+    mesh_scaling        = 1.2
 #    mesh_translation_0  = -66
 #    mesh_translation_1  = -72
 #    mesh_translation_2  = -94.5
