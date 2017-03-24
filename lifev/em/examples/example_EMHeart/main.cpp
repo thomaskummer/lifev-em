@@ -493,17 +493,15 @@ int main (int argc, char** argv)
         solver.solveActivation (heartSolver.data().dt_activation());
 
         auto minActivationValue ( solver.activationModelPtr() -> fiberActivationPtr() -> minValue() );
-        Real meanActivationValue;
         boost::shared_ptr<Real>  meanActivationValuePtr ( new Real );
-        *meanActivationValuePtr = meanActivationValue;
-        solver.activationModelPtr() -> fiberActivationPtr() -> meanValue(meanActivationValuePtr);
+        solver.activationModelPtr() -> fiberActivationPtr() -> meanValue(*meanActivationValuePtr);
 
         if ( 0 == comm->MyPID() )
         {
             std::cout << "\n*****************************************************************";
             std::cout << "\nLoad step at time = " << t;
             std::cout << "\nMinimal activation value = " << minActivationValue;
-            std::cout << "\nMean activation value = " << meanActivationValue;
+            std::cout << "\nMean activation value = " << *meanActivationValuePtr;
             std::cout << "\n*****************************************************************\n";
         }
 
