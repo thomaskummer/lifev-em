@@ -493,7 +493,7 @@ int main (int argc, char** argv)
         solver.solveActivation (heartSolver.data().dt_activation());
 
         auto minActivationValue ( solver.activationModelPtr() -> fiberActivationPtr() -> minValue() );
-        auto meanActivationValue ( solver.activationModelPtr() -> fiberActivationPtr() -> meanValue() );
+        solver.activationModelPtr() -> fiberActivationPtr() -> meanValue(auto meanActivationValue) );
 
         if ( 0 == comm->MyPID() )
         {
