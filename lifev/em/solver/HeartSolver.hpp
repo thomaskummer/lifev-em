@@ -225,7 +225,7 @@ public:
         bcValues[0] += ABcoef.dot( ABdplv );
         bcValues[1] += ABcoef.dot( ABdprv );
         
-        if ( 0 == comm->MyPID() )
+        if ( 0 == M_emSolver.comm()->MyPID() )
         {
             std::cout << "\n***************************************************************";
             std::cout << "\nMinimal activation value = " << minActivationValue;
