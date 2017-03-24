@@ -493,9 +493,9 @@ int main (int argc, char** argv)
         solver.solveActivation (heartSolver.data().dt_activation());
 
         auto minActivationValue ( solver.activationModelPtr() -> fiberActivationPtr() -> minValue() );
-        boost::shared_ptr<Real>  meanActivationValuePtr ( new Real );
-        Real* a ( new Real (0) );
-        solver.activationModelPtr() -> fiberActivationPtr() -> meanValue(a);
+        Real meanActivationValue;
+        Real* meanActivationValuePtr ( &meanActivationValue );
+        solver.activationModelPtr() -> fiberActivationPtr() -> meanValue(meanActivationValuePtr);
 
         if ( 0 == comm->MyPID() )
         {
