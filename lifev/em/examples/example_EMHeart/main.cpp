@@ -142,6 +142,12 @@ int main (int argc, char** argv)
 
     
     //============================================//
+    // Create HeartSolver object
+    //============================================//
+    HeartSolver heartSolver (displayer);
+    
+    
+    //============================================//
     // Read data file and create output folder
     //============================================//
     GetPot command_line (argc, argv);
@@ -149,12 +155,6 @@ int main (int argc, char** argv)
     GetPot dataFile (data_file_name);
     std::string problemFolder = EMUtility::createOutputFolder (command_line, *comm);
 
-    
-    //============================================//
-    // Heart solver
-    //============================================//
-    HeartSolver heartSolver (displayer);
-    
     heartSolver.readData(dataFile);
     
     
@@ -179,54 +179,29 @@ int main (int argc, char** argv)
     auto p = [&circulationSolver] (const std::string& N1) { return circulationSolver.solution ( N1 ); };
     
     
-
-    
-    //============================================//
-    // Setup material data
-    //============================================//
-    EMData emdata;
-    emdata.setup (dataFile);
-    
-    
     //============================================//
     // Load mesh
     //============================================//
-    displayer.leaderPrint ("\nLoading mesh ... ");
-
     heartSolver.loadMesh();
     
-    displayer.leaderPrint ("\ndone!");
-
     
     //============================================//
     // Resize mesh
     //============================================//
-    displayer.leaderPrint ("\nResizing mesh ... ");
-
     heartSolver.transformMesh();
-    
-    displayer.leaderPrint ("\ndone!");
     
     
     //============================================//
     // Setup solver (including fe-spaces & b.c.)
     //============================================//
-    displayer.leaderPrint ("\nSetting up EM solver ... ");
-    
     solver.setup (dataFile);
     
-    displayer.leaderPrint ("\ndone!");
-
     
     //============================================//
     // Setup anisotropy vectors
     //============================================//
-    displayer.leaderPrint ("\nSetting up anisotropy vectors ... ");
-
     heartSolver.setupAnisotropyFields();
     
-    displayer.leaderPrint ("\ndone!");
-
     
     //============================================//
     // Initialize electrophysiology

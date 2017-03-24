@@ -13,12 +13,37 @@
 #include <stdio.h>
 #include <lifev/em/solver/EMSolver.hpp>
 #include <lifev/em/solver/circulation/Circulation.hpp>
-
 #include <lifev/em/solver/HeartData.hpp>
 
 
 namespace LifeV
 {
+
+
+//class HeartVentricle
+//{
+//public:
+//    
+//    HeartVentricle(){}
+//    virtual ~HeartVentricle(){}
+//    
+//    
+//protected:                                              //    updateVolumeCirc(){}
+//
+//    computeResidual(){}
+//    
+//    VolumeIntegrator M_volInt;
+//    
+//    Real M_volumeFE;
+//    Real M_volumeCirc;
+//    Real M_pressure;
+//    
+//    Real& M_inFlow;
+//    Real& M_outFlow;
+//    
+//    UInt M_flag;
+//    
+//};
 
     
 class HeartSolver {
@@ -84,7 +109,11 @@ public:
     
     void loadMesh()
     {
+        M_displayer.leaderPrint ("\nLoading mesh ... ");
+        
         M_emSolver.loadMesh ( M_heartData.meshName(), M_heartData.meshPath() );
+        
+        M_displayer.leaderPrint ("\ndone!");
     }
     
     void loadCirculation(const std::string& circulationFilename)
@@ -94,15 +123,21 @@ public:
     
     void transformMesh()
     {
+        M_displayer.leaderPrint ("\nResizing mesh ... ");
+        
         MeshUtility::MeshTransformer<mesh_Type> transformerFull (* (M_emSolver.fullMeshPtr() ) );
         MeshUtility::MeshTransformer<mesh_Type> transformerLocal (* (M_emSolver.localMeshPtr() ) );
         
         transformerFull.transformMesh (M_heartData.scale(), M_heartData.rotate(), M_heartData.translate());
         transformerLocal.transformMesh (M_heartData.scale(), M_heartData.rotate(), M_heartData.translate());
+        
+        M_displayer.leaderPrint ("\ndone!");
     }
     
     void setupAnisotropyFields()
     {
+        M_displayer.leaderPrint ("\nSetting up anisotropy vectors ... ");
+
         std::string fiberDir       =  M_heartData.meshPath();
         std::string sheetDir       =  M_heartData.meshPath();
         
@@ -110,6 +145,8 @@ public:
 
         M_emSolver.setupFiberVector ( M_heartData.fiberFileName(), M_heartData.fiberFieldName(), fiberDir, M_heartData.elementOrder() );
         M_emSolver.setupMechanicalSheetVector ( M_heartData.sheetFileName(), M_heartData.sheetFieldName(), sheetDir, M_heartData.elementOrder() );
+        
+        M_displayer.leaderPrint ("\ndone!");
     }
     
     template <class lambda>

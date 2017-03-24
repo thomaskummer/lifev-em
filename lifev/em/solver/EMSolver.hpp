@@ -537,6 +537,8 @@ template<typename Mesh , typename ElectroSolver>
 void
 EMSolver<Mesh, ElectroSolver>::setup ( GetPot& dataFile )
 {
+    //displayer.leaderPrint ("\nSetting up EM solver ... ");
+
     M_data.setup (dataFile);
     setupElectroSolver ( dataFile );
     if (M_commPtr -> MyPID() == 0)
@@ -547,6 +549,7 @@ EMSolver<Mesh, ElectroSolver>::setup ( GetPot& dataFile )
     setupMechanicalSolver ( dataFile );
     setupActivation ( M_electroSolverPtr -> potentialPtr() ->map() );
 
+    //displayer.leaderPrint ("\ndone!");
 }
 
 

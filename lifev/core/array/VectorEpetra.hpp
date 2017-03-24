@@ -200,7 +200,7 @@ public:
     //! Affectation operator
     /*!
       Put the given scalar in each component of the vector
-      @param scalar Scalar to be used to fill the current vector
+      @param scalar Scalar to be used tmmm                                                                                                            o fill the current vector
      */
     VectorEpetra& operator= ( data_type scalar );
 
