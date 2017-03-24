@@ -492,12 +492,22 @@ int main (int argc, char** argv)
         solver.solveElectrophysiology (stim, t);
         solver.solveActivation (heartSolver.data().dt_activation());
 
-        
+        auto minActivationValue ( solver.activationModelPtr() -> fiberActivationPtr() -> minValue() );
+        auto meanActivationValue ( solver.activationModelPtr() -> fiberActivationPtr() -> meanValue() );
+
+        if ( 0 == comm->MyPID() )
+        {
+            std::cout << "\n*****************************************************************";
+            std::cout << "\nLoad step at time = " << t;
+            std::cout << "\nMinimal activation value = " << minActivationValue;
+            std::cout << "\nMean activation value = " << meanActivationValue;
+            std::cout << "\n*****************************************************************\n";
+        }
+
         //============================================//
         // Load steps mechanics (activation & b.c.)
         //============================================//
 
-        auto minActivationValue ( solver.activationModelPtr() -> fiberActivationPtr() -> minValue() );
         auto mechanicsCouplingIter = heartSolver.data().mechanicsCouplingIter();
         
         if ( k % heartSolver.data().mechanicsLoadstepIter() == 0 && k % mechanicsCouplingIter != 0 && minActivationValue < heartSolver.data().activationLimit_loadstep() )
@@ -506,7 +516,6 @@ int main (int argc, char** argv)
             {
                 std::cout << "\n*****************************************************************";
                 std::cout << "\nLoad step at time = " << t;
-                std::cout << "\nMinimal activation value = " << minActivationValue;
                 std::cout << "\n*****************************************************************\n";
             }
             
