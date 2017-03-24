@@ -50,7 +50,7 @@ class HeartSolver {
    
 public:
     
-    typedef RegionMesh<LinearTetra>                         mesh_Type;
+    typedef RegionMesh<QuadraticTetra>                         mesh_Type;
     typedef boost::shared_ptr<mesh_Type>                    meshPtr_Type;
 
     typedef VectorEpetra                                    vector_Type;
