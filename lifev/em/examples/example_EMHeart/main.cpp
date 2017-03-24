@@ -494,6 +494,8 @@ int main (int argc, char** argv)
 
         auto minActivationValue ( solver.activationModelPtr() -> fiberActivationPtr() -> minValue() );
         Real meanActivationValue;
+        boost::shared_ptr<Real>  meanActivationValuePtr ( new Real );
+        meanActivationValuePtr = meanActivationValue;
         solver.activationModelPtr() -> fiberActivationPtr() -> meanValue(&meanActivationValue) );
 
         if ( 0 == comm->MyPID() )
@@ -737,7 +739,7 @@ int main (int argc, char** argv)
         if ( k % heartSolver.data().chronoIter() == 0 )
         {
             std::cout << "\n*****************************************************************";
-            std::cout << "\nTime to compute last " << heartSolver.data().dt_chrono() << " ms: " <<  chrono.globalDiff(comm) << " s";
+            std::cout << "\nTime to compute last " << heartSolver.data().dt_chrono() << " ms: " <<  chrono.globalDiff(*comm) << " s";
             std::cout << "\n*****************************************************************\n\n";
         }
         
