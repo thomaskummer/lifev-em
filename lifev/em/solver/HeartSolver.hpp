@@ -22,6 +22,7 @@ namespace LifeV
 
 template <class Vec>
 class Extrapolator
+    
 public:
     
     Extrapolator ( Vec& bcValues ) :
@@ -37,17 +38,17 @@ public:
         
         for ( unsigned int i = ABcoef.size() - 1; i > 0; --i )
         {
-            M_ABdplv(i) = ABdplv(i-1);
-            ABdprv(i) = ABdprv(i-1);
+            M_ABdplv(i) = M_ABdplv(i-1);
+            M_ABdprv(i) = M_ABdprv(i-1);
         }
         
-        ABdplv(0) = bcValues[0] - M_bcValuesPre[0];
-        ABdprv(0) = bcValues[1] - M_bcValuesPre[1];
+        M_ABdplv(0) = bcValues[0] - M_bcValuesPre[0];
+        M_ABdprv(0) = bcValues[1] - M_bcValuesPre[1];
         
-        bcValuesPre = bcValues;
+        M_bcValuesPre = bcValues;
         
-        bcValues[0] += ABcoef.dot( ABdplv );
-        bcValues[1] += ABcoef.dot( ABdprv );
+        bcValues[0] += ABcoef.dot( M_ABdplv );
+        bcValues[1] += ABcoef.dot( M_ABdprv );
         
         if ( 0 == M_emSolver.comm()->MyPID() )
         {
@@ -255,7 +256,7 @@ public:
     
     void restart(std::string& restartInput, const GetPot& command_line, Real& t)
     {
-        const std::string restartDir = ""; //command_line.follow (problemFolder.c_str(), 2, "-rd", "--restartDir");
+        const std::string restartDir = "Output/"; //command_line.follow (problemFolder.c_str(), 2, "-rd", "--restartDir");
         
         Real dtExport = 10.;
         
