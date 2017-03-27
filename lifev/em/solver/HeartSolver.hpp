@@ -20,7 +20,6 @@ namespace LifeV
 {
 
 
-template <class Vec>
 class Extrapolator
 {
 public:
@@ -301,6 +300,7 @@ protected:
     
     HeartData M_heartData;
     
+    Extrapolator M_extrapolator;
     
     VectorSmall<2> M_pressure;
     VectorSmall<2> M_volume;
