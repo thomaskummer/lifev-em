@@ -608,7 +608,7 @@ int main (int argc, char** argv)
             std::cout << "\n*****************************************************************";
             std::cout << "\nLoad step at time = " << t;
             std::cout << "\nMinimal activation value = " << minActivationValue;
-            std::cout << "\nMean activation value = " << meanActivationValuePtr;
+            std::cout << "\nMean activation value = " << *meanActivationValuePtr;
             std::cout << "\n*****************************************************************\n";
         }
 
