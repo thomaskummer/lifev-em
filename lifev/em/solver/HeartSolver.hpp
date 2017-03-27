@@ -144,7 +144,7 @@ public:
         return M_heartData;
     }
     
-    const Extrapolator& extrapolator() const
+    const Extrapolator& extrapolator()
     {
         return M_extrapolator;
     }
