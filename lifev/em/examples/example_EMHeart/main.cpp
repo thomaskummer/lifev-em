@@ -555,7 +555,7 @@ int main (int argc, char** argv)
             //============================================//
             // 4th order Adam-Bashforth pressure extrapol.
             //============================================//
-            heartSolver.extrapolate4thOrderAdamBashforth(bcValues, bcValuesPre, ABdplv, ABdprv);
+            heartSolver.extrapolate4thOrderAdamBashforth(bcValues);
 
             
             //============================================//

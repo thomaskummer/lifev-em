@@ -22,15 +22,16 @@ namespace LifeV
 
 template <class Vec>
 class Extrapolator
-    
+{
 public:
     
-    Extrapolator ( Vec& bcValues ) :
+    Extrapolator () :
         M_bcValuesPre   (),
         M_ABdplv        (),
         M_ABdprv        ()
     {}
     
+    template <class Vec>
     void extrapolate4thOrderAdamBashforth ( Vec& bcValues )
     {
         VectorSmall<4> ABcoef;
