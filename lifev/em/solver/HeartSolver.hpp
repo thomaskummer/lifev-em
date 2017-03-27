@@ -49,19 +49,11 @@ public:
         
         bcValues[0] += ABcoef.dot( M_ABdplv );
         bcValues[1] += ABcoef.dot( M_ABdprv );
-        
-        if ( 0 == M_emSolver.comm()->MyPID() )
-        {
-            std::cout << "\n***************************************************************";
-            std::cout << "\nLV-Pressure extrapolation from " <<  bcValuesPre[0] << " to " <<  bcValues[0];
-            std::cout << "\nRV-Pressure extrapolation from " <<  bcValuesPre[1] << " to " <<  bcValues[1];
-            std::cout << "\n***************************************************************\n\n";
-        }
     }
 
 private:
     
-    VectorSmall<2> M_bcValuesPre
+    VectorSmall<2> M_bcValuesPre;
     
     VectorSmall<4> M_ABdplv;
     VectorSmall<4> M_ABdprv;
@@ -131,7 +123,8 @@ public:
         M_displayer         (displayer),
         M_emSolver          (emSolver_type (displayer.comm())),
         M_heartData         (HeartData()),
-        M_circulationSolver (Circulation())
+        M_circulationSolver (Circulation()),
+        M_extrapolator      ()
     {}
     
     virtual ~HeartSolver() {}
@@ -149,6 +142,11 @@ public:
     const HeartData& data() const
     {
         return M_heartData;
+    }
+    
+    const Extrapolator& extrapolator() const
+    {
+        return M_extrapolator;
     }
     
     void readData(const GetPot& datafile)

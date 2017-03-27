@@ -555,8 +555,15 @@ int main (int argc, char** argv)
             //============================================//
             // 4th order Adam-Bashforth pressure extrapol.
             //============================================//
-            heartSolver.extrapolate4thOrderAdamBashforth(bcValues);
+            heartSolver.extrapolator().extrapolate4thOrderAdamBashforth(bcValues);
 
+            if ( 0 == M_emSolver.comm()->MyPID() )
+            {
+                std::cout << "\n***************************************************************";
+                std::cout << "\nLV-Pressure extrapolation from " <<  bcValuesPre[0] << " to " <<  bcValues[0];
+                std::cout << "\nRV-Pressure extrapolation from " <<  bcValuesPre[1] << " to " <<  bcValues[1];
+                std::cout << "\n***************************************************************\n\n";
+            }
             
             //============================================//
             // Solve mechanics
