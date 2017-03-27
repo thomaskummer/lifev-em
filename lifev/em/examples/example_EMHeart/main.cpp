@@ -557,7 +557,7 @@ int main (int argc, char** argv)
             //============================================//
             heartSolver.extrapolator().extrapolate4thOrderAdamBashforth(bcValues);
 
-            if ( 0 == M_emSolver.comm()->MyPID() )
+            if ( 0 == comm->MyPID() )
             {
                 std::cout << "\n***************************************************************";
                 std::cout << "\nLV-Pressure extrapolation from " <<  bcValuesPre[0] << " to " <<  bcValues[0];
