@@ -25,9 +25,9 @@ class Extrapolator
 public:
     
     Extrapolator () :
-        M_bcValuesPre   (VectorSmall<2>),
-        M_ABdplv        (VectorSmall<4>),
-        M_ABdprv        (VectorSmall<4>)
+        M_bcValuesPre   (),
+        M_ABdplv        (),
+        M_ABdprv        ()
     {}
     
     template <class Vec>
