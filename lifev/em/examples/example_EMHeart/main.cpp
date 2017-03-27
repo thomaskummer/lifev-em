@@ -161,8 +161,8 @@ int main (int argc, char** argv)
     //============================================//
     // Electromechanic solver
     //============================================//
-    // emSolver_type& solver = heartSolver.emSolver();
-    emSolver_type solver  (comm);
+    emSolver_type& solver = heartSolver.emSolver();
+    //emSolver_type solver  (comm);
     
     
     //============================================//
