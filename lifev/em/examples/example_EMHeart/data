@@ -264,7 +264,7 @@ monodomain_xml_file = ParamListE.xml
     NonLinearLineSearch = 0
 
     [../solver]
-    solver          = gmres
+    solver          = cg #gmres
     scaling         = none
     output          = all 			# none
     conv            = rhs
