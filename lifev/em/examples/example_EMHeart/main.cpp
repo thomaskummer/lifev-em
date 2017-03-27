@@ -144,7 +144,7 @@ int main (int argc, char** argv)
     //============================================//
     // Create HeartSolver object
     //============================================//
-    //HeartSolver heartSolver (displayer);
+    HeartSolver heartSolver (displayer);
     
     
     //============================================//
