@@ -20,6 +20,54 @@ namespace LifeV
 {
 
 
+template <class Vec>
+class Extrapolator
+public:
+    
+    Extrapolator ( Vec& bcValues ) :
+        M_bcValuesPre   (),
+        M_ABdplv        (),
+        M_ABdprv        ()
+    {}
+    
+    void extrapolate4thOrderAdamBashforth ( Vec& bcValues )
+    {
+        VectorSmall<4> ABcoef;
+        ABcoef (0) = 55/24; ABcoef (1) = -59/24; ABcoef (2) = 37/24; ABcoef (3) = -3/8;
+        
+        for ( unsigned int i = ABcoef.size() - 1; i > 0; --i )
+        {
+            M_ABdplv(i) = ABdplv(i-1);
+            ABdprv(i) = ABdprv(i-1);
+        }
+        
+        ABdplv(0) = bcValues[0] - M_bcValuesPre[0];
+        ABdprv(0) = bcValues[1] - M_bcValuesPre[1];
+        
+        bcValuesPre = bcValues;
+        
+        bcValues[0] += ABcoef.dot( ABdplv );
+        bcValues[1] += ABcoef.dot( ABdprv );
+        
+        if ( 0 == M_emSolver.comm()->MyPID() )
+        {
+            std::cout << "\n***************************************************************";
+            std::cout << "\nLV-Pressure extrapolation from " <<  bcValuesPre[0] << " to " <<  bcValues[0];
+            std::cout << "\nRV-Pressure extrapolation from " <<  bcValuesPre[1] << " to " <<  bcValues[1];
+            std::cout << "\n***************************************************************\n\n";
+        }
+    }
+
+private:
+    
+    VectorSmall<2> M_bcValuesPre
+    
+    VectorSmall<4> M_ABdplv;
+    VectorSmall<4> M_ABdprv;
+    
+};
+
+
 //class HeartVentricle
 //{
 //public:
@@ -202,36 +250,6 @@ public:
             std::cout << "\n*****************************************************************\n";
         }
 
-    }
-    
-    
-    template<class BCVec, class dBCVec>
-    void extrapolate4thOrderAdamBashforth (BCVec& bcValues, BCVec& bcValuesPre, dBCVec& ABdplv, dBCVec& ABdprv)
-    {
-        VectorSmall<4> ABcoef;
-        ABcoef (0) = 55/24; ABcoef (1) = -59/24; ABcoef (2) = 37/24; ABcoef (3) = -3/8;
-
-        for ( unsigned int i = ABcoef.size() - 1; i > 0; --i )
-        {
-            ABdplv(i) = ABdplv(i-1);
-            ABdprv(i) = ABdprv(i-1);
-        }
-        
-        ABdplv(0) = bcValues[0] - bcValuesPre[0];
-        ABdprv(0) = bcValues[1] - bcValuesPre[1];
-        
-        bcValuesPre = bcValues;
-        
-        bcValues[0] += ABcoef.dot( ABdplv );
-        bcValues[1] += ABcoef.dot( ABdprv );
-        
-        if ( 0 == M_emSolver.comm()->MyPID() )
-        {
-            std::cout << "\n***************************************************************";
-            std::cout << "\nLV-Pressure extrapolation from " <<  bcValuesPre[0] << " to " <<  bcValues[0];
-            std::cout << "\nRV-Pressure extrapolation from " <<  bcValuesPre[1] << " to " <<  bcValues[1];
-            std::cout << "\n***************************************************************\n\n";
-        }
     }
     
     
