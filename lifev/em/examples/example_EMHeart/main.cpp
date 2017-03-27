@@ -144,7 +144,7 @@ int main (int argc, char** argv)
     //============================================//
     // Create HeartSolver object
     //============================================//
-    HeartSolver heartSolver (displayer);
+    //HeartSolver heartSolver (displayer);
     
     
     //============================================//
@@ -161,7 +161,8 @@ int main (int argc, char** argv)
     //============================================//
     // Electromechanic solver
     //============================================//
-    emSolver_type& solver = heartSolver.emSolver();
+    // emSolver_type& solver = heartSolver.emSolver();
+    emSolver_type solver  (comm);
     
     
     //============================================//
@@ -170,9 +171,11 @@ int main (int argc, char** argv)
     const std::string circulationInputFile = command_line.follow ("circulation", 2, "-cif", "--cifile");
     const std::string circulationOutputFile = command_line.follow ( (problemFolder + "solution.dat").c_str(), 2, "-cof", "--cofile");
     
-    heartSolver.loadCirculation(circulationInputFile);
-    
-    Circulation& circulationSolver = heartSolver.circulation();
+//    heartSolver.loadCirculation(circulationInputFile);
+//
+//    Circulation& circulationSolver = heartSolver.circulation();
+
+    Circulation circulationSolver( circulationInputFile );
     
     // Flow rate between two vertices
     auto Q = [&circulationSolver] (const std::string& N1, const std::string& N2) { return circulationSolver.solution ( std::vector<std::string> {N1, N2} ); };
@@ -182,14 +185,36 @@ int main (int argc, char** argv)
     //============================================//
     // Load mesh
     //============================================//
-    heartSolver.loadMesh();
+    //heartSolver.loadMesh();
+    displayer.leaderPrint ("\nLoading mesh ... ");
+
+    std::string meshName = dataFile("solid/space_discretization/mesh_file", "cube4.mesh");
+    std::string meshPath = dataFile("solid/space_discretization/mesh_dir", "./");
     
+    solver.loadMesh (meshName, meshPath);
+    
+    displayer.leaderPrint ("\ndone!");
+
     
     //============================================//
     // Resize mesh
     //============================================//
-    heartSolver.transformMesh();
+    displayer.leaderPrint ("\nResizing mesh ... ");
+
+    std::vector<Real> scale (3, dataFile("solid/space_discretization/mesh_scaling", 1.0));
+    std::vector<Real> rotate { dataFile("solid/space_discretization/mesh_rotation_0", 0.0) , dataFile("solid/space_discretization/mesh_rotation_1", 0.0) , dataFile("solid/space_discretization/mesh_rotation_2", 0.0) };
+    std::vector<Real> translate { dataFile("solid/space_discretization/mesh_translation_0", 0.0) , dataFile("solid/space_discretization/mesh_translation_1", 0.0) , dataFile("solid/space_discretization/mesh_translation_2", 0.0) };
     
+    MeshUtility::MeshTransformer<mesh_Type> transformerFull (* (solver.fullMeshPtr() ) );
+    MeshUtility::MeshTransformer<mesh_Type> transformerLocal (* (solver.localMeshPtr() ) );
+    
+    transformerFull.transformMesh (scale, rotate, translate);
+    transformerLocal.transformMesh (scale, rotate, translate);
+    
+    displayer.leaderPrint ("\ndone!");
+    
+    //     heartSolver.transformMesh();
+
     
     //============================================//
     // Setup solver (including fe-spaces & b.c.)
@@ -200,7 +225,34 @@ int main (int argc, char** argv)
     //============================================//
     // Setup anisotropy vectors
     //============================================//
-    heartSolver.setupAnisotropyFields();
+    displayer.leaderPrint ("\nSetting up anisotropy vectors ... ");
+
+    bool anisotropy = dataFile ( "solid/space_discretization/anisotropic", false );
+
+    if ( anisotropy )
+    {
+        std::string fiberFileName  =  dataFile ( "solid/space_discretization/fiber_name", "FiberDirection");
+        std::string sheetFileName  =  dataFile ( "solid/space_discretization/sheet_name", "SheetsDirection");
+        std::string fiberFieldName =  dataFile ( "solid/space_discretization/fiber_fieldname", "fibers");
+        std::string sheetFieldName =  dataFile ( "solid/space_discretization/sheet_fieldname", "sheets");
+        std::string fiberDir       =  meshPath; //dataFile ( "solid/space_discretization/fiber_dir", "./");
+        std::string sheetDir       =  meshPath; //dataFile ( "solid/space_discretization/sheet_dir", "./");
+        std::string elementOrder   =  dataFile ( "solid/space_discretization/order", "P1");
+
+        solver.setupFiberVector ( fiberFileName, fiberFieldName, fiberDir, elementOrder );
+        solver.setupMechanicalSheetVector ( sheetFileName, sheetFieldName, sheetDir, elementOrder );
+    }
+    else
+    {
+        solver.setupFiberVector (1., 0., 0.);
+        solver.setupSheetVector (0., 1., 0.);
+    }
+    
+    displayer.leaderPrint ("\ndone!");
+
+    
+    //     heartSolver.setupAnisotropyFields();
+
     
     
     //============================================//
@@ -432,8 +484,61 @@ int main (int argc, char** argv)
     
     if ( ! restart )
     {
-        heartSolver.preload(modifyFeBC, bcValues);
+        solver.structuralOperatorPtr() -> data() -> dataTime() -> setTime(0.0);
+        
+        const int preloadSteps = dataFile ( "solid/boundary_conditions/numPreloadSteps", 0);
+        
+        auto preloadPressure = [] (std::vector<double> p, const int& step, const int& steps)
+        {
+            for (auto& i : p) {i *= double(step) / double(steps);}
+            return p;
+        };
+        
+        LifeChrono chronoSave;
+        chronoSave.start();
+
+        solver.saveSolution (-1.0);
+        
+        if ( 0 == comm->MyPID() )
+        {
+            std::cout << "\n*****************************************************************";
+            std::cout << "\nData stored in " << chronoSave.diff() << " s";
+            std::cout << "\n*****************************************************************\n";
+        }
+        
+        LifeChrono chronoPreload;
+        chronoPreload.start();
+        
+        for (int i (1); i <= preloadSteps; i++)
+        {
+            if ( 0 == comm->MyPID() )
+            {
+                std::cout << "\n*****************************************************************";
+                std::cout << "\nPreload step: " << i << " / " << preloadSteps;
+                std::cout << "\n*****************************************************************\n";
+            }
+            
+            // Update pressure b.c.
+            modifyFeBC(preloadPressure(bcValues, i, preloadSteps));
+
+            // Solve mechanics
+            solver.bcInterfacePtr() -> updatePhysicalSolverVariables();
+            solver.solveMechanics();
+            //solver.saveSolution (i-1);
+        }
+
+        if ( 0 == comm->MyPID() )
+        {
+            std::cout << "\n*****************************************************************";
+            std::cout << "\nPreload done in: " << chronoPreload.diff();
+            std::cout << "\n*****************************************************************\n";
+        }
+
     }
+    
+    //         heartSolver.preload(modifyFeBC, bcValues);
+
+    
     
     
     //============================================//
@@ -555,8 +660,21 @@ int main (int argc, char** argv)
             //============================================//
             // 4th order Adam-Bashforth pressure extrapol.
             //============================================//
-            heartSolver.extrapolator().extrapolate4thOrderAdamBashforth(bcValues);
+            
+            for ( unsigned int i = ABcoef.size() - 1; i > 0; --i )
+            {
+                ABdplv(i) = ABdplv(i-1);
+                ABdprv(i) = ABdprv(i-1);
+            }
+            
+            ABdplv(0) = bcValues[0] - bcValuesPre[0];
+            ABdprv(0) = bcValues[1] - bcValuesPre[1];
 
+            bcValuesPre = bcValues;
+            
+            bcValues[0] += ABcoef.dot( ABdplv );
+            bcValues[1] += ABcoef.dot( ABdprv );
+            
             if ( 0 == comm->MyPID() )
             {
                 std::cout << "\n***************************************************************";
@@ -564,6 +682,10 @@ int main (int argc, char** argv)
                 std::cout << "\nRV-Pressure extrapolation from " <<  bcValuesPre[1] << " to " <<  bcValues[1];
                 std::cout << "\n***************************************************************\n\n";
             }
+            
+            //             heartSolver.extrapolator().extrapolate4thOrderAdamBashforth(bcValues);
+
+            
             
             //============================================//
             // Solve mechanics
