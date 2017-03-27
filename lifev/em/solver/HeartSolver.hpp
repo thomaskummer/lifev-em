@@ -25,9 +25,9 @@ class Extrapolator
 public:
     
     Extrapolator () :
-        M_bcValuesPre   (),
-        M_ABdplv        (),
-        M_ABdprv        ()
+        M_bcValuesPre   (VectorSmall<2>),
+        M_ABdplv        (VectorSmall<4>),
+        M_ABdprv        (VectorSmall<4>)
     {}
     
     template <class Vec>
@@ -45,7 +45,8 @@ public:
         M_ABdplv(0) = bcValues[0] - M_bcValuesPre[0];
         M_ABdprv(0) = bcValues[1] - M_bcValuesPre[1];
         
-        M_bcValuesPre = bcValues;
+        M_bcValuesPre[0] = bcValues[0];
+        M_bcValuesPre[1] = bcValues[1];
         
         bcValues[0] += ABcoef.dot( M_ABdplv );
         bcValues[1] += ABcoef.dot( M_ABdprv );
@@ -144,7 +145,7 @@ public:
         return M_heartData;
     }
     
-    const Extrapolator& extrapolator()
+    Extrapolator& extrapolator()
     {
         return M_extrapolator;
     }
