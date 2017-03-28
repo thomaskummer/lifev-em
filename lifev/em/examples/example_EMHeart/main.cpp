@@ -242,8 +242,8 @@ int main (int argc, char** argv)
 
     bool anisotropy = dataFile ( "solid/space_discretization/anisotropic", false );
 
-    if ( anisotropy )
-    {
+    //if ( anisotropy )
+    //{
         std::string fiberFileName  =  dataFile ( "solid/space_discretization/fiber_name", "FiberDirection");
         std::string sheetFileName  =  dataFile ( "solid/space_discretization/sheet_name", "SheetsDirection");
         std::string fiberFieldName =  dataFile ( "solid/space_discretization/fiber_fieldname", "fibers");
@@ -254,12 +254,12 @@ int main (int argc, char** argv)
 
         solver.setupFiberVector ( fiberFileName, fiberFieldName, fiberDir, elementOrder );
         solver.setupMechanicalSheetVector ( sheetFileName, sheetFieldName, sheetDir, elementOrder );
-    }
-    else
-    {
-        solver.setupFiberVector (1., 0., 0.);
-        solver.setupSheetVector (0., 1., 0.);
-    }
+    //}
+//    else
+//    {
+//        solver.setupFiberVector (1., 0., 0.);
+//        solver.setupSheetVector (0., 1., 0.);
+//    }
     
     displayer.leaderPrint ("\ndone!");
 
