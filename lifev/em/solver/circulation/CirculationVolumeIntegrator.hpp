@@ -179,7 +179,7 @@ public:
     
     template<class space>
     Real computeBoundaryVolume (const VectorEpetra& disp,
-                                const boost::shared_ptr <space> dETFESpace,
+                                const std::shared_ptr <space> dETFESpace,
                                 int bdFlag) const
     {
         MatrixSmall<3, 3> Id;
