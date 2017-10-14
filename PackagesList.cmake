@@ -76,7 +76,6 @@ SET( LifeV_PACKAGES_AND_DIRS_AND_CLASSIFICATIONS
   Core                  lifev/core                        PS
   ETA                   lifev/eta                         PS
   OneDFSI               lifev/one_d_fsi                   PS
-  BCInterface           lifev/bc_interface                PS
   LevelSet              lifev/level_set                   PS
   Darcy                 lifev/darcy                       PS
   NavierStokes          lifev/navier_stokes               PS
@@ -87,6 +86,7 @@ SET( LifeV_PACKAGES_AND_DIRS_AND_CLASSIFICATIONS
   FSI_blocks            lifev/fsi_blocks                  PS
   Heart                 lifev/heart                       EX
   FSI                   lifev/fsi                         PS
+  BCInterface           lifev/bc_interface                PS
   ZeroDimensional       lifev/zero_dimensional            PS
   Multiscale            lifev/multiscale                  EX
   Dummy                 lifev/dummy                       EX
