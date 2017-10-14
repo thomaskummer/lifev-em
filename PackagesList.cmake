@@ -82,7 +82,7 @@ SET( LifeV_PACKAGES_AND_DIRS_AND_CLASSIFICATIONS
   NavierStokesBlocks    lifev/navier_stokes_blocks        PS
   Structure             lifev/structure                   PS
   Electrophysiology     lifev/electrophysiology           EX
-  FSI_blocks            lifev/fsi_blocks                  PS
+  FSI_blocks            lifev/fsi_blocks                  EX
   FSI                   lifev/fsi                         PS
   Heart                 lifev/heart                       EX
   BCInterface           lifev/bc_interface                PS
