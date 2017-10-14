@@ -4,14 +4,14 @@ SET( solver_mechanics_HEADERS
  solver/mechanics/EMStructuralConstitutiveLawAHO.hpp
  solver/mechanics/EMStructuralConstitutiveLaw.hpp
  solver/mechanics/EMStructuralOperator.hpp
- solver/mechanics/EMMechanicalExpressions.hpp
+# solver/mechanics/EMMechanicalExpressions.hpp
  solver/mechanics/EMElasticityFunctions.hpp
- solver/mechanics/EMETAActiveStrainJacobianAssembler.hpp
- solver/mechanics/EMETAJacobianAssembler.hpp
- solver/mechanics/EMETAJacobianIsotropicAssembler.hpp
- solver/mechanics/EMETAResidualAssembler.hpp
- solver/mechanics/EMETAActiveStrainResidualAssembler.hpp
- solver/mechanics/EMETAResidualIsotropicAssembler.hpp
+# solver/mechanics/EMETAActiveStrainJacobianAssembler.hpp
+# solver/mechanics/EMETAJacobianAssembler.hpp
+# solver/mechanics/EMETAJacobianIsotropicAssembler.hpp
+# solver/mechanics/EMETAResidualAssembler.hpp
+# solver/mechanics/EMETAActiveStrainResidualAssembler.hpp
+# solver/mechanics/EMETAResidualIsotropicAssembler.hpp
  CACHE INTERNAL "")
 
 
