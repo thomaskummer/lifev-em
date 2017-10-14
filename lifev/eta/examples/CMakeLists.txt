@@ -3,9 +3,9 @@ INCLUDE(TribitsAddExecutableAndTest)
 INCLUDE(AddSubdirectories)
 
 ADD_SUBDIRECTORIES(
-  ##generalizedRobin
+  #generalizedRobin
   #laplacian
   #example_biPhasic
   #stokes_repeated_mesh
-  mesh_volume_subdivision
+  #mesh_volume_subdivision
 )
