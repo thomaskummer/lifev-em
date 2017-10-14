@@ -1871,7 +1871,7 @@ void ElectroETAMonodomainSolver<Mesh>::setupExporter (
     std::string prefix ("Variable");
     for (int i = 0; i < M_ionicModelPtr->Size(); i++)
     {
-        variableName = prefix + std::to_string<std::string> (i);
+        variableName = prefix + std::to_string (i);
         exporter.addVariable (ExporterData<mesh_Type>::ScalarField, variableName,
                               M_feSpacePtr, M_globalSolution.at (i), UInt (0) );
     }
