@@ -49,7 +49,7 @@
 
 //#include <lifev/em/util/EMUtility.hpp>
 #include <lifev/electrophysiology/util/HeartUtility.hpp>
-#include <lifev/em/solver/mechanics/materials/MaterialsList.hpp>
+//#include <lifev/em/solver/mechanics/materials/MaterialsList.hpp>
 //#include <lifev/em/solver/mechanics/materials/functions/FunctionsList.hpp>
 
 //#include <lifev/em/solver/mechanics/EMMechanicalExpressions.hpp>
