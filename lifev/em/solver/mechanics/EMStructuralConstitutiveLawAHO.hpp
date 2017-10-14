@@ -1721,10 +1721,10 @@ inline StructuralConstitutiveLaw<MeshType>* createEMMaterial()
 {
     return new EMStructuralConstitutiveLaw<MeshType>();
 }
-namespace
-{
-static bool registerEM = StructuralConstitutiveLaw<LifeV::RegionMesh<LinearTetra> >::StructureMaterialFactory::instance().registerProduct ( "EMMaterial", &createEMMaterial<LifeV::RegionMesh<LinearTetra> > );
-}
+//namespace
+//{
+//static bool registerEM = StructuralConstitutiveLaw<LifeV::RegionMesh<LinearTetra> >::StructureMaterialFactory::instance().registerProduct ( "EMMaterial", &createEMMaterial<LifeV::RegionMesh<LinearTetra> > );
+//}
 
 
 }
