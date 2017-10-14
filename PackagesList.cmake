@@ -78,12 +78,12 @@ SET( LifeV_PACKAGES_AND_DIRS_AND_CLASSIFICATIONS
   OneDFSI               lifev/one_d_fsi                   PS
   LevelSet              lifev/level_set                   PS
   Darcy                 lifev/darcy                       PS
-  NavierStokes          lifev/navier_stokes               EX
-  NavierStokesBlocks    lifev/navier_stokes_blocks        EX
+  NavierStokes          lifev/navier_stokes               PS
+  NavierStokesBlocks    lifev/navier_stokes_blocks        PS
   Structure             lifev/structure                   PS
   Electrophysiology     lifev/electrophysiology           EX
-  FSI_blocks            lifev/fsi_blocks                  EX
-  FSI                   lifev/fsi                         EX
+  FSI_blocks            lifev/fsi_blocks                  PS
+  FSI                   lifev/fsi                         PS
   Heart                 lifev/heart                       EX
   BCInterface           lifev/bc_interface                PS
   EM                    lifev/em                          EX
