@@ -300,7 +300,7 @@ public:
     {
 
         // boost::ref() is needed here because otherwise a copy of the base object is reinstantiated
-        function_Type f = std::bind (&ElectroStimulus::appliedCurrent, boost::ref (stimulus), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
+        function_Type f = std::bind (&ElectroStimulus::appliedCurrent, std::ref (stimulus), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
 
         feSpacePtr -> interpolate (
             static_cast<FESpace<RegionMesh<LinearTetra>, MapEpetra>::function_Type> (f),
