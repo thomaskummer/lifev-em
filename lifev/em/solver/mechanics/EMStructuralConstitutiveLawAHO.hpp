@@ -45,6 +45,7 @@
 //#include <lifev/em/solver/mechanics/EMStructuralConstitutiveLaw.hpp>
 #include <lifev/em/solver/mechanics/materials/EMMaterialType.hpp>
 #include <lifev/em/solver/mechanics/materials/EMPassiveMaterialType.hpp>
+#include <lifev/em/solver/mechanics/materials/EMActiveMaterialType.hpp>
 //#include <lifev/em/solver/mechanics/materials/EMActiveStressMaterial.hpp>
 //#include <lifev/em/solver/mechanics/materials/EMActiveStrainMaterial.hpp>
 
