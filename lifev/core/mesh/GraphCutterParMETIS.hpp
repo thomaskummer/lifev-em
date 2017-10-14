@@ -73,9 +73,9 @@ public:
     //! @name Public Types
     //@{
     typedef Teuchos::ParameterList                 pList_Type;
-    typedef boost::shared_ptr<Epetra_Comm>         commPtr_Type;
+    typedef std::shared_ptr<Epetra_Comm>         commPtr_Type;
     typedef MeshType                               mesh_Type;
-    typedef boost::shared_ptr<mesh_Type>           meshPtr_Type;
+    typedef std::shared_ptr<mesh_Type>           meshPtr_Type;
 
     typedef boost::bimap<UInt, UInt>               biMap_Type;
     typedef biMap_Type::value_type                 biMapValue_Type;
@@ -213,7 +213,7 @@ void GraphCutterParMETIS<MeshType>::setParameters (pList_Type& parameters)
     M_parameters.setParameters (parameters);
 
     M_hierarchical = M_parameters.get<bool> ("hierarchical");
-    M_topology = boost::lexical_cast<Int> (
+    M_topology = stoi (
                      M_parameters.get<std::string> ("topology") );
     M_numParts = M_parameters.get<Int> ("num-parts");
 }
@@ -325,7 +325,7 @@ Int GraphCutterParMETIS<MeshType>::partitionHierarchical()
     {
         const idList_Type& currentVertices = * (tempVertexPartition->at (i) );
         idListPtr_Type subdomainVertexMap (new idList_Type (currentVertices.size() ) );
-        for (Int k = 0; k < currentVertices.size(); ++k)
+        for (size_t k = 0; k < currentVertices.size(); ++k)
         {
             subdomainVertexMap->at (k) = currentVertices[k];
         }

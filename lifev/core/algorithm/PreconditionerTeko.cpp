@@ -41,13 +41,13 @@
 namespace LifeV
 {
 
-PreconditionerTeko::PreconditionerTeko ( const boost::shared_ptr<Epetra_Comm>& comm ) :
+PreconditionerTeko::PreconditionerTeko ( const std::shared_ptr<Epetra_Comm>& comm ) :
     PreconditionerBlock ( comm ), M_prec()
 {
 
 }
 
-PreconditionerTeko::PreconditionerTeko ( PreconditionerTeko& P, const boost::shared_ptr<Epetra_Comm>& comm ) :
+PreconditionerTeko::PreconditionerTeko ( PreconditionerTeko& P, const std::shared_ptr<Epetra_Comm>& comm ) :
     PreconditionerBlock ( P, comm )
 {
 
@@ -165,7 +165,7 @@ PreconditionerTeko::buildPreconditionerTeko ( RCP<Teko::BlockPreconditionerFacto
 
     // Building the block operator from the matrix
     Teuchos::RCP<Teko::Epetra::BlockedEpetraOperator> sA
-        = Teuchos::rcp ( new Teko::Epetra::BlockedEpetraOperator ( vec, Teuchos::rcp ( M_oper ) ) );
+        = Teuchos::rcp ( new Teko::Epetra::BlockedEpetraOperator ( vec, Teuchos::rcp ( M_oper.get() ) ) );
 
     M_prec.reset ( prec );
 

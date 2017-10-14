@@ -41,8 +41,6 @@
 
 #include "ud_functions.hpp"
 
-#define ANEURISM100170
-//#define AORTA
 
 namespace LifeV
 {
@@ -192,7 +190,7 @@ Real uInterpolated (const Real& time, const Real& /*x*/, const Real& /*y*/, cons
 // fct_type getUInterpolated()
 // {
 //     fct_type f;
-//     f = boost::bind(&Cylinder::Private::uInterpolated, this, _1, _2, _3, _4, _5);
+//     f = std::bind(&Cylinder::Private::uInterpolated, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5);
 //     return f;
 // }
 
@@ -531,6 +529,7 @@ Real aortaPhisPress (const Real&  t, const Real& /*x*/, const Real& /*y*/, const
     return 0.;
 }
 
+
 Real f (const Real& /*t*/, const Real& /*x*/, const Real& /*y*/, const Real& /*z*/, const ID& /*i*/)
 {
     return 0.;
@@ -575,6 +574,27 @@ Real outerWallPressure (const Real& t, const Real& /*x*/, const Real& /*y*/, con
 
     return -pressure;
 
+}
+
+Real epsilon (const Real& /*t*/, const Real& /*x*/, const Real& /*y*/, const Real& /*z*/, const ID& i)
+{
+
+    switch (i)
+    {
+        case 0:
+            return 0.0;
+            break;
+        case 1:
+            return 0.0;
+            break;
+        case 2:
+            return 113487.36193;
+            break;
+        default:
+            ERROR_MSG ("This entrie is not allowed: ud_functions.hpp");
+            return 0.;
+            break;
+    }
 }
 
 Real pressureInitial (const Real& /*t*/, const Real& /*x*/, const Real& /*y*/, const Real& /*z*/, const ID& /*i*/)
@@ -641,15 +661,6 @@ Real u2 (const Real& t, const Real& /*x*/, const Real& /*y*/, const Real& /*z*/,
 }
 
 
-Real u2normal (const Real& /*t*/, const Real& /*x*/, const Real& /*y*/, const Real& /*z*/, const ID& /*i*/)
-{
-    //   if (t<=0.003)
-    return -1.3332e4;
-
-    return 0.;
-}
-
-
 // Initial displacement and velocity
 Real d0 (const Real& /*t*/, const Real& /*x*/, const Real& /*y*/, const Real& /*z*/, const ID& i)
 {
@@ -671,26 +682,6 @@ Real d0 (const Real& /*t*/, const Real& /*x*/, const Real& /*y*/, const Real& /*
     }
 }
 
-Real epsilon (const Real& /*t*/, const Real& /*x*/, const Real& /*y*/, const Real& /*z*/, const ID& i)
-{
-
-    switch (i)
-    {
-        case 0:
-            return 0.0;
-            break;
-        case 1:
-            return 0.0;
-            break;
-        case 2:
-            return 113487.36193;
-            break;
-        default:
-            ERROR_MSG ("This entrie is not allowed: ud_functions.hpp");
-            return 0.;
-            break;
-    }
-}
 
 Real w0 (const Real& /*t*/, const Real& /*x*/, const Real& /*y*/, const Real& /*z*/, const ID& i)
 {
@@ -711,11 +702,6 @@ Real w0 (const Real& /*t*/, const Real& /*x*/, const Real& /*y*/, const Real& /*
             return 0.;
             break;
     }
-}
-
-Real fluxFunction (const Real& /*t*/, const Real& /*x*/, const Real& /*y*/, const Real& /*z*/, const ID& /*i*/)
-{
-    return -100;
 }
 
 Real fluxFunctionAneurysm (const Real& t, const Real& /*x*/, const Real& /*y*/, const Real& /*z*/, const ID& /*i*/)
@@ -825,19 +811,234 @@ Real squareSinusoidalFluxFunction (const Real& t, const Real& /*x*/, const Real&
     return - (t < (0.005 / 2) ) * std::sin (2 * M_PI * t / 0.005) * std::sin (2 * M_PI * t / 0.005);
 }
 
-Real benchmarkP (const Real& t, const Real& /*x*/, const Real& /*y*/, const Real& /*z*/, const ID& /*i*/)
+//----------------------------------------------Fibers Directions--------------
+Real Family1 ( const Real& /*t*/, const Real& x, const Real& y, const Real& z, const ID& i)
 {
-    if (t < 0.0025)
+    Real theta =  0.9865; // value for anisotropic characterization taken from Robertson // ( PI / 6.0 );
+    Real thetaChangeOfVariable = std::atan(  y / x );
+
+    if( x < 0 )
     {
-        return -50000 * std::sin (2 * 3.1415 * t / 0.005) * std::sin (2 * 3.1415 * t / 0.005);
+        // This is due to the periodicity of std::atan ( ref. official documentation )
+        Real pi(3.141592653589793);
+        thetaChangeOfVariable += pi;
     }
-    else
+
+    switch (i)
     {
-        return 0;
+        case 0:
+	    // Tube
+            return - std::sin( thetaChangeOfVariable ) * std::cos( theta );
+	    // Cube
+            // return std::sin( theta );
+            break;
+        case 1:
+	    // Tube
+            return   std::cos( thetaChangeOfVariable ) * std::cos( theta );
+	    // Cube
+            // return std::cos( theta );
+            break;
+        case 2:
+	    // Tube
+            return std::sin( theta );
+	    // Cube
+            // return 0.0;
+            break;
+        default:
+            ERROR_MSG ("This entrie is not allowed: ud_functions.hpp");
+            return 0.;
+            break;
     }
 }
 
-Real LifeV::aortaVelIn::S_timestep;
+Real Family2 ( const Real& /*t*/, const Real& x, const Real& y, const Real& z, const ID& i)
+{
+    Real theta = - 0.9865; //( - PI / 6.0 );
+    Real thetaChangeOfVariable = std::atan( y / x );
+
+    if( x < 0 )
+    {
+        // This is due to the periodicity of std::atan ( ref. official documentation )
+        Real pi(3.141592653589793);
+        thetaChangeOfVariable += pi;
+    }
+
+    switch (i)
+    {
+        case 0:
+	    // Tube
+            return - std::sin( thetaChangeOfVariable ) * std::cos( theta );
+	    // Cube
+            // return std::sin( theta );
+            break;
+        case 1:
+	    // Tube
+            return   std::cos( thetaChangeOfVariable ) * std::cos( theta );
+	    // Cube
+            //return std::cos( theta );
+            break;
+        case 2:
+	    // Tube
+            return   std::sin( theta );
+	    // Cube
+	    // return 0.0;
+            break;
+        default:
+            ERROR_MSG ("This entrie is not allowed: ud_functions.hpp");
+            return 0.;
+            break;
+    }
+}
+
+Real Family3 ( const Real& /*t*/, const Real& x, const Real& y, const Real& z, const ID& i)
+{
+
+    switch (i)
+    {
+        case 0:
+            return 0.0;
+            break;
+        case 1:
+            return 0.0;
+            break;
+        case 2:
+            return -1.0;
+            break;
+        default:
+            ERROR_MSG ("This entrie is not allowed: ud_functions.hpp");
+            return 0.;
+            break;
+    }
+}
+
+
+Real Family4 ( const Real& /*t*/, const Real& x, const Real& y, const Real& z, const ID& i)
+{
+
+    switch (i)
+    {
+        case 0:
+            return 0.0;
+            break;
+        case 1:
+            return 0.0;
+            break;
+        case 2:
+            return 0.0;
+            break;
+        default:
+            ERROR_MSG ("This entrie is not allowed: ud_functions.hpp");
+            return 0.;
+            break;
+    }
+}
+
+
+Real Family5 ( const Real& /*t*/, const Real& x, const Real& y, const Real& z, const ID& i)
+{
+
+    switch (i)
+    {
+        case 0:
+            return 0.0;
+            break;
+        case 1:
+            return 0.0;
+            break;
+        case 2:
+            return 0.0;
+            break;
+        default:
+            ERROR_MSG ("This entrie is not allowed: ud_functions.hpp");
+            return 0.;
+            break;
+    }
+}
+
+Real Family6 ( const Real& /*t*/, const Real& x, const Real& y, const Real& z, const ID& i)
+{
+
+    switch (i)
+    {
+        case 0:
+            return 0.0;
+            break;
+        case 1:
+            return 0.0;
+            break;
+        case 2:
+            return 0.0;
+            break;
+        default:
+            ERROR_MSG ("This entrie is not allowed: ud_functions.hpp");
+            return 0.;
+            break;
+    }
+}
+
+// Method for the definition of the fibers
+fibersDirectionList::fibersDirectionList() :
+    M_mapNameDefinition( )
+{}
+
+fibersDirectionList::~fibersDirectionList()
+{}
+
+void fibersDirectionList::setupFiberDefinitions( const UInt nbFamilies )
+{
+    // At the moment the creation of the table of fiber functions is done
+    // manually. There should be a way to make it automatically. Btw, only
+    // the first nbFamilies that are set in the data file are taken into account
+
+    ASSERT( nbFamilies < 6, "At the moment, a maximum number = 6 of families can be used! If you want more \n modifiy the file ud_functions.hpp in the application folder." );
+
+    // Creation of the database of functions
+    fiberFunctionPtr_Type pointerToFunction( new fiberFunction_Type( Family1 ) );
+    M_mapNameDefinition.insert( std::pair<std::string, fiberFunctionPtr_Type>
+                                  ( "Family1", pointerToFunction ) );
+
+    pointerToFunction.reset( new fiberFunction_Type( Family2 ) );
+    M_mapNameDefinition.insert( std::pair<std::string, fiberFunctionPtr_Type>
+                                  ( "Family2", pointerToFunction ) );
+
+    pointerToFunction.reset( new fiberFunction_Type( Family3 ) );
+    M_mapNameDefinition.insert( std::pair<std::string, fiberFunctionPtr_Type>
+                                  ( "Family3", pointerToFunction ) );
+
+    pointerToFunction.reset( new fiberFunction_Type( Family4 ) );
+    M_mapNameDefinition.insert( std::pair<std::string, fiberFunctionPtr_Type>
+                                  ( "Family4", pointerToFunction ) );
+
+    pointerToFunction.reset( new fiberFunction_Type( Family5 ) );
+    M_mapNameDefinition.insert( std::pair<std::string, fiberFunctionPtr_Type>
+                                  ( "Family5", pointerToFunction ) );
+
+    pointerToFunction.reset( new fiberFunction_Type( Family6 ) );
+    M_mapNameDefinition.insert( std::pair<std::string, fiberFunctionPtr_Type>
+                                  ( "Family6", pointerToFunction ) );
+
+
+}
+
+fibersDirectionList::fiberFunctionPtr_Type fibersDirectionList::fiberDefinition( const std::string nameFamily )
+{
+
+    mapNameDefinitionFiberFunction_Type::const_iterator IT;
+
+    IT = M_mapNameDefinition.find ( nameFamily );
+
+    if ( IT != M_mapNameDefinition.end() )
+    {
+        return IT->second;
+    }
+    else
+    {
+        std::cout << " Wrong identification of the fiber function! " << std::endl;
+        fiberFunctionPtr_Type pointerToFunction( new fiberFunction_Type() );
+
+        return pointerToFunction;
+    }
+}
 
 }
 

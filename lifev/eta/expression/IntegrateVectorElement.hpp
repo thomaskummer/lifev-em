@@ -88,9 +88,9 @@ public:
     //@{
 
     //! Full data constructor
-    IntegrateVectorElement (const boost::shared_ptr<MeshType>& mesh,
+    IntegrateVectorElement (const std::shared_ptr<MeshType>& mesh,
                             const QRAdapterType& qrAdapter,
-                            const boost::shared_ptr<TestSpaceType>& testSpace,
+                            const std::shared_ptr<TestSpaceType>& testSpace,
                             const ExpressionType& expression,
                             const UInt offset = 0);
 
@@ -115,7 +115,7 @@ public:
 
     //! Operator wrapping the addTo method (for shared_ptr)
     template <typename VectorType>
-    inline void operator>> (boost::shared_ptr<VectorType> vector)
+    inline void operator>> (std::shared_ptr<VectorType> vector)
     {
         addTo (*vector);
     }
@@ -153,13 +153,13 @@ private:
     //@}
 
     // Pointer on the mesh
-    boost::shared_ptr<MeshType> M_mesh;
+    std::shared_ptr<MeshType> M_mesh;
 
     // Quadrature to be used
     QRAdapterType M_qrAdapter;
 
     // Shared pointer on the Space
-    boost::shared_ptr<TestSpaceType> M_testSpace;
+    std::shared_ptr<TestSpaceType> M_testSpace;
 
     // Tree to compute the values for the assembly
     evaluation_Type M_evaluation;
@@ -187,9 +187,9 @@ private:
 
 template < typename MeshType, typename TestSpaceType, typename ExpressionType, typename QRAdapterType>
 IntegrateVectorElement < MeshType, TestSpaceType, ExpressionType, QRAdapterType>::
-IntegrateVectorElement (const boost::shared_ptr<MeshType>& mesh,
+IntegrateVectorElement (const std::shared_ptr<MeshType>& mesh,
                         const QRAdapterType& qrAdapter,
-                        const boost::shared_ptr<TestSpaceType>& testSpace,
+                        const std::shared_ptr<TestSpaceType>& testSpace,
                         const ExpressionType& expression,
                         const UInt offset)
     :   M_mesh (mesh),
@@ -410,7 +410,7 @@ addTo (VectorType& vec)
                 // Make the assembly
                 for (UInt iQuadPt (0); iQuadPt < nbQuadPt_std; ++iQuadPt)
                 {
-                    for (UInt i (0); i < nbTestDof; ++i)
+                	for (UInt i (0); i < nbTestDof; ++i)
                     {
                         M_elementalVector.element (i + iblock * nbTestDof) +=
                             M_evaluation.value_qi (iQuadPt, i + iblock * nbTestDof)

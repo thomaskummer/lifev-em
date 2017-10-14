@@ -70,7 +70,7 @@ VectorEpetra::VectorEpetra ( const MapEpetra& map,
     M_epetraVector.reset( new vector_type ( *M_epetraMap->map (M_mapType) ) );
 }
 
-VectorEpetra::VectorEpetra ( const boost::shared_ptr<MapEpetra>& map,
+VectorEpetra::VectorEpetra ( const std::shared_ptr<MapEpetra>& map,
                              const MapEpetraType& mapType,
                              const combineMode_Type combineMode ) :
     M_epetraMap   ( map ),
@@ -133,7 +133,7 @@ VectorEpetra::VectorEpetra ( const VectorEpetra& vector, const MapEpetraType& ma
 }
 
 VectorEpetra::VectorEpetra ( const Epetra_MultiVector&          vector,
-                             const boost::shared_ptr<MapEpetra> map,
+                             const std::shared_ptr<MapEpetra> map,
                              const MapEpetraType&               mapType,
                              const combineMode_Type             combineMode ) :
     M_epetraMap   ( map ),
@@ -167,7 +167,7 @@ VectorEpetra::VectorEpetra ( const VectorEpetra& vector, const Int& reduceToProc
 VectorEpetra::data_type&
 VectorEpetra::operator[] ( const UInt row )
 {
-    Int lrow = blockMap().LID ( static_cast<EpetraInt_Type> (row) );
+    Int lrow = blockMap().LID (static_cast<EpetraInt_Type> (row));
 
 #ifdef HAVE_LIFEV_DEBUG
     if ( lrow < 0 )
@@ -183,13 +183,14 @@ VectorEpetra::operator[] ( const UInt row )
 const VectorEpetra::data_type&
 VectorEpetra::operator[] ( const UInt row ) const
 {
-    Int lrow = blockMap().LID ( static_cast<EpetraInt_Type> (row) );
+    Int lrow = blockMap().LID (static_cast<EpetraInt_Type> (row));
 
 #ifdef HAVE_LIFEV_DEBUG
     if ( lrow < 0 )
     {
         std::cout << M_epetraVector->Comm().MyPID() << " " << row << " " << lrow << std::endl;
         ERROR_MSG ( "VectorEpetra::operator () ERROR : !! lrow < 0\n" );
+
     }
 #endif
 
@@ -199,14 +200,14 @@ VectorEpetra::operator[] ( const UInt row ) const
 VectorEpetra::data_type&
 VectorEpetra::operator() ( const UInt row )
 {
-    return operator[] (row);
+    return operator[] (static_cast<EpetraInt_Type> (row));
 }
 
 
 const VectorEpetra::data_type&
 VectorEpetra::operator() ( const UInt row ) const
 {
-    return operator[] (row);
+    return operator[] (static_cast<EpetraInt_Type> (row));
 }
 
 // copies the value of a vector u. If the map is not the same,
@@ -625,13 +626,11 @@ Int VectorEpetra::globalToLocalRowId ( const UInt row ) const
 {
     Int lrow = blockMap().LID ( static_cast<EpetraInt_Type> (row) );
 
-#ifdef HAVE_LIFEV_DEBUG
     if ( lrow < 0 && blockMap().Comm().NumProc() == 1 )
     {
         std::cout << M_epetraVector->Comm().MyPID() << " " << row << " " << lrow << std::endl;
         ERROR_MSG ( "VectorEpetra::globalToLocalRowId ERROR : !! lrow < 0\n" );
     }
-#endif
 
     return lrow;
 }
@@ -1015,7 +1014,7 @@ void VectorEpetra::showMe ( std::ostream& output ) const
     }
 }
 
-void VectorEpetra::apply (const boost::function1<Real, Real>& f)
+void VectorEpetra::apply (const std::function<Real (Real)>& f)
 {
     Int i, j;
     for ( i = 0; i < M_epetraVector->NumVectors(); ++i )
@@ -1141,3 +1140,4 @@ operator* ( const VectorEpetra::data_type& scalar, const VectorEpetra& vector )
 }
 
 }  // end namespace LifeV
+

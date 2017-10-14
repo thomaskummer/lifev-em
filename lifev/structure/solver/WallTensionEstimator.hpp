@@ -87,13 +87,15 @@
 #include <lifev/structure/solver/StructuralConstitutiveLaw.hpp>
 
 //Materials
-#include <lifev/structure/solver/VenantKirchhoffMaterialLinear.hpp>
-#include <lifev/structure/solver/VenantKirchhoffMaterialNonLinear.hpp>
-#include <lifev/structure/solver/ExponentialMaterialNonLinear.hpp>
-#include <lifev/structure/solver/NeoHookeanMaterialNonLinear.hpp>
+#include <lifev/structure/solver/isotropic/VenantKirchhoffMaterialLinear.hpp>
+#include <lifev/structure/solver/isotropic/VenantKirchhoffMaterialNonLinear.hpp>
+#include <lifev/structure/solver/isotropic/ExponentialMaterialNonLinear.hpp>
+#include <lifev/structure/solver/isotropic/NeoHookeanMaterialNonLinear.hpp>
 
-#include <lifev/structure/solver/VenantKirchhoffMaterialNonLinearPenalized.hpp>
-#include <lifev/structure/solver/SecondOrderExponentialMaterialNonLinear.hpp>
+#include <lifev/eta/fem/ETFESpace.hpp>
+
+#include <lifev/structure/solver/isotropic/VenantKirchhoffMaterialNonLinearPenalized.hpp>
+#include <lifev/structure/solver/isotropic/SecondOrderExponentialMaterialNonLinear.hpp>
 
 #include <lifev/em/solver/mechanics/EMStructuralConstitutiveLaw.hpp>
 
@@ -122,34 +124,34 @@ public:
 
     // FE space
     typedef FESpace < Mesh, MapEpetra >                   feSpace_Type;
-    typedef boost::shared_ptr < feSpace_Type >            feSpacePtr_Type;
+    typedef std::shared_ptr < feSpace_Type >            feSpacePtr_Type;
 
     typedef ETFESpace< RegionMesh<LinearTetra>, MapEpetra, 3, 3 > feSpaceET_Type;
-    typedef boost::shared_ptr<feSpaceET_Type>                     feSpaceETPtr_Type;
+    typedef std::shared_ptr<feSpaceET_Type>                     feSpaceETPtr_Type;
 
     // Data classes
     typedef StructuralConstitutiveLawData                 data_Type;
-    typedef typename boost::shared_ptr<data_Type>         dataPtr_Type;
+    typedef typename std::shared_ptr<data_Type>         dataPtr_Type;
     typedef WallTensionEstimatorData                      analysisData_Type;
-    typedef typename boost::shared_ptr<analysisData_Type> analysisDataPtr_Type;
+    typedef typename std::shared_ptr<analysisData_Type> analysisDataPtr_Type;
 
     //Matrices 3x3 and std::vector for the invariants
     typedef Epetra_SerialDenseMatrix                      matrix_Type;
-    typedef boost::shared_ptr<matrix_Type>                matrixPtr_Type;
+    typedef std::shared_ptr<matrix_Type>                matrixPtr_Type;
     typedef std::vector< Real >                           vector_Type;
-    typedef boost::shared_ptr<vector_Type>                vectorPtr_Type;
+    typedef std::shared_ptr<vector_Type>                vectorPtr_Type;
 
     // These two are to handle the vector displacement read from hdf5
     typedef VectorEpetra                                  solutionVect_Type;
-    typedef boost::shared_ptr<VectorEpetra>               solutionVectPtr_Type;
+    typedef std::shared_ptr<VectorEpetra>               solutionVectPtr_Type;
 
     // Displayer and Exporter classes
-    typedef typename boost::shared_ptr<const Displayer>   displayerPtr_Type;
-    typedef typename boost::shared_ptr< Exporter<Mesh> >  exporterPtr_Type;
+    typedef typename std::shared_ptr<const Displayer>   displayerPtr_Type;
+    typedef typename std::shared_ptr< Exporter<Mesh> >  exporterPtr_Type;
 
     // Materials
     typedef EMStructuralConstitutiveLaw<Mesh>               material_Type;
-    typedef boost::shared_ptr<material_Type>              materialPtr_Type;
+    typedef std::shared_ptr<material_Type>              materialPtr_Type;
 
     //@}
 
@@ -657,6 +659,9 @@ WallTensionEstimator<Mesh >::setup ( const dataPtr_Type& dataMaterial,
     //M_material.reset ( material_Type::StructureMaterialFactory::instance().createObject ( M_dataMaterial->solidType() ) );
     M_material = EMMaterial;
     //ElectrophysiologyUtility::importVectorField (M_material -> fiberVectorPtr(),  fileName,  fieldName, M_localMeshPtr, postDir, polynomialDegree );
+    //M_material.reset( new material_Type() );
+    //M_material->setup ( feSpace, feSpaceET, M_FESpace->mapPtr(), M_offset, M_dataMaterial, M_displayer );
+
     //M_material->setup ( M_FESpace, feSpaceET, M_FESpace->mapPtr(), M_offset, M_dataMaterial, M_displayer );
     
 }
@@ -711,9 +716,9 @@ WallTensionEstimator<Mesh >::analyzeTensionsRecoveryDisplacement ( void )
 
     LifeChrono chrono;
 
-    M_displayer->leaderPrint (" \n*********************************\n  ");
-    M_displayer->leaderPrint ("   Performing the analysis recovering the displacement..., ", M_dataMaterial->solidType() );
-    M_displayer->leaderPrint (" \n*********************************\n  ");
+    this->M_displayer->leaderPrint (" \n*********************************\n  ");
+    this->M_displayer->leaderPrint ("   Performing the analysis recovering the displacement..., ");
+    this->M_displayer->leaderPrint (" \n*********************************\n  ");
 
     chrono.start();
 
@@ -828,9 +833,9 @@ WallTensionEstimator<Mesh >::analyzeTensionsRecoveryEigenvalues ( void )
     //Set the new quadrature rule
     M_FESpace->setQuadRule (fakeQuadratureRule);
 
-    M_displayer->leaderPrint (" \n*********************************\n  ");
-    M_displayer->leaderPrint ("   Performing the analysis recovering the tensions..., ", M_dataMaterial->solidType() );
-    M_displayer->leaderPrint (" \n*********************************\n  ");
+    this->M_displayer->leaderPrint (" \n*********************************\n  ");
+    this->M_displayer->leaderPrint ("   Performing the analysis recovering the tensions..., " );
+    this->M_displayer->leaderPrint (" \n*********************************\n  ");
 
     UInt totalDof = M_FESpace->dof().numTotalDof();
     VectorElemental dk_loc (M_FESpace->fe().nbFEDof(), M_FESpace->fieldDim() );
@@ -1085,6 +1090,10 @@ WallTensionEstimator<Mesh >::constructGlobalStressVector ()
 
     //Creating a copy of the FESpace
     feSpace_Type fakeFESpace ( M_FESpace->mesh(), M_FESpace->refFE(), M_FESpace->qr(), M_FESpace->bdQr(), 3, M_FESpace->map().commPtr() );
+
+    this->M_displayer->leaderPrint (" \n*********************************\n  ");
+    this->M_displayer->leaderPrint ("   Performing the analysis recovering the Cauchy stresses..., ");
+    this->M_displayer->leaderPrint (" \n*********************************\n  ");
 
     //Set the new quadrature rule
     fakeFESpace.setQuadRule (fakeQuadratureRule);

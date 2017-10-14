@@ -74,7 +74,7 @@ MultiscaleCommunicatorsManager::splitCommunicator()
     // Preliminaries
     Int myPID = M_comm->MyPID();
     Int numberOfProcesses = M_comm->NumProc();
-    MPI_Comm comm = ( boost::dynamic_pointer_cast< Epetra_MpiComm > ( M_comm ) )->Comm();
+    MPI_Comm comm = ( std::dynamic_pointer_cast< Epetra_MpiComm > ( M_comm ) )->Comm();
 
     // Group initialization
     MPI_Group commGroup;
@@ -113,7 +113,7 @@ MultiscaleCommunicatorsManager::splitCommunicator()
     {
         // Definitions
         bool myComm ( false );
-        Int parallelMembers[M_parallelProcesses[i].size()];
+        Int* parallelMembers = new Int[M_parallelProcesses[i].size()];
 
         // Fill parallel members
         for ( UInt j (0) ; j < M_parallelProcesses[i].size() ; ++j )
@@ -138,6 +138,8 @@ MultiscaleCommunicatorsManager::splitCommunicator()
         {
             M_commContainer[M_parallelModelsID[i]].reset ( new Epetra_MpiComm ( localParallelComm ) );
         }
+
+        delete[] parallelMembers;
     }
 }
 

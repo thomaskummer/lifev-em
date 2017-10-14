@@ -78,15 +78,30 @@ class EvaluationDphiI;
 
 template <UInt dim, UInt FSpaceDim>
 class EvaluationDphiJ;
-
+    
 template <UInt dim, UInt FSpaceDim>
 class EvaluationDivI;
 
 template <UInt dim, UInt FSpaceDim>
 class EvaluationDivJ;
 
+template <UInt dim, UInt FSpaceDim>
+class EvaluationLaplacianI;
+
+template <UInt dim, UInt FSpaceDim>
+class EvaluationLaplacianJ;
+
 template <UInt dim>
 class EvaluationHK;
+
+template <UInt dim>
+class EvaluationDetJacobian;
+
+template <UInt dim>
+class EvaluationMetricTensor;
+
+template <UInt dim>
+class EvaluationMetricVector;
 
 template <UInt dim>
 class EvaluationPosition;
@@ -144,8 +159,28 @@ class ETCurrentFE<spaceDim, 1>
     friend class ExpressionAssembly::EvaluationDphiJ;
 
     //!Friend to allow direct access to the raw data
+    template <UInt dim, UInt FSpaceDim>
+    friend class ExpressionAssembly::EvaluationLaplacianI;
+
+    //!Friend to allow direct access to the raw data
+    template <UInt dim, UInt FSpaceDim>
+    friend class ExpressionAssembly::EvaluationLaplacianJ;
+
+    //!Friend to allow direct access to the raw data
     template <UInt dim>
     friend class ExpressionAssembly::EvaluationHK;
+
+    //!Friend to allow direct access to the raw data
+    template <UInt dim>
+    friend class ExpressionAssembly::EvaluationDetJacobian;
+
+    //!Friend to allow direct access to the raw data
+    template <UInt dim>
+    friend class ExpressionAssembly::EvaluationMetricTensor;
+
+    //!Friend to allow direct access to the raw data
+    template <UInt dim>
+    friend class ExpressionAssembly::EvaluationMetricVector;
 
     //!Friend to allow direct access to the raw data
     template <UInt dim>
@@ -158,6 +193,11 @@ class ETCurrentFE<spaceDim, 1>
 
     //@}
 
+private:
+    
+    // Vector return type for phi
+    typedef VectorSmall< spaceDim > array1D_Return_Type;
+    
 public:
 
     //! @name Static constants
@@ -331,6 +371,20 @@ public:
         return M_dphi[q][i];
     }
 
+    //! Getter for the derivatives of the basis function in the quadrature nodes (current element)
+    /*!
+      @param i The index of the basis function
+      @param q The index of the quadrature node
+      @return The local vector of the basis functions derived w.r. to dxi, in the qth quadrature node.
+     */
+    Real const& laplacian (const UInt& i, const UInt& q) const
+    {
+    	ASSERT ( M_isLaplacianUpdated, "Laplacian of the basis functions have not been updated");
+    	ASSERT ( i < M_nbFEDof, "No basis function with this index");
+    	ASSERT ( q < M_nbQuadPt, "No quadrature point with this index");
+    	return M_laplacian[q][i];
+    }
+
     //! Getter for the identifier of the current element
     /*!
       @return The (global) identifier of the current element.
@@ -347,8 +401,38 @@ public:
     */
     Real diameter() const
     {
-        ASSERT (M_isDiameterUpdated, "Diameter has not been updated");
-        return M_diameter;
+    	ASSERT (M_isDiameterUpdated, "Diameter has not been updated");
+    	return M_diameter;
+    }
+
+    //! Getter for the eterminant of the jacobian of the current element
+    /*!
+      @return The diameter of the current element
+     */
+    Real detJac() const
+    {
+    	ASSERT (M_isWDetUpdated, "Determinant has not been updated");
+    	return M_detJacobian[0];
+    }
+
+    //! Getter for the metricTensor of the current element
+    /*!
+      @return The metric of the current element
+     */
+    MatrixSmall<3,3> metricTensor() const
+    {
+    	ASSERT (M_isMetricUpdated, "Metric has not been updated");
+    	return M_metricTensor;
+    }
+
+    //! Getter for the metricTensor of the current element
+    /*!
+      @return The metric of the current element
+     */
+    VectorSmall<3> metricVector() const
+    {
+    	ASSERT (M_isMetricUpdated, "Metric has not been updated");
+    	return M_metricVector;
     }
 
     //! Getter for the measure of the current element
@@ -357,16 +441,16 @@ public:
     */
     Real measure() const
     {
-        //ASSERT(M_isMeasure, "Measure has not been updated");
+    	//ASSERT(M_isMeasure, "Measure has not been updated");
 
-        return M_measure;
+    	return M_measure;
     }
 
 
     //@}
 
 private:
-
+    
     //Private typedefs for the 1D array
     typedef std::vector< Real > array1D_Type;
 
@@ -376,11 +460,17 @@ private:
     //Private typedefs for the 3D array (array of 2D array)
     typedef std::vector< array2D_Type > array3D_Type;
 
+    //Private typedefs for the 4D array (array of 3D array)
+    typedef std::vector< array3D_Type > array4D_Type;
+
     //Private typedefs for the 1D array of vector
     typedef std::vector< VectorSmall<spaceDim> > array1D_vector_Type;
 
     //Private typedefs for the 2D array of vector
     typedef std::vector< std::vector< VectorSmall<spaceDim> > > array2D_vector_Type;
+    
+    //To contain the second derivatives
+    typedef std::vector< std::vector< MatrixSmall<spaceDim,spaceDim> > > array2D_matrix_Type;
 
     //! @name Private Methods
     //@{
@@ -411,6 +501,9 @@ private:
     //! Update the diameter of the cell
     void updateDiameter();
 
+    //! Update the metric of the cell
+    void updateMetric();
+
     //! Update the measure of the cell
     void updateMeasure();
 
@@ -431,6 +524,12 @@ private:
 
     //! Update Dphi
     void updateDphi (const UInt& iQuadPt);
+    
+    //! Update D2phi
+    void updateD2phi (const UInt& iQuadPt);
+    
+    //! Update Laplacian
+    void updateLaplacian (const UInt& iQuadPt);
 
     //@}
 
@@ -474,6 +573,9 @@ private:
     // Storage for the derivatives of the basis functions
     array3D_Type M_dphiReferenceFE;
 
+    // Storage for the second derivatives of the basis functions
+    array4D_Type M_d2phiReferenceFE;
+
     // Storage for the derivatives of the geometric map
     array3D_Type M_dphiGeometricMap;
 
@@ -498,6 +600,18 @@ private:
     // Storage for the derivative of the basis functions
     array2D_vector_Type M_dphi;
 
+    // Storage for the second derivative of the basis functions
+    array2D_matrix_Type M_d2phi;
+
+    // Storage for the laplacian
+    array2D_Type M_laplacian;
+
+    // Storage metric tensor (works only for 3D)
+    MatrixSmall<3,3> M_metricTensor;
+
+    // Storage metric vector (works only for 3D)
+    VectorSmall<3> M_metricVector;
+
 #ifdef HAVE_LIFEV_DEBUG
     // Debug informations, defined only if the code
     // is compiled in debug mode. These booleans store the
@@ -506,6 +620,7 @@ private:
 
     bool M_isCellNodeUpdated;
     bool M_isDiameterUpdated;
+    bool M_isMetricUpdated;
     bool M_isMeasureUpdated;
     bool M_isQuadNodeUpdated;
     bool M_isJacobianUpdated;
@@ -514,7 +629,8 @@ private:
     bool M_isWDetUpdated;
     bool M_isPhiUpdated;
     bool M_isDphiUpdated;
-
+    bool M_isD2phiUpdated;
+    bool M_isLaplacianUpdated;
 #endif
 
 };
@@ -555,10 +671,13 @@ ETCurrentFE (const ReferenceFE& refFE, const GeometricMap& geoMap, const Quadrat
     M_currentLocalId(),
 
     M_diameter(),
+    M_metricTensor(),
+    M_metricVector(),
     M_measure(),
     M_phi(),
     M_phiMap(),
     M_dphiReferenceFE(),
+    M_d2phiReferenceFE (),
     M_dphiGeometricMap(),
 
     M_cellNode(),
@@ -567,11 +686,14 @@ ETCurrentFE (const ReferenceFE& refFE, const GeometricMap& geoMap, const Quadrat
     M_detJacobian(),
     M_wDet(),
     M_tInverseJacobian(),
-    M_dphi()
+    M_dphi(),
+
+    M_d2phi()
 
 #ifdef HAVE_LIFEV_DEBUG
     , M_isCellNodeUpdated (false),
     M_isDiameterUpdated (false),
+    M_isMetricUpdated (false),
     M_isMeasureUpdated (false),
     M_isQuadNodeUpdated (false),
     M_isJacobianUpdated (false),
@@ -579,7 +701,9 @@ ETCurrentFE (const ReferenceFE& refFE, const GeometricMap& geoMap, const Quadrat
     M_isInverseJacobianUpdated (false),
     M_isWDetUpdated (false),
     M_isPhiUpdated (false),
-    M_isDphiUpdated (false)
+    M_isDphiUpdated (false),
+    M_isD2phiUpdated (false),
+    M_isLaplacianUpdated (false)
 #endif
 
 
@@ -605,10 +729,13 @@ ETCurrentFE (const ReferenceFE& refFE, const GeometricMap& geoMap)
     M_currentLocalId(),
 
     M_diameter(),
+    M_metricTensor(),
+    M_metricVector(),
     M_measure(),
     M_phi(),
     M_phiMap(),
     M_dphiReferenceFE(),
+    M_d2phiReferenceFE (),
     M_dphiGeometricMap(),
 
     M_cellNode(),
@@ -617,11 +744,14 @@ ETCurrentFE (const ReferenceFE& refFE, const GeometricMap& geoMap)
     M_detJacobian(),
     M_wDet(),
     M_tInverseJacobian(),
-    M_dphi()
+    M_dphi(),
+
+    M_d2phi()
 
 #ifdef HAVE_LIFEV_DEBUG
     , M_isCellNodeUpdated (false),
     M_isDiameterUpdated (false),
+    M_isMetricUpdated (false),
     M_isMeasureUpdated (false),
     M_isQuadNodeUpdated (false),
     M_isJacobianUpdated (false),
@@ -629,7 +759,10 @@ ETCurrentFE (const ReferenceFE& refFE, const GeometricMap& geoMap)
     M_isInverseJacobianUpdated (false),
     M_isWDetUpdated (false),
     M_isPhiUpdated (false),
-    M_isDphiUpdated (false)
+    M_isDphiUpdated (false),
+    M_isD2phiUpdated (false),
+    M_isLaplacianUpdated (false)
+
 #endif
 
 {
@@ -652,10 +785,13 @@ ETCurrentFE (const ETCurrentFE<spaceDim, 1>& otherFE)
     M_currentLocalId (otherFE.M_currentLocalId),
 
     M_diameter (otherFE.M_diameter),
+    M_metricTensor (otherFE.M_metricTensor),
+    M_metricVector (otherFE.M_metricVector),
     M_measure (otherFE.M_measure),
     M_phi (otherFE.M_phi),
     M_phiMap (otherFE.M_phiMap),
     M_dphiReferenceFE (otherFE.M_dphiReferenceFE),
+    M_d2phiReferenceFE (otherFE.M_d2phiReferenceFE),
     M_dphiGeometricMap (otherFE.M_dphiGeometricMap),
 
     M_cellNode (otherFE.M_cellNode),
@@ -664,12 +800,15 @@ ETCurrentFE (const ETCurrentFE<spaceDim, 1>& otherFE)
     M_detJacobian (otherFE.M_detJacobian),
     M_wDet (otherFE.M_wDet),
     M_tInverseJacobian (otherFE.M_tInverseJacobian),
-    M_dphi (otherFE.M_dphi)
+    M_dphi (otherFE.M_dphi),
+
+    M_d2phi (otherFE.M_d2phi)
 
 #ifdef HAVE_LIFEV_DEBUG
     //Beware for the comma at the begining of this line!
     , M_isCellNodeUpdated ( otherFE.M_isCellNodeUpdated ),
     M_isDiameterUpdated ( otherFE.M_isDiameterUpdated ),
+    M_isMetricUpdated ( otherFE.M_isMetricUpdated ),
     M_isMeasureUpdated ( otherFE.M_isMeasureUpdated ),
     M_isQuadNodeUpdated ( otherFE.M_isQuadNodeUpdated ),
     M_isJacobianUpdated ( otherFE.M_isJacobianUpdated ),
@@ -677,7 +816,9 @@ ETCurrentFE (const ETCurrentFE<spaceDim, 1>& otherFE)
     M_isInverseJacobianUpdated ( otherFE.M_isInverseJacobianUpdated ),
     M_isWDetUpdated ( otherFE.M_isWDetUpdated ),
     M_isPhiUpdated ( otherFE.M_isPhiUpdated ),
-    M_isDphiUpdated ( otherFE.M_isDphiUpdated )
+    M_isDphiUpdated ( otherFE.M_isDphiUpdated ),
+    M_isD2phiUpdated ( otherFE.M_isD2phiUpdated ),
+    M_isLaplacianUpdated ( otherFE.M_isLaplacianUpdated )
 #endif
 
 {}
@@ -713,6 +854,7 @@ update (const elementType& element, const flag_Type& flag)
     // Reset all the flags to false
     M_isCellNodeUpdated = false;
     M_isDiameterUpdated = false;
+    M_isMetricUpdated = false;
     M_isMeasureUpdated = false;
     M_isQuadNodeUpdated = false;
     M_isJacobianUpdated = false;
@@ -720,6 +862,8 @@ update (const elementType& element, const flag_Type& flag)
     M_isInverseJacobianUpdated = false;
     M_isWDetUpdated = false;
     M_isDphiUpdated = false;
+    M_isD2phiUpdated = false;
+    M_isLaplacianUpdated = false;
 #endif
 
     // update the cell informations if required
@@ -730,6 +874,10 @@ update (const elementType& element, const flag_Type& flag)
     if ( flag & ET_UPDATE_ONLY_DIAMETER )
     {
         updateDiameter();
+    }
+    if ( flag & ET_UPDATE_ONLY_METRIC )
+    {
+    	updateMetric();
     }
 
     // Loop over the quadrature nodes
@@ -759,6 +907,14 @@ update (const elementType& element, const flag_Type& flag)
         if ( flag & ET_UPDATE_ONLY_DPHI )
         {
             updateDphi (i);
+        }
+        if ( flag & ET_UPDATE_ONLY_D2PHI )
+        {
+        	updateD2phi (i);
+        }
+        if ( flag & ET_UPDATE_ONLY_LAPLACIAN )
+        {
+        	updateLaplacian (i);
         }
     }
 
@@ -835,6 +991,34 @@ showMe (std::ostream& out) const
                 out << M_dphi[iQuad][iDof][iCoor] << " ";
             }
             out << std::endl;
+        }
+        out << std::endl;
+    }
+    
+    out << " D2Phi : " << std::endl;
+    for (UInt iQuad (0); iQuad < M_nbQuadPt; ++iQuad)
+    {
+        for (UInt iDof (0); iDof < M_nbFEDof; ++iDof)
+        {
+            for (UInt iCoor (0); iCoor < S_spaceDimension; ++iCoor)
+            {
+                for (UInt jCoor (0); jCoor < S_spaceDimension; ++jCoor)
+                {
+                    out << M_d2phi[iQuad][iDof][iCoor][jCoor] << " ";
+                }
+                out << std::endl;
+            }
+            out << std::endl;
+        }
+        out << std::endl;
+    }
+    
+    out << " Laplacian : " << std::endl;
+    for (UInt iQuad (0); iQuad < M_nbQuadPt; ++iQuad)
+    {
+        for (UInt iDof (0); iDof < M_nbFEDof; ++iDof)
+        {
+            out << M_laplacian[iQuad][iDof] << " ";
         }
         out << std::endl;
     }
@@ -927,6 +1111,44 @@ setupInternalConstants()
             }
         }
     }
+    
+    // DPHI2REFERENCEFE
+    M_d2phiReferenceFE.resize (M_nbQuadPt);
+    for (UInt q (0); q < M_nbQuadPt; ++q)
+    {
+        M_d2phiReferenceFE[q].resize (M_nbFEDof);
+        for (UInt i (0); i < M_nbFEDof; ++i)
+        {
+            M_d2phiReferenceFE[q][i].resize (spaceDim);
+            for (UInt j (0); j < spaceDim; ++j)
+            {
+                M_d2phiReferenceFE[q][i][j].resize (spaceDim);
+                for (UInt k (0); k < spaceDim; ++k)
+                {
+                    M_d2phiReferenceFE[q][i][j][k] = M_referenceFE->d2Phi (i, j, k, M_quadratureRule->quadPointCoor (q) );
+                }
+            }
+        }
+    }
+
+    // D2PHIREFERENCEFE
+    M_d2phiReferenceFE.resize (M_nbQuadPt);
+    for (UInt q (0); q < M_nbQuadPt; ++q)
+    {
+    	M_d2phiReferenceFE[q].resize (M_nbFEDof);
+    	for (UInt i (0); i < M_nbFEDof; ++i)
+    	{
+    		M_d2phiReferenceFE[q][i].resize (spaceDim);
+    		for (UInt j (0); j < spaceDim; ++j)
+    		{
+    			M_d2phiReferenceFE[q][i][j].resize (spaceDim);
+    			for (UInt k (0); k < spaceDim; ++k)
+    			{
+    				M_d2phiReferenceFE[q][i][j][k] = M_referenceFE->d2Phi (i, j, k, M_quadratureRule->quadPointCoor (q) );
+    			}
+    		}
+    	}
+    }
 
     // The second group of values cannot be computed
     // now because it depends on the current element.
@@ -979,6 +1201,22 @@ setupInternalConstants()
     for (UInt i (0); i < M_nbQuadPt; ++i)
     {
         M_dphi[i].resize (M_nbFEDof);
+    }
+    
+    // d2phi
+    M_d2phi.resize (M_nbQuadPt);
+    for (UInt i (0); i < M_nbQuadPt; ++i)
+    {
+    	// we have fieldDim * DoF basis functions
+    	M_d2phi[i].resize ( M_nbFEDof );
+    }
+
+    // laplacian
+    M_laplacian.resize (M_nbQuadPt);
+    for (UInt i (0); i < M_nbQuadPt; ++i)
+    {
+    	// we have fieldDim * DoF basis functions
+    	M_laplacian[i].resize ( M_nbFEDof );
     }
 
 }
@@ -1081,6 +1319,64 @@ updateDphi (const UInt& iQuadPt)
     }
 }
 
+template< UInt spaceDim>
+void ETCurrentFE< spaceDim, 1 >::updateD2phi ( const UInt& iQuadPt )
+{
+    ASSERT ( M_isInverseJacobianUpdated,
+             "Inverse jacobian must be updated to compute the derivative of the basis functions" );
+
+#ifdef HAVE_LIFEV_DEBUG
+    M_isD2phiUpdated = true;
+#endif
+
+    Real partialSum ( 0.0 );
+
+    for ( UInt iDof ( 0 ); iDof < M_nbFEDof; ++iDof )
+    {
+        for ( UInt iCoor ( 0 ); iCoor < S_spaceDimension; ++iCoor )
+        {
+        	for ( UInt jCoor ( 0 ); jCoor < S_spaceDimension; ++jCoor )
+        	{
+        		partialSum = 0.0;
+        		for ( UInt k1 (0); k1 < S_spaceDimension; ++k1 )
+        		{
+        			for ( UInt k2 (0) ; k2 < S_spaceDimension; ++k2 )
+        			{
+        				partialSum += M_tInverseJacobian[iQuadPt][iCoor][k1]
+        				            * M_d2phiReferenceFE[iQuadPt][iDof][k1][k2]
+        				            * M_tInverseJacobian[iQuadPt][jCoor][k2];
+        			}
+        		}
+
+        		M_d2phi[iQuadPt][iDof][iCoor][jCoor] = partialSum;
+        	}
+        }
+    }
+}
+
+template< UInt spaceDim >
+void ETCurrentFE< spaceDim, 1 >::updateLaplacian ( const UInt& iQuadPt )
+{
+    ASSERT ( M_isD2phiUpdated,
+             "Basis function second derivatives must be updated to compute the laplacian" );
+
+#ifdef HAVE_LIFEV_DEBUG
+    M_isLaplacianUpdated = true;
+#endif
+
+    Real partialSum ( 0.0 );
+
+    for ( UInt iDof ( 0 ); iDof < M_nbFEDof; ++iDof )
+    {
+    	partialSum = 0.0;
+    	for ( UInt iCoor ( 0 ); iCoor < S_spaceDimension; ++iCoor )
+    	{
+    		partialSum += M_d2phi[iQuadPt][iDof][iCoor][iCoor];
+    	}
+
+    	M_laplacian[iQuadPt][iDof] = partialSum;
+    }
+}
 
 template< UInt spaceDim>
 template< typename ElementType >
@@ -1153,6 +1449,80 @@ updateDiameter()
     }
 
     M_diameter = std::sqrt (M_diameter);
+}
+
+template< UInt spaceDim>
+void
+ETCurrentFE<spaceDim, 1>::
+updateMetric()
+{
+    ASSERT (M_isCellNodeUpdated, "Cell must be updated to compute the metric");
+
+#ifdef HAVE_LIFEV_DEBUG
+    M_isMetricUpdated = true;
+#endif
+
+    // Coordinates vertices tetrahedron
+
+    Real x1 = M_cellNode[0][0]; Real y1 = M_cellNode[0][1]; Real z1 = M_cellNode[0][2];
+    Real x2 = M_cellNode[1][0]; Real y2 = M_cellNode[1][1]; Real z2 = M_cellNode[1][2];
+    Real x3 = M_cellNode[2][0]; Real y3 = M_cellNode[2][1]; Real z3 = M_cellNode[2][2];
+    Real x4 = M_cellNode[3][0]; Real y4 = M_cellNode[3][1]; Real z4 = M_cellNode[3][2];
+
+    // Jacobian matrix
+
+    Real J11 = x2-x1;
+    Real J12 = x3-x1;
+    Real J13 = x4-x1;
+    Real J21 = y2-y1;
+    Real J22 = y3-y1;
+    Real J23 = y4-y1;
+    Real J31 = z2-z1;
+    Real J32 = z3-z1;
+    Real J33 = z4-z1;
+
+    Real detJ =  (x2-x1)*( (y3-y1) * (z4-z1) - (y4-y1) * (z3-z1) ) - (x3-x1) * ( (y2-y1)*(z4-z1) - (z2-z1)*(y4-y1) ) + (x4-x1) * ( (y2-y1)*(z3-z1) - (z2-z1)*(y3-y1) );
+
+    Real invJ11 = 1.0/detJ*(J22*J33-J32*J23);
+    Real invJ12 = 1.0/detJ*(J13*J32-J33*J12);
+    Real invJ13 = 1.0/detJ*(J12*J23-J22*J13);
+    Real invJ21 = 1.0/detJ*(J23*J31-J33*J21);
+    Real invJ22 = 1.0/detJ*(J11*J33-J31*J13);
+    Real invJ23 = 1.0/detJ*(J13*J21-J23*J11);
+    Real invJ31 = 1.0/detJ*(J21*J32-J31*J22);
+    Real invJ32 = 1.0/detJ*(J12*J31-J32*J11);
+    Real invJ33 = 1.0/detJ*(J11*J22-J21*J12);
+
+    // Initialize to zero the entries of the metric tensor and metric vector
+    for ( int i = 0; i < 3; ++i )
+    {
+    	M_metricVector(i) = 0.0;
+    	for ( int j = 0; j < 3; ++j )
+    	{
+    		M_metricTensor(i,j) = 0.0;
+    	}
+    }
+
+    // Computing metric tensor
+
+    M_metricTensor(0,0) = invJ11*invJ11 + invJ21*invJ21 + invJ31*invJ31;
+    M_metricTensor(0,1) = invJ11*invJ12 + invJ21*invJ22 + invJ31*invJ32;
+    M_metricTensor(0,2) = invJ11*invJ13 + invJ21*invJ23 + invJ31*invJ33;
+
+    M_metricTensor(1,0) = invJ12*invJ11 + invJ22*invJ21 + invJ32*invJ31;
+    M_metricTensor(1,1) = invJ12*invJ12 + invJ22*invJ22 + invJ32*invJ32;
+    M_metricTensor(1,2) = invJ12*invJ13 + invJ22*invJ23 + invJ32*invJ33;
+
+    M_metricTensor(2,0) = invJ13*invJ11 + invJ23*invJ21 + invJ33*invJ31;
+    M_metricTensor(2,1) = invJ13*invJ12 + invJ23*invJ22 + invJ33*invJ32;
+    M_metricTensor(2,2) = invJ13*invJ13 + invJ23*invJ23 + invJ33*invJ33;
+
+    // Computing metric vector
+
+    M_metricVector(0) = invJ11 + invJ21 + invJ31;
+    M_metricVector(1) = invJ12 + invJ22 + invJ32;
+    M_metricVector(2) = invJ13 + invJ23 + invJ33;
+
 }
 
 template< UInt spaceDim>

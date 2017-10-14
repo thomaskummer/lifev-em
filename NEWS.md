@@ -1,3 +1,51 @@
+
+LifeV 4.0.3:
+============
+
+* Better compatibility with c++11
+* right dependence between modules. bc_interface and physical solvers had reverse dependence.
+
+LifeV 4.0.2:
+============
+
+Enabling FSI blocks by default
+
+LifeV 4.0.1:
+============
+
+Introducting c++11, in particular replacing most of the BOOST funcitonalities with new c++11 features
+
+
+LifeV 4.0.0:
+============
+
+The branch developed at CMCS has been merged to master. Some additional feautures include:
+
+* new Navier Stoke solver
+* new FSI solver
+* Rescaled Localized Radial Basis Function Interpolation
+* INTERNODES solver
+* Fast assembler
+* added expressions to ETA
+
+
+LifeV 3.10.0:
+============
+
+Fixed compilation error.
+
+LifeV 3.10.0:
+============
+
+The branch developed at CMCS has been merged to master. Some additional feautures include:
+
+* new expressions in ETA and correction of few others
+* structure module has been extensively developed and tested. Please refer to papers by Paolo Tricerri et al.
+* addition of several structural laws
+* Reconstruction of strains for different consitutive laws. Postprocessing quantities directly with LifeV instead of Paraview when possible
+* inclusion of multimechanism and anysotropy
+
+
 LifeV 3.8.8:
 ============
 

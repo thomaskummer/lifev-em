@@ -100,7 +100,7 @@ public:
 
     //! Constructor from the corresponding expression
     template <typename BaseExpressionType>
-    explicit EvaluationSquareRoot (const ExpressionPower<BaseExpressionType>& expression)
+    explicit EvaluationSquareRoot (const ExpressionSquareRoot<BaseExpressionType>& expression)
         : M_evaluationBase (expression.base() )
     {}
 
@@ -169,13 +169,13 @@ public:
     //! Getter a value
     return_Type value_q (const UInt& q) const
     {
-        return std::sqrt (M_evaluationBase.value_q (q) );
+        return std::sqrt (M_evaluationBase.value_q (q));
     }
 
     //! Getter for the value for a vector
     return_Type value_qi (const UInt& q, const UInt& i) const
     {
-        return std::sqrt (M_evaluationBase.value_qi (q, i) );
+        return std::sqrt (M_evaluationBase.value_qi (q, i));
     }
 
     //! Getter for the value for a matrix

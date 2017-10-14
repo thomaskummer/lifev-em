@@ -87,7 +87,7 @@ public:
 
     //! Copy constructor
     ExpressionSquareRoot (const ExpressionSquareRoot<BaseExpressionType>& expression)
-        : base_Type(), M_l (expression.M_l){}
+        : base_Type(), M_l (expression.M_l) {}
 
     //! Destructor
     ~ExpressionSquareRoot() {}
@@ -101,8 +101,8 @@ public:
     //! Display method
     static void display (std::ostream& out = std::cout)
     {
-        out << "Expression Square Root of: ";
         BaseExpressionType::display (out);
+        out << " ^ ";
     }
 
     //@}
@@ -116,7 +116,6 @@ public:
     {
         return M_l;
     }
-
 
     //@}
 
@@ -161,7 +160,7 @@ template< typename  ExpressionType>
 ExpressionSquareRoot<ExpressionType>
 sqrt (const ExpressionBase<ExpressionType>& l)
 {
-    return ExpressionSquareRoot<ExpressionType> (l.cast() );
+    return ExpressionSquareRoot<ExpressionType> ( l.cast() );
 }
 
 

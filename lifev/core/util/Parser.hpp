@@ -40,6 +40,7 @@
 
 #include <lifev/core/util/LifeDebug.hpp>
 #include <lifev/core/util/ParserSpiritGrammar.hpp>
+//#include "muParser.h"
 
 namespace LifeV
 {
@@ -199,9 +200,11 @@ private:
 
     results_Type        M_results;
 
+    bool                M_evaluate;
+
     calculator_Type     M_calculator;
 
-    bool                M_evaluate;
+    // mu::Parser 			M_parser;
 };
 
 } // Namespace LifeV

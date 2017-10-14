@@ -68,7 +68,7 @@ LinearSolver::LinearSolver() :
 
 }
 
-LinearSolver::LinearSolver ( const boost::shared_ptr<Epetra_Comm> commPtr ) :
+LinearSolver::LinearSolver ( const std::shared_ptr<Epetra_Comm> commPtr ) :
     M_operator             (),
     M_matrix               (),
     M_baseMatrixForPreconditioner(),
@@ -118,7 +118,7 @@ LinearSolver::solve ( vectorPtr_Type solutionPtr )
         }
     }
 
-    if ( M_rhs.get() == 0 || M_operator == 0 )
+    if ( M_rhs.get() == 0 || M_operator == nullptr )
     {
         M_displayer->leaderPrint ( "SLV-  ERROR: LinearSolver failed to set up correctly!\n" );
         return -1;
@@ -418,7 +418,7 @@ LinearSolver::setSolverType ( const SolverType& solverType )
 }
 
 void
-LinearSolver::setCommunicator ( const boost::shared_ptr<Epetra_Comm> commPtr )
+LinearSolver::setCommunicator ( const std::shared_ptr<Epetra_Comm> commPtr )
 {
     M_displayer->setCommunicator ( commPtr );
 }
@@ -561,7 +561,7 @@ LinearSolver::solver()
     return M_solverOperator;
 }
 
-boost::shared_ptr<Displayer>
+std::shared_ptr<Displayer>
 LinearSolver::displayer()
 {
     return M_displayer;

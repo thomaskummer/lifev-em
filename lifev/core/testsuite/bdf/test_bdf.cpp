@@ -50,6 +50,7 @@
 #include <lifev/core/mesh/MeshData.hpp>
 #include <lifev/core/mesh/MeshPartitioner.hpp>
 #include <lifev/core/algorithm/SolverAztecOO.hpp>
+#include <lifev/core/algorithm/LinearSolver.hpp>
 #include <lifev/core/fem/Assembly.hpp>
 #include <lifev/core/fem/AssemblyElemental.hpp>
 #include <lifev/core/fem/BCHandler.hpp>
@@ -57,10 +58,17 @@
 #include <lifev/core/fem/FESpace.hpp>
 #include <lifev/core/fem/TimeAdvanceBDFVariableStep.hpp>
 
+#include <lifev/core/algorithm/PreconditionerIfpack.hpp>
+#include <lifev/core/algorithm/PreconditionerML.hpp>
+
 #include <lifev/core/filter/Exporter.hpp>
 #include <lifev/core/filter/ExporterEmpty.hpp>
 #include <lifev/core/filter/ExporterEnsight.hpp>
 #include <lifev/core/filter/ExporterHDF5.hpp>
+
+#include <Teuchos_ParameterList.hpp>
+#include <Teuchos_XMLParameterListHelpers.hpp>
+#include <Teuchos_RCP.hpp>
 
 #include "ud_functions.hpp"
 #include "test_bdf.hpp"
@@ -90,11 +98,11 @@ struct test_bdf::Private
     {
     }
 
-    typedef boost::function < Real (Real const&, Real const&, Real const&,
+    typedef std::function < Real (Real const&, Real const&, Real const&,
                                     Real const&, ID const&) > fct_type;
 
     std::string data_file_name;
-    boost::shared_ptr<Epetra_Comm> comm;
+    std::shared_ptr<Epetra_Comm> comm;
     Real errorNorm;
 
 };
@@ -106,7 +114,7 @@ test_bdf::test_bdf (int argc, char** argv) :
     Members (new Private)
 {
     GetPot command_line (argc, argv);
-    const string data_file_name =
+    const std::string data_file_name =
         command_line.follow ("data", 2, "-f", "--file");
     GetPot dataFile (data_file_name);
 
@@ -126,7 +134,13 @@ test_bdf::test_bdf (int argc, char** argv) :
 void test_bdf::run()
 {
     //Useful typedef
-    typedef VectorEpetra vector_type;
+	typedef VectorEpetra vector_Type;
+	typedef std::shared_ptr<vector_Type> vectorPtr_Type;
+
+	typedef LifeV::Preconditioner basePrec_Type;
+	typedef std::shared_ptr<basePrec_Type> basePrecPtr_Type;
+	typedef LifeV::PreconditionerIfpack prec_Type;
+	typedef std::shared_ptr<prec_Type> precPtr_Type;
 
     // Reading from data file
     GetPot dataFile (Members->data_file_name.c_str() );
@@ -156,9 +170,9 @@ void test_bdf::run()
     //Mesh stuff
     Members->comm->Barrier();
     MeshData meshData (dataFile, ("bdf/" + discretization_section).c_str() );
-    boost::shared_ptr<regionMesh> fullMeshPtr ( new regionMesh ( Members->comm ) );
+    std::shared_ptr<regionMesh> fullMeshPtr ( new regionMesh ( Members->comm ) );
     readMesh (*fullMeshPtr, meshData);
-    boost::shared_ptr<regionMesh> meshPtr;
+    std::shared_ptr<regionMesh> meshPtr;
     {
         MeshPartitioner<regionMesh> meshPart ( fullMeshPtr, Members->comm );
         meshPtr = meshPart.meshPartition();
@@ -166,7 +180,7 @@ void test_bdf::run()
 
     //=============================================================================
     //finite element space of the solution
-    boost::shared_ptr<FESpace<regionMesh, MapEpetra> > feSpacePtr (
+    std::shared_ptr<FESpace<regionMesh, MapEpetra> > feSpacePtr (
         new FESpace<regionMesh, MapEpetra> (
             meshPtr, dataFile ( ("bdf/" + discretization_section + "/order").c_str(), "P2"), 1, Members->comm) );
 
@@ -181,10 +195,10 @@ void test_bdf::run()
     //Fe Matrices and vectors
     MatrixElemental elmat (feSpacePtr->fe().nbFEDof(), 1, 1); //local matrix
     MatrixEpetra<double> matM (feSpacePtr->map() ); //mass matrix
-    boost::shared_ptr<MatrixEpetra<double> > matA_ptr (
+    std::shared_ptr<MatrixEpetra<double> > matA_ptr (
         new MatrixEpetra<double> (feSpacePtr->map() ) ); //stiff matrix
-    VectorEpetra u (feSpacePtr->map(), Unique); // solution vector
-    VectorEpetra f (feSpacePtr->map(), Unique); // forcing term vector
+    vectorPtr_Type u ( new vector_Type (feSpacePtr->map(), Unique) ); // solution vector
+    vectorPtr_Type f ( new vector_Type (feSpacePtr->map(), Unique) ); // forcing term vector
 
     LifeChrono chrono;
     //Assembling Matrix M
@@ -216,7 +230,7 @@ void test_bdf::run()
     bdf.setup (ord_bdf);
 
     //Initialization
-    bdf.setInitialCondition<Real (*) (Real, Real, Real, Real, UInt), FESpace<regionMesh, MapEpetra> > (AnalyticalSol::u, u, *feSpacePtr, t0, delta_t);
+    bdf.setInitialCondition<Real (*) (Real, Real, Real, Real, UInt), FESpace<regionMesh, MapEpetra> > (AnalyticalSol::u, *u, *feSpacePtr, t0, delta_t);
 
     if (verbose)
     {
@@ -226,7 +240,7 @@ void test_bdf::run()
 
     //===================================================
     // post processing setup
-    boost::shared_ptr<Exporter<regionMesh> > exporter;
+    std::shared_ptr<Exporter<regionMesh> > exporter;
     std::string const exporterType =  dataFile ( "exporter/type", "hdf5");
 
 #ifdef HAVE_HDF5
@@ -250,19 +264,30 @@ void test_bdf::run()
     exporter->setPostDir ( "./" );
     exporter->setMeshProcId ( meshPtr, Members->comm->MyPID() );
 
-    boost::shared_ptr<VectorEpetra> u_display_ptr (new VectorEpetra (
+    std::shared_ptr<VectorEpetra> u_display_ptr (new VectorEpetra (
                                                        feSpacePtr->map(), exporter->mapType() ) );
     exporter->addVariable (ExporterData<regionMesh >::ScalarField, "u", feSpacePtr,
                            u_display_ptr, UInt (0) );
-    *u_display_ptr = u;
+    *u_display_ptr = *u;
     exporter->postProcess (0);
 
 
     //===================================================
     //Definition of the linear solver
-    SolverAztecOO az_A (Members->comm);
-    az_A.setDataFromGetPot (dataFile, "bdf/solver");
-    az_A.setupPreconditioner (dataFile, "bdf/prec");
+    LinearSolver linearSolver;
+
+    Teuchos::RCP< Teuchos::ParameterList > belosList = Teuchos::rcp ( new Teuchos::ParameterList );
+    belosList = Teuchos::getParametersFromXmlFile ( "SolverParamList.xml" );
+
+    linearSolver.setCommunicator ( Members->comm );
+    linearSolver.setParameters ( *belosList );
+
+    prec_Type* precRawPtr;
+    basePrecPtr_Type precPtr;
+    precRawPtr = new prec_Type;
+    precRawPtr->setDataFromGetPot ( dataFile, "bdf/prec" );
+    precPtr.reset ( precRawPtr );
+    linearSolver.setPreconditioner ( precPtr );
 
     //===================================================
     // TIME LOOP
@@ -275,7 +300,7 @@ void test_bdf::run()
         Members->comm->Barrier();
         if (verbose)
         {
-            cout << "Now we are at time " << t << endl;
+            std::cout << "Now we are at time " << t << std::endl;
         }
 
         chrono.start();
@@ -295,50 +320,53 @@ void test_bdf::run()
 
         chrono.stop();
         if (verbose)
+            std::cout << "A has been constructed in " << chrono.diff() << "s." << std::endl;
         {
-            cout << "A has been constructed in " << chrono.diff() << "s." << endl;
         }
 
         // Handling of the right hand side
-        f = (matM * bdf.rhsContribution() );    //f = M*\sum_{i=1}^{orderBdf} \alpha_i u_{n-i}
-        feSpacePtr->l2ScalarProduct (sf, f, t); //f +=\int_\Omega{ volumeForces *v dV}
+        *f = (matM * bdf.rhsContribution() );    //f = M*\sum_{i=1}^{orderBdf} \alpha_i u_{n-i}
+        feSpacePtr->l2ScalarProduct (sf, *f, t); //f +=\int_\Omega{ volumeForces *v dV}
         Members->comm->Barrier();
 
         // Treatment of the Boundary conditions
         if (verbose)
         {
-            cout << "*** BC Management: " << endl;
+            std::cout << "*** BC Management: " << std::endl;
         }
         Real tgv = 1.;
         chrono.start();
-        bcManage (*matA_ptr, f, *feSpacePtr->mesh(), feSpacePtr->dof(), bc, feSpacePtr->feBd(), tgv, t);
+        bcManage (*matA_ptr, *f, *feSpacePtr->mesh(), feSpacePtr->dof(), bc, feSpacePtr->feBd(), tgv, t);
         matA_ptr->globalAssemble();
         chrono.stop();
         if (verbose)
         {
-            cout << chrono.diff() << "s." << endl;
+            std::cout << chrono.diff() << "s." << std::endl;
         }
 
         //Set Up the linear system
         Members->comm->Barrier();
         chrono.start();
-        az_A.setMatrix (*matA_ptr);
-        az_A.setReusePreconditioner (false);
+        linearSolver.setOperator ( matA_ptr );
+        linearSolver.setReusePreconditioner (false);
+        linearSolver.setRightHandSide ( f );
 
         Members->comm->Barrier();
-        az_A.solveSystem (f, u, matA_ptr);
+
+        linearSolver.solve ( u );
+
         chrono.stop();
 
-        bdf.shiftRight (u);
+        bdf.shiftRight (*u);
 
         if (verbose)
-            cout << "*** Solution computed in " << chrono.diff() << "s."
-                 << endl;
+            std::cout << "*** Solution computed in " << chrono.diff() << "s."
+                 << std::endl;
 
         Members->comm->Barrier();
 
         // Error in the L2
-        vector_type uComputed (u, Repeated);
+        vector_Type uComputed (*u, Repeated);
 
         Real L2_Error, L2_RelError;
 
@@ -351,7 +379,7 @@ void test_bdf::run()
         Members->errorNorm = L2_Error;
 
         //transfer the solution at time t.
-        *u_display_ptr = u;
+        *u_display_ptr = *u;
 
         matA_ptr->zero();
 

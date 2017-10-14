@@ -12,12 +12,16 @@
 ### DATA FILE #####################################################################################
 ###################################################################################################
 
+[test]
+    num_parts = 4
+    hdf5_file_name = airfoil_offlinePartitioned.h5
+    io_class = new # old or new
+
 [mesh]
 
 nelements = 19
-zoltan_lb_method = GRAPH # GRAPH or HIER
-zoltan_debug_level = 0
-zoltan_hier_debug_level = 0
+mesh_file  = airfoil.mesh
+mesh_type  = .mesh
 
 [../exporter]
 

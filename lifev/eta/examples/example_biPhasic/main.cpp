@@ -502,9 +502,9 @@ int main ( int argc, char** argv )
 
 #ifdef HAVE_MPI
     MPI_Init (&argc, &argv);
-    boost::shared_ptr<Epetra_Comm> Comm (new Epetra_MpiComm (MPI_COMM_WORLD) );
+    std::shared_ptr<Epetra_Comm> Comm (new Epetra_MpiComm (MPI_COMM_WORLD) );
 #else
-    boost::shared_ptr<Epetra_Comm> Comm (new Epetra_SerialComm);
+    std::shared_ptr<Epetra_Comm> Comm (new Epetra_SerialComm);
 #endif
 
     // a flag to see who's the leader for output purposes
@@ -512,7 +512,7 @@ int main ( int argc, char** argv )
 
     // Open and read the data file
     GetPot command_line (argc, argv);
-    string data_file_name = command_line.follow ("data", 2, "-f", "--file");
+    std::string data_file_name = command_line.follow ("data", 2, "-f", "--file");
     //GetPot dataFile( data_file_name );
     GetPot dataFile ( "data" );
 
@@ -578,7 +578,10 @@ int main ( int argc, char** argv )
     // Load the mesh
     MeshData dataMesh;
     dataMesh.setup (dataFile, "mesh");
-    boost::shared_ptr < mesh_Type > fullMeshPtr (new mesh_Type);
+
+    std::shared_ptr < mesh_Type > fullMeshPtr (new mesh_Type);
+    std::shared_ptr < mesh_Type > localMeshPtr (new mesh_Type);
+
     if (verbose)
     {
         std::cout << "Hello " << exactVolume << std::endl;
@@ -595,12 +598,13 @@ int main ( int argc, char** argv )
     {
         std::cout << " BL factor : " << alphaBL << std::endl;
     }
-    //boost::shared_ptr< MeshTransformer > meshTransformerObject ( new MeshTransfomer(fullMeshPtr) );
+    //std::shared_ptr< MeshTransformer > meshTransformerObject ( new MeshTransfomer(fullMeshPtr) );
     //fullMeshPtr->transformMesh(meshMap);
     fullMeshPtr->meshTransformer().transformMesh (meshMap);
 
     // Partition the mesh
     MeshPartitioner< mesh_Type >   meshPart (fullMeshPtr, Comm);
+    localMeshPtr = meshPart.meshPartition();
 
     // Free the global mesh
     fullMeshPtr.reset();
@@ -617,9 +621,9 @@ int main ( int argc, char** argv )
     std::string pOrder ("P1");
     std::string lsOrder ("P1");
 
-    boost::shared_ptr<FESpace< mesh_Type, MapEpetra > > uFESpace ( new FESpace< mesh_Type, MapEpetra > (meshPart, uOrder, 3, Comm) );
-    boost::shared_ptr<FESpace< mesh_Type, MapEpetra > > pFESpace ( new FESpace< mesh_Type, MapEpetra > (meshPart, pOrder, 1, Comm) );
-    boost::shared_ptr<FESpace< mesh_Type, MapEpetra > > lsFESpace ( new FESpace< mesh_Type, MapEpetra > (meshPart, lsOrder, 1, Comm) );
+    std::shared_ptr<FESpace< mesh_Type, MapEpetra > > uFESpace ( new FESpace< mesh_Type, MapEpetra > (localMeshPtr, uOrder, 3, Comm) );
+    std::shared_ptr<FESpace< mesh_Type, MapEpetra > > pFESpace ( new FESpace< mesh_Type, MapEpetra > (localMeshPtr, pOrder, 1, Comm) );
+    std::shared_ptr<FESpace< mesh_Type, MapEpetra > > lsFESpace ( new FESpace< mesh_Type, MapEpetra > (localMeshPtr, lsOrder, 1, Comm) );
 
     if (verbose)
     {
@@ -645,9 +649,9 @@ int main ( int argc, char** argv )
     }
 
 
-    boost::shared_ptr<ETFESpace< mesh_Type, MapEpetra, 3, 3 > > ETuFESpace ( new ETFESpace< mesh_Type, MapEpetra, 3, 3 > (meshPart, & (uFESpace->refFE() ), Comm) );
-    boost::shared_ptr<ETFESpace< mesh_Type, MapEpetra, 3, 1 > > ETpFESpace ( new ETFESpace< mesh_Type, MapEpetra, 3, 1 > (meshPart, & (pFESpace->refFE() ), Comm) );
-    boost::shared_ptr<ETFESpace< mesh_Type, MapEpetra, 3, 1 > > ETlsFESpace ( new ETFESpace< mesh_Type, MapEpetra, 3, 1 > (meshPart, & (lsFESpace->refFE() ), Comm) );
+    std::shared_ptr<ETFESpace< mesh_Type, MapEpetra, 3, 3 > > ETuFESpace ( new ETFESpace< mesh_Type, MapEpetra, 3, 3 > (meshPart, & (uFESpace->refFE() ), Comm) );
+    std::shared_ptr<ETFESpace< mesh_Type, MapEpetra, 3, 1 > > ETpFESpace ( new ETFESpace< mesh_Type, MapEpetra, 3, 1 > (meshPart, & (pFESpace->refFE() ), Comm) );
+    std::shared_ptr<ETFESpace< mesh_Type, MapEpetra, 3, 1 > > ETlsFESpace ( new ETFESpace< mesh_Type, MapEpetra, 3, 1 > (meshPart, & (lsFESpace->refFE() ), Comm) );
 
 
     if (verbose)
@@ -701,7 +705,6 @@ int main ( int argc, char** argv )
     HJSolver.setDataFromGetPot (dataFile, "solver");
     HJSolver.setupPreconditioner (dataFile, "prec");
 
-
     if (verbose)
     {
         std::cout << " Building the exporter " << std::endl;
@@ -711,8 +714,8 @@ int main ( int argc, char** argv )
     ExporterHDF5<mesh_Type> exporter ( dataFile, meshPart.meshPartition(), "solution", Comm->MyPID() );
     exporter.setMultimesh (false);
 
-    boost::shared_ptr<vector_type> LSExported ( new vector_type (LSSolutionOld, Repeated) );
-    boost::shared_ptr<vector_type> NSExported ( new vector_type (NSSolutionOld, Repeated) );
+    std::shared_ptr<vector_type> LSExported ( new vector_type (LSSolutionOld, Repeated) );
+    std::shared_ptr<vector_type> NSExported ( new vector_type (NSSolutionOld, Repeated) );
 
     const UInt PressureOffset ( 3 * uFESpace->dof().numTotalDof() );
 
@@ -823,13 +826,13 @@ int main ( int argc, char** argv )
 #endif
 
 
-        boost::shared_ptr<matrix_block_type> NSMatrix (new matrix_block_type ( ETuFESpace->map() | ETpFESpace->map() ) );
+        std::shared_ptr<matrix_block_type> NSMatrix (new matrix_block_type ( ETuFESpace->map() | ETpFESpace->map() ) );
         *NSMatrix *= 0.0;
 
         {
-            boost::shared_ptr<DensityFct> density (new DensityFct);
-            boost::shared_ptr<ViscosityFct> viscosity (new ViscosityFct);
-            boost::shared_ptr<NormalizeFct> normalize (new NormalizeFct);
+            std::shared_ptr<DensityFct> density (new DensityFct);
+            std::shared_ptr<ViscosityFct> viscosity (new ViscosityFct);
+            std::shared_ptr<NormalizeFct> normalize (new NormalizeFct);
 
             using namespace ExpressionAssembly;
 
@@ -943,10 +946,10 @@ int main ( int argc, char** argv )
         {
             using namespace ::LifeV::ExpressionAssembly;
 
-            boost::shared_ptr<DensityFct> density (new DensityFct);
-            boost::shared_ptr<ViscosityFct> viscosity (new ViscosityFct);
-            boost::shared_ptr<HeavisideFct> heaviside (new HeavisideFct);
-            boost::shared_ptr<NormalizeFct> normalize (new NormalizeFct);
+            std::shared_ptr<DensityFct> density (new DensityFct);
+            std::shared_ptr<ViscosityFct> viscosity (new ViscosityFct);
+            std::shared_ptr<HeavisideFct> heaviside (new HeavisideFct);
+            std::shared_ptr<NormalizeFct> normalize (new NormalizeFct);
 
 #ifdef NORMAL_CORRECTION
             integrate ( boundary (ETuFESpace->mesh(), WALL),
@@ -1109,10 +1112,10 @@ int main ( int argc, char** argv )
         {
             using namespace ExpressionAssembly;
 
-            boost::shared_ptr<DensityFct> density (new DensityFct);
-            boost::shared_ptr<ViscosityFct> viscosity (new ViscosityFct);
-            boost::shared_ptr<HeavisideFct> heaviside (new HeavisideFct);
-            boost::shared_ptr<NormalizeFct> normalize (new NormalizeFct);
+            std::shared_ptr<DensityFct> density (new DensityFct);
+            std::shared_ptr<ViscosityFct> viscosity (new ViscosityFct);
+            std::shared_ptr<HeavisideFct> heaviside (new HeavisideFct);
+            std::shared_ptr<NormalizeFct> normalize (new NormalizeFct);
 
             integrate (
                 elements (ETuFESpace->mesh() ), // Mesh
@@ -1273,7 +1276,9 @@ int main ( int argc, char** argv )
 
         NSSolver.setMatrix (*NSMatrix);
 
-        boost::shared_ptr<matrix_type> NSMatrixNoBlock (new matrix_type ( NSMatrix->matrixPtr() ) );
+
+        std::shared_ptr<matrix_type> NSMatrixNoBlock (new matrix_type ( NSMatrix->map() ) );
+        *NSMatrixNoBlock += *NSMatrix;
 
         NSSolver.solveSystem (NSRhsUnique, NSSolution, NSMatrixNoBlock);
 
@@ -1311,14 +1316,14 @@ int main ( int argc, char** argv )
 
         ChronoItem.start();
 
-        boost::shared_ptr<matrix_type> LSAdvectionMatrix (new matrix_type ( ETlsFESpace->map() ) );
+        std::shared_ptr<matrix_type> LSAdvectionMatrix (new matrix_type ( ETlsFESpace->map() ) );
         *LSAdvectionMatrix *= 0.0;
 
         {
             using namespace ExpressionAssembly;
 
-            boost::shared_ptr<SignFct> sign (new SignFct);
-            boost::shared_ptr<NormalizeFct> normalize (new NormalizeFct);
+            std::shared_ptr<SignFct> sign (new SignFct);
+            std::shared_ptr<NormalizeFct> normalize (new NormalizeFct);
 
             integrate (
                 elements (ETlsFESpace->mesh() ), // Mesh
@@ -1382,8 +1387,8 @@ int main ( int argc, char** argv )
         {
             using namespace ExpressionAssembly;
 
-            boost::shared_ptr<SignFct> sign (new SignFct);
-            boost::shared_ptr<NormalizeFct> normalize (new NormalizeFct);
+            std::shared_ptr<SignFct> sign (new SignFct);
+            std::shared_ptr<NormalizeFct> normalize (new NormalizeFct);
 
             integrate (
                 elements (ETlsFESpace->mesh() ), // Mesh
@@ -1482,7 +1487,7 @@ int main ( int argc, char** argv )
 
                 ChronoItem.start();
 
-                boost::shared_ptr<matrix_type> HJMatrix (new matrix_type ( ETlsFESpace->map() ) );
+                std::shared_ptr<matrix_type> HJMatrix (new matrix_type ( ETlsFESpace->map() ) );
                 *HJMatrix *= 0.0;
 
 #define BETA ( eval(sign, value(ETlsFESpace,LSSolutionOld) ) * eval(normalization, grad(ETlsFESpace,HJSolutionOld) ) )
@@ -1490,8 +1495,8 @@ int main ( int argc, char** argv )
                 {
                     using namespace ExpressionAssembly;
 
-                    boost::shared_ptr<SignFct> sign (new SignFct);
-                    boost::shared_ptr<NormalizeFct> normalization (new NormalizeFct);
+                    std::shared_ptr<SignFct> sign (new SignFct);
+                    std::shared_ptr<NormalizeFct> normalization (new NormalizeFct);
 
                     integrate (
                         elements (ETlsFESpace->mesh() ), // Mesh
@@ -1558,9 +1563,9 @@ int main ( int argc, char** argv )
                 {
                     using namespace ExpressionAssembly;
 
-                    boost::shared_ptr<SignFct> sign (new SignFct);
-                    boost::shared_ptr<NormalizeFct> normalization (new NormalizeFct);
-                    boost::shared_ptr<NormFct> norm (new NormFct);
+                    std::shared_ptr<SignFct> sign (new SignFct);
+                    std::shared_ptr<NormalizeFct> normalization (new NormalizeFct);
+                    std::shared_ptr<NormFct> norm (new NormFct);
 
                     integrate (
                         elements (ETlsFESpace->mesh() ), // Mesh
@@ -1662,8 +1667,8 @@ int main ( int argc, char** argv )
         {
             using namespace ExpressionAssembly;
 
-            boost::shared_ptr<HeavisideFct> heaviside (new HeavisideFct);
-            boost::shared_ptr<SmoothDeltaFct> delta (new SmoothDeltaFct);
+            std::shared_ptr<HeavisideFct> heaviside (new HeavisideFct);
+            std::shared_ptr<SmoothDeltaFct> delta (new SmoothDeltaFct);
 
             integrate (
                 elements (ETlsFESpace->mesh() ), // Mesh

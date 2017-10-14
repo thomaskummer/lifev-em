@@ -103,8 +103,8 @@
 #include <lifev/core/filter/ExporterHDF5.hpp>
 #endif
 
-#include <lifev/fsi/examples/example_SmoothAneurysm/ud_functions.hpp>
 #include <lifev/fsi/examples/example_SmoothAneurysm/flowConditions.hpp>
+#include <lifev/fsi/examples/example_SmoothAneurysm/ud_functions.hpp>
 #include <lifev/fsi/examples/example_SmoothAneurysm/resistance.hpp>
 #include <lifev/fsi/examples/example_SmoothAneurysm/boundaryConditions.hpp>
 
@@ -114,7 +114,7 @@ class Problem
 {
 public:
 
-    typedef boost::shared_ptr<LifeV::FSISolver> fsi_solver_ptr;
+    typedef std::shared_ptr<LifeV::FSISolver> fsi_solver_ptr;
 
     typedef LifeV::FSIOperator::data_Type                          data_Type;
     typedef LifeV::FSIOperator::dataPtr_Type                       dataPtr_Type;
@@ -122,18 +122,30 @@ public:
     typedef LifeV::FSIOperator::vector_Type        vector_Type;
     typedef LifeV::FSIOperator::vectorPtr_Type     vectorPtr_Type;
 
-    typedef boost::shared_ptr< LifeV::Exporter<LifeV::RegionMesh<LifeV::LinearTetra> > > filterPtr_Type;
+    typedef std::shared_ptr< LifeV::Exporter<LifeV::RegionMesh<LifeV::LinearTetra> > > filterPtr_Type;
 
     typedef LifeV::ExporterEnsight<LifeV::FSIOperator::mesh_Type>  ensightFilter_Type;
-    typedef boost::shared_ptr<ensightFilter_Type>                 ensightFilterPtr_Type;
+    typedef std::shared_ptr<ensightFilter_Type>                 ensightFilterPtr_Type;
 #ifdef HAVE_HDF5
     typedef LifeV::ExporterHDF5<LifeV::FSIOperator::mesh_Type>  hdf5Filter_Type;
-    typedef boost::shared_ptr<hdf5Filter_Type>                  hdf5FilterPtr_Type;
+    typedef std::shared_ptr<hdf5Filter_Type>                  hdf5FilterPtr_Type;
 #endif
     typedef LifeV::FactorySingleton<LifeV::Factory<LifeV::FSIOperator,  std::string> > FSIFactory_Type;
 
     typedef LifeV::ResistanceBCs                                resistanceBCs_Type;
+    typedef LifeV::ImplicitResistance                        implicitResistance_Type;
 
+#ifdef ENABLE_ANISOTROPIC_LAW
+    // typedefs for fibers
+    // Boost function for fiber direction
+    typedef boost::function<LifeV::Real ( LifeV::Real const&, LifeV::Real const&, LifeV::Real const&, LifeV::Real const&, LifeV::ID const& ) > fiberFunction_Type;
+    typedef boost::shared_ptr<fiberFunction_Type> fiberFunctionPtr_Type;
+
+    typedef std::vector<fiberFunctionPtr_Type>                          vectorFiberFunction_Type;
+    typedef boost::shared_ptr<vectorFiberFunction_Type>                 vectorFiberFunctionPtr_Type;
+
+    typedef std::vector<vectorPtr_Type>                                 listOfFiberDirections_Type;
+#endif
 
     /*!
       This routine sets up the problem:
@@ -144,11 +156,12 @@ public:
       -# initialize and setup the FSIsolver
     */
 
-    Problem ( GetPot const& data_file, boost::shared_ptr<Epetra_Comm> comm) :
+    Problem ( GetPot const& data_file, std::shared_ptr<Epetra_Comm> comm) :
         M_Tstart (0.),
         M_tolSave (1),
         M_saveEvery (1),
-        M_comm ( comm )
+        IR1( ),
+        M_comm( comm )
     {
         using namespace LifeV;
 
@@ -204,6 +217,9 @@ public:
 
         MPI_Barrier ( MPI_COMM_WORLD );
 
+        Real resistance = data_file ("fluid/physics/resistance", 0.0);
+        IR1.setQuantities( *(M_fsi->FSIOper()), resistance );
+
 #ifdef DEBUG
         debugStream ( 10000 ) << "Setting up the BC \n";
 #endif
@@ -211,7 +227,23 @@ public:
         M_fsi->setSolidBC ( BCh_monolithicSolid ( *M_fsi->FSIOper( ) ) );
 
         M_fsi->setup (/*data_file*/);
-        M_fsi->setFluidBC ( BCh_monolithicFluid ( *M_fsi->FSIOper( ), true ) );
+
+
+            FSIOperator::fluidBchandlerPtr_Type BCh_fluidM ( new FSIOperator::fluidBchandler_Type );
+
+            BCFunctionBase bcf      (fZero);
+            BCFunctionBase pressureEpsilon  (epsilon);
+
+            BCFunctionBase InletVect (aneurismFluxInVectorial);
+
+            //Inlets
+            BCh_fluidM->addBC ("InFlow" , INLET,  EssentialVertices, Full, InletVect, 3);
+            BCh_fluidM->addBC ("InFlow" , 20,  EssentialVertices, Full, bcf, 3);
+
+            // resistanceBC.vector() gives back the vector we are considering.
+            BCh_fluidM->addBC ("out3", OUTLET, Resistance, Full, IR1.vector() , 3);
+
+        M_fsi->setFluidBC ( BCh_fluidM );
         M_fsi->setHarmonicExtensionBC ( BCh_harmonicExtension ( *M_fsi->FSIOper( ) ) );
 
         dynamic_cast<LifeV::FSIMonolithic*> (M_fsi->FSIOper().get() )->mergeBCHandlers();
@@ -244,6 +276,24 @@ public:
                 M_exporterSolid.reset ( new  ensightFilter_Type ( data_file, solidName) );
             }
         }
+
+#ifdef ENABLE_ANISOTROPIC_LAW
+        vectorFiberFunctionPtr_Type pointerToVectorOfFamilies;
+        listOfFiberDirections_Type fiberDirections;
+        fibersDirectionList setOfFiberFunctions;
+
+        if( !M_fsi->FSIOper()->dataSolid()->constitutiveLaw().compare("anisotropic") )
+        {
+            // Setting the fibers
+            pointerToVectorOfFamilies.reset( new vectorFiberFunction_Type( ) );
+            (*pointerToVectorOfFamilies).resize( M_fsi->FSIOper()->dataSolid()->numberFibersFamilies( ) );
+
+            fiberDirections.resize( M_fsi->FSIOper()->dataSolid()->numberFibersFamilies( ) );
+
+            setOfFiberFunctions.setupFiberDefinitions( M_fsi->FSIOper()->dataSolid()->numberFibersFamilies( ) );
+        }
+#endif
+
 
         //reading the saveEvery
         M_saveEvery = data_file ("exporter/saveEvery", 1);
@@ -293,6 +343,55 @@ public:
 
         M_exporterSolid->addVariable ( ExporterData<FSIOperator::mesh_Type>::VectorField, "s-displacement",
                                        M_fsi->FSIOper()->dFESpacePtr(), M_solidDisp, UInt (0) );
+
+#ifdef ENABLE_ANISOTROPIC_LAW
+        if( !M_fsi->FSIOper()->dataSolid()->constitutiveLaw().compare("anisotropic") )
+        {
+
+            // Initializing fibers
+            // Setting the vector of fibers functions
+            for( UInt k(1); k <= pointerToVectorOfFamilies->size( ); k++ )
+            {
+                // Setting up the name of the function to define the family
+                std::string family="Family";
+                // adding the number of the family
+                std::string familyNumber;
+                std::ostringstream number;
+                number << ( k );
+                familyNumber = number.str();
+
+                // Name of the function to create
+                std::string creationString = family + familyNumber;
+                (*pointerToVectorOfFamilies)[ k-1 ].reset( new fiberFunction_Type() );
+                (*pointerToVectorOfFamilies)[ k-1 ] = setOfFiberFunctions.fiberDefinition( creationString );
+
+                fiberDirections[ k-1 ].reset( new vector_Type( M_fsi->FSIOper()->dFESpacePtr()->map() , Unique) );
+            }
+
+            //! 3.b Setting the fibers in the abstract class of Anisotropic materials
+            M_fsi->FSIOper()->solid().material()->anisotropicLaw()->setupFiberDirections( pointerToVectorOfFamilies );
+
+            // Adding the fibers vectors
+            // Setting the vector of fibers functions
+            for( UInt k(1); k <= pointerToVectorOfFamilies->size( ); k++ )
+            {
+                // Setting up the name of the function to define the family
+                std::string family="Family-";
+                // adding the number of the family
+                std::string familyNumber;
+                std::ostringstream number;
+                number << ( k );
+                familyNumber = number.str();
+
+                // Name of the function to create
+                std::string creationString = family + familyNumber;
+                M_exporterSolid->addVariable ( ExporterData<RegionMesh<LinearTetra> >::VectorField, creationString, M_fsi->FSIOper()->dFESpacePtr(), fiberDirections[ k-1 ], UInt (0) );
+
+                // Extracting the fibers vectors
+                *(fiberDirections[ k-1 ]) = M_fsi->FSIOper()->solid().material()->anisotropicLaw()->ithFiberVector( k );
+            }
+        }
+#endif
         // M_exporterSolid->addVariable( ExporterData<FSIOperator::mesh_Type>::VectorField, "s-velocity",
         //                   M_fsi->FSIOper()->dFESpacePtr(), M_solidVel, UInt(0) );
         // M_exporterSolid->addVariable( ExporterData<FSIOperator::mesh_Type>::VectorField, "s-ws",
@@ -303,10 +402,10 @@ public:
         // Initializing either resistance of absorbing BCs
         // At the moment, the resistance BCs are applied explicitly in order to limit the ill-conditioning
         // of the linear system
-        Real resistance = data_file ("fluid/physics/resistance", 0.0);
         Real hydrostatic = data_file ("fluid/physics/hydrostatic", 0.0);
 
-        R1.initParameters ( OUTLET, resistance, hydrostatic, "outlet-3" );
+
+        //R1.initParameters( OUTLET, resistance, hydrostatic, "outlet-3" );
         //FC2.initParameters ( *M_fsi->FSIOper(),  OUTLET);
 
         M_data->dataFluid()->dataTime()->setInitialTime (  M_data->dataFluid()->dataTime()->initialTime() );
@@ -371,7 +470,8 @@ public:
 
             fluidSolution = *M_velAndPressure;
 
-            R1.renewParameters ( M_fsi->FSIOper()->fluid(), fluidSolution, M_data->dataFluid()->dataTime()->time() );
+
+            //R1.renewParameters( M_fsi->FSIOper()->fluid(), fluidSolution, M_data->dataFluid()->dataTime()->time() );
             //FC2.renewParameters ( *M_fsi, OUTLET, fluidSolution );
 
             boost::timer _timer;
@@ -429,6 +529,7 @@ private:
 
     //    LifeV::FlowConditions FC2;
     resistanceBCs_Type R1;
+    implicitResistance_Type IR1;
 
     LifeV::Real    M_Tstart;
 
@@ -437,24 +538,24 @@ private:
 
     vectorPtr_Type M_WS;
 
-    boost::shared_ptr<Epetra_Comm>  M_comm;
+    std::shared_ptr<Epetra_Comm>  M_comm;
 };
 
 struct FSIChecker
 {
     FSIChecker ( GetPot const& _data_file,
-                 boost::shared_ptr<Epetra_Comm> comm ) :
+                 std::shared_ptr<Epetra_Comm> comm ) :
         data_file ( _data_file ),
         communicator ( comm )
     {}
 
     void operator() ()
     {
-        boost::shared_ptr<Problem> fsip;
+        std::shared_ptr<Problem> fsip;
 
         try
         {
-            fsip = boost::shared_ptr<Problem> ( new Problem ( data_file, communicator ) );
+            fsip = std::shared_ptr<Problem> ( new Problem ( data_file, communicator ) );
 
             fsip->run();
         }
@@ -467,7 +568,7 @@ struct FSIChecker
     }
 
     GetPot                data_file;
-    boost::shared_ptr<Epetra_Comm> communicator;
+    std::shared_ptr<Epetra_Comm> communicator;
     LifeV::Vector         disp;
 };
 
@@ -488,13 +589,13 @@ int main (int argc, char** argv)
 
 #ifdef HAVE_MPI
     MPI_Init (&argc, &argv);
-    boost::shared_ptr<Epetra_MpiComm> Comm (new Epetra_MpiComm ( MPI_COMM_WORLD ) );
+    std::shared_ptr<Epetra_MpiComm> Comm (new Epetra_MpiComm ( MPI_COMM_WORLD ) );
     if ( Comm->MyPID() == 0 )
     {
-        cout << "% using MPI" << endl;
+        std::cout << "% using MPI" << std::endl;
     }
 #else
-    boost::shared_ptr<Epetra_SerialComm> Comm ( new Epetra_SerialComm() );
+    std::shared_ptr<Epetra_SerialComm> Comm ( new Epetra_SerialComm() );
     std::cout << "% using serial Version" << std::endl;
 #endif
 

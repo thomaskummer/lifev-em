@@ -165,14 +165,16 @@ const flag_Type UPDATE_DPHI (UPDATE_ONLY_CELL_NODES
                              | UPDATE_ONLY_JACOBIAN
                              | UPDATE_ONLY_T_INVERSE_JACOBIAN
                              | UPDATE_ONLY_DPHI_REF
-                             | UPDATE_ONLY_DPHI);
+                             | UPDATE_ONLY_DPHI
+                             | UPDATE_ONLY_DET_JACOBIAN );
 
 const flag_Type UPDATE_D2PHI (UPDATE_ONLY_CELL_NODES
                               | UPDATE_ONLY_DPHI_GEO_MAP
                               | UPDATE_ONLY_JACOBIAN
                               | UPDATE_ONLY_T_INVERSE_JACOBIAN
                               | UPDATE_ONLY_D2PHI_REF
-                              | UPDATE_ONLY_D2PHI);
+                              | UPDATE_ONLY_D2PHI
+                              | UPDATE_ONLY_DET_JACOBIAN );
 
 const flag_Type UPDATE_WDET (UPDATE_ONLY_CELL_NODES
                              | UPDATE_ONLY_DPHI_GEO_MAP

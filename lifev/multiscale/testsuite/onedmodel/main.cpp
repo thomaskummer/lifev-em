@@ -81,7 +81,7 @@ bool checkValue (const Real val, const Real test, const Real tol = 1.e-5, const 
 Int main (Int argc, char** argv)
 {
     //Setup main communicator
-    boost::shared_ptr<Epetra_Comm>  comm;
+    std::shared_ptr<Epetra_Comm>  comm;
 
 #ifdef HAVE_MPI
     std::cout << "MPI Initialization" << std::endl;
@@ -112,9 +112,6 @@ Int main (Int argc, char** argv)
     // *********************************
     // Useful typedefs
     // *********************************
-    typedef MultiscaleModelFSI1D::physics_Type       physics_Type;
-    typedef MultiscaleModelFSI1D::flux_Type          flux_Type;
-    typedef MultiscaleModelFSI1D::source_Type        source_Type;
 
     typedef MultiscaleModelFSI1D::bc_Type            bc_Type;
     typedef bc_Type::bcFunction_Type                 bcFunction_Type;
@@ -127,7 +124,7 @@ Int main (Int argc, char** argv)
     // checking if we are checking for the nightly build
     const bool check = command_line.search (2, "-c", "--check");
 
-    string fileName = command_line.follow ("data", 2, "-f", "--file");
+    std::string fileName = command_line.follow ("data", 2, "-f", "--file");
     GetPot dataFile ( fileName );
 
     // *********************************
@@ -137,9 +134,9 @@ Int main (Int argc, char** argv)
     oneDModel.setCommunicator ( comm );
 
     // Scale, Rotate, Translate 1D (if necessary)
-    boost::array< Real, NDIM >    geometryScale;
-    boost::array< Real, NDIM >    geometryRotate;
-    boost::array< Real, NDIM >    geometryTranslate;
+    std::array< Real, NDIM >    geometryScale;
+    std::array< Real, NDIM >    geometryRotate;
+    std::array< Real, NDIM >    geometryTranslate;
 
     geometryScale[0] = dataFile ( "1D_Model/space_discretization/transform", 1., 0);
     geometryScale[1] = dataFile ( "1D_Model/space_discretization/transform", 1., 1);
@@ -166,19 +163,19 @@ Int main (Int argc, char** argv)
 
     // Set BC using standard approach
     Sin sinus ( 0, 10, .01, 0.);
-    bcFunction_Type sinusoidalFunction ( boost::bind ( &Sin::operator(), &sinus, _1 ) );
+    bcFunction_Type sinusoidalFunction ( std::bind ( &Sin::operator(), &sinus, std::placeholders::_1 ) );
 
     // Absorbing
     bc_Type::bcFunctionSolverDefinedPtr_Type absorbing ( new OneDFSIFunctionSolverDefinedAbsorbing ( OneDFSI::right, OneDFSI::W2 ) );
-    bcFunction_Type absorbingFunction ( boost::bind ( &OneDFSIFunctionSolverDefinedAbsorbing::operator(),
-                                                      dynamic_cast<OneDFSIFunctionSolverDefinedAbsorbing*> ( & ( *absorbing ) ), _1, _2 ) );
+    bcFunction_Type absorbingFunction ( std::bind ( &OneDFSIFunctionSolverDefinedAbsorbing::operator(),
+                                                      dynamic_cast<OneDFSIFunctionSolverDefinedAbsorbing*> ( & ( *absorbing ) ), std::placeholders::_1, std::placeholders::_2 ) );
 
     // BC to test A_from_P conversion
     //Constant constantArea( 1.00 );
-    //bcFunction_Type constantAreaFunction( boost::bind( &Constant::operator(), &constantArea, _1 ) );
+    //bcFunction_Type constantAreaFunction( std::bind( &Constant::operator(), &constantArea, std::placeholders::_1 ) );
 
     //Constant constantPressure( 24695.0765959599 );
-    //bcFunction_Type constantPressureFunction( boost::bind( &Constant::operator(), &constantPressure, _1 ) );
+    //bcFunction_Type constantPressureFunction( std::bind( &Constant::operator(), &constantPressure, std::placeholders::_1 ) );
 
     oneDModel.bc().setBC ( OneDFSI::left,  OneDFSI::first, OneDFSI::Q,  sinusoidalFunction  );
     oneDModel.bc().setBC ( OneDFSI::right, OneDFSI::first, OneDFSI::W2, absorbingFunction );

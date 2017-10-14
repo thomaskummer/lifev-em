@@ -96,14 +96,14 @@ main ( int argc, char** argv )
 #ifdef HAVE_MPI
     MPI_Init (&argc, &argv);
 
-    boost::shared_ptr<Epetra_MpiComm> Comm (new Epetra_MpiComm ( MPI_COMM_WORLD ) );
+    std::shared_ptr<Epetra_MpiComm> Comm (new Epetra_MpiComm ( MPI_COMM_WORLD ) );
     if ( Comm->MyPID() == 0 )
     {
-        cout << "% using MPI" << endl;
+        std::cout << "% using MPI" << std::endl;
     }
 #else
-    boost::shared_ptr<Epetra_SerialComm> Comm ( new Epetra_SerialComm() );
-    cout << "% using serial Version" << endl;
+    std::shared_ptr<Epetra_SerialComm> Comm ( new Epetra_SerialComm() );
+    std::cout << "% using serial Version" << std::endl;
 #endif
 
 

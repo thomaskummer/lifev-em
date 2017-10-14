@@ -9,6 +9,7 @@ SET(fem_HEADERS
   fem/BCManage.hpp
   fem/BCManageNormal.hpp
   fem/BCVector.hpp
+  fem/BDFSecondOrderDerivative.hpp
   fem/CurrentFE.hpp
   fem/CurrentFEManifold.hpp
   fem/DOF.hpp
@@ -41,6 +42,12 @@ SET(fem_HEADERS
   fem/TimeAdvanceData.hpp
   fem/TimeAdvanceNewmark.hpp
   fem/TimeData.hpp
+  fem/TimeAndExtrapolationHandler.hpp
+  fem/Newmark.hpp
+  fem/TimeAndExtrapolationHandlerQuadPts.hpp
+  fem/FastAssembler.hpp
+  fem/FastAssemblerMixed.hpp
+  fem/MatrixGraph.hpp
 CACHE INTERNAL "")
 
 SET(fem_SOURCES
@@ -52,6 +59,7 @@ SET(fem_SOURCES
   fem/BCIdentifier.cpp
   fem/BCManage.cpp
   fem/BCVector.cpp
+  fem/BDFSecondOrderDerivative.cpp
   fem/CurrentFE.cpp
   fem/CurrentFEManifold.cpp
   fem/DOF.cpp
@@ -72,6 +80,11 @@ SET(fem_SOURCES
   fem/ReferenceFEScalar.cpp
   fem/TimeAdvanceData.cpp
   fem/TimeData.cpp
+  fem/TimeAndExtrapolationHandler.cpp
+  fem/Newmark.cpp
+  fem/FastAssembler.cpp
+  fem/FastAssemblerMixed.cpp
+  fem/MatrixGraph.cpp
 CACHE INTERNAL "")
 
 

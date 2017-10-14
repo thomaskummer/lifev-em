@@ -80,18 +80,19 @@ public:
     //@{
 
     typedef MeshType mesh_Type;
-    typedef boost::shared_ptr<mesh_Type> meshPtr_Type;
+    typedef std::shared_ptr<mesh_Type> meshPtr_Type;
     typedef Epetra_Comm comm_Type;
-    typedef boost::shared_ptr<comm_Type> commPtr_Type;
+    typedef std::shared_ptr<comm_Type> commPtr_Type;
     typedef MapEpetra map_Type;
-    typedef boost::shared_ptr<map_Type> mapPtr_Type;
+    typedef std::shared_ptr<map_Type> mapPtr_Type;
     typedef std::vector<Int> idList_Type;
-    typedef boost::shared_ptr<idList_Type> idListPtr_Type;
+    typedef std::shared_ptr<idList_Type> idListPtr_Type;
     typedef std::vector<idList_Type> graph_Type;
-    typedef boost::shared_ptr<graph_Type> graphPtr_Type;
+    typedef std::shared_ptr<graph_Type> graphPtr_Type;
     typedef std::vector<idListPtr_Type> vertexPartition_Type;
-    typedef boost::shared_ptr<vertexPartition_Type> vertexPartitionPtr_Type;
+    typedef std::shared_ptr<vertexPartition_Type> vertexPartitionPtr_Type;
     typedef std::vector<markerID_Type> markerIDList_Type;
+    typedef std::vector<int> markerIDListSigned_Type;
 
     //@}
 
@@ -222,7 +223,7 @@ public:
     /*!
      * @param flags. The list of MarkerIDs to restrict to.
      */
-    void createPointPointNeighborsList (markerIDList_Type const& flags);
+    void createPointPointNeighborsList (markerIDListSigned_Type const& flags);
 
     //! Create neighbors to a given point, with a specified number of generations
     /*!
@@ -358,7 +359,7 @@ GhostHandler<MeshType>::GhostHandler ( commPtr_Type const& comm ) :
     M_pointElementNeighborsList(),
     M_verbose ( 0 )
 #ifdef LIFEV_GHOSTHANDLER_DEBUG
-    , M_debugOut ( ( "gh." + ( comm->NumProc() > 1 ? boost::lexical_cast<std::string> ( M_me ) : "s" ) + ".out" ).c_str() )
+    , M_debugOut ( ( "gh." + ( comm->NumProc() > 1 ? std::to_string ( M_me ) : "s" ) + ".out" ).c_str() )
 #endif
 {
 }
@@ -378,7 +379,7 @@ GhostHandler<MeshType>::GhostHandler ( meshPtr_Type fullMesh,
     M_pointElementNeighborsList(),
     M_verbose ( 0 )
 #ifdef LIFEV_GHOSTHANDLER_DEBUG
-    , M_debugOut ( ( "gh." + ( comm->NumProc() > 1 ? boost::lexical_cast<std::string> ( M_me ) : "s" ) + ".out" ).c_str() )
+    , M_debugOut ( ( "gh." + ( comm->NumProc() > 1 ? std::to_string ( M_me ) : "s" ) + ".out" ).c_str() )
 #endif
 {
 }
@@ -394,7 +395,7 @@ GhostHandler<MeshType>::GhostHandler ( meshPtr_Type fullMesh,
     M_pointElementNeighborsList(),
     M_verbose ( 0 )
 #ifdef LIFEV_GHOSTHANDLER_DEBUG
-    , M_debugOut ( ( "gh." + ( comm->NumProc() > 1 ? boost::lexical_cast<std::string> ( M_me ) : "s" ) + ".out" ).c_str() )
+    , M_debugOut ( ( "gh." + ( comm->NumProc() > 1 ? std::to_string ( M_me ) : "s" ) + ".out" ).c_str() )
 #endif
 {
 }
@@ -647,7 +648,7 @@ void GhostHandler<MeshType>::createPointPointNeighborsList()
 namespace
 {
 
-inline bool isInside ( markerID_Type const& pointMarker, std::vector<markerID_Type> const& markerIDList )
+inline bool isInside ( markerID_Type const& pointMarker, std::vector<int> const& markerIDList )
 {
     for ( UInt i = 0; i < markerIDList.size(); ++i)
         if ( pointMarker == markerIDList[i] )
@@ -660,7 +661,7 @@ inline bool isInside ( markerID_Type const& pointMarker, std::vector<markerID_Ty
 }
 
 template <typename MeshType>
-void GhostHandler<MeshType>::createPointPointNeighborsList (markerIDList_Type const& flags)
+void GhostHandler<MeshType>::createPointPointNeighborsList (markerIDListSigned_Type const& flags)
 {
     M_pointPointNeighborsList.resize ( M_fullMesh->numGlobalPoints() );
     // generate point neighbors by watching edges
@@ -710,7 +711,11 @@ neighbors_Type GhostHandler<MeshType>::circleNeighbors ( UInt globalID, UInt nCi
                 newNeighbors.insert (*ii);
             }
         }
-        neighbors = newNeighbors;
+
+        for (neighbors_Type::iterator it = newNeighbors.begin(); it != newNeighbors.end(); ++it)
+        {
+        	neighbors.insert(*it);
+        }
     }
 
     return neighbors;
@@ -1299,7 +1304,7 @@ void GhostHandler<MeshType>::extendGraphFE ( graphPtr_Type elemGraph,
     {
         int const& currentPoint = myPoints[ k ];
         // mark as SUBD_INT point only if the point is owned by current process
-        if ( pointPID[ currentPoint ] == M_me )
+        if ( pointPID[ currentPoint ] == static_cast<Int>(M_me) )
         {
             // check if all element neighbors are on this proc
             for ( neighbors_Type::const_iterator neighborIt = M_pointElementNeighborsList[ currentPoint ].begin();
@@ -1520,7 +1525,7 @@ void GhostHandler<MeshType>::extendGraphFE ( const vertexPartitionPtr_Type& elem
     {
         int const& currentPoint = myPoints[ k ];
         // mark as SUBD_INT point only if the point is owned by current process
-        if ( pointPID[ currentPoint ] == partIndex )
+        if ( pointPID[ currentPoint ] == static_cast<Int>(partIndex) )
         {
             // check if all element neighbors are on this proc
             for ( neighbors_Type::const_iterator neighborIt = M_pointElementNeighborsList[ currentPoint ].begin();

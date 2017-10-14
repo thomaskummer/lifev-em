@@ -100,25 +100,31 @@ public:
     //@{
 
     //! Full data constructor
-    IntegrateMatrixElement (const boost::shared_ptr<MeshType>& mesh,
+    IntegrateMatrixElement (const std::shared_ptr<MeshType>& mesh,
                             const QRAdapterType& qrAdapter,
-                            const boost::shared_ptr<TestSpaceType>& testSpace,
-                            const boost::shared_ptr<SolutionSpaceType>& solutionSpace,
+                            const std::shared_ptr<TestSpaceType>& testSpace,
+                            const std::shared_ptr<SolutionSpaceType>& solutionSpace,
                             const ExpressionType& expression,
                             const UInt offsetUp = 0,
                             const UInt offsetLeft = 0,
-                            const UInt regionFlag = 0 );
+                            const UInt regionFlag = 0,
+                            const UInt numVolumeElements = 0,
+                            const UInt * const volumeElements = nullptr,
+                            const bool subDomain = false );
 
     //! Full data constructor
-    IntegrateMatrixElement (const boost::shared_ptr<MeshType>& mesh,
+    IntegrateMatrixElement (const std::shared_ptr<MeshType>& mesh,
                             const QRAdapterType& qrAdapter,
-                            const boost::shared_ptr<TestSpaceType>& testSpace,
-                            const boost::shared_ptr<SolutionSpaceType>& solutionSpace,
+                            const std::shared_ptr<TestSpaceType>& testSpace,
+                            const std::shared_ptr<SolutionSpaceType>& solutionSpace,
                             const ExpressionType& expression,
                             const OpenMPParameters& ompParams,
                             const UInt offsetUp = 0,
                             const UInt offsetLeft = 0,
-                            const UInt regionFlag = 0 );
+                            const UInt regionFlag = 0,
+                            const UInt numVolumeElements = 0,
+                            const UInt * const volumeElements = nullptr,
+                            const bool subDomain = false );
 
     //! Copy constructor
     IntegrateMatrixElement (const IntegrateMatrixElement<MeshType, TestSpaceType, SolutionSpaceType, ExpressionType, QRAdapterType>& integrator);
@@ -142,13 +148,20 @@ public:
         }
         else
         {
-            addTo (mat);
+            if( !M_integrateOnSubdomains )
+            {
+                addTo (mat);
+            }
+            else
+            {
+                addToSubdomain(mat);
+            }
         }
     }
 
     //! Operator wrapping the addTo method (for shared_ptr)
     template <typename MatrixType>
-    inline void operator>> (boost::shared_ptr<MatrixType> mat)
+    inline void operator>> (std::shared_ptr<MatrixType> mat)
     {
         if (mat->filled() )
         {
@@ -156,7 +169,14 @@ public:
         }
         else
         {
-            addTo (mat);
+            if( !M_integrateOnSubdomains )
+            {
+                addTo (mat);
+            }
+            else
+            {
+                addToSubdomain(mat);
+            }
         }
     }
 
@@ -179,6 +199,9 @@ public:
      */
     template <typename MatrixType>
     void addTo (MatrixType& mat);
+
+    template <typename MatrixType>
+    void addToSubdomain (MatrixType& mat);
 
     //! Method that performs the assembly
     /*!
@@ -203,10 +226,18 @@ public:
       Specialized for the case where the matrix is passed as a shared_ptr
      */
     template <typename MatrixType>
-    inline void addTo (boost::shared_ptr<MatrixType> mat)
+    inline void addTo (std::shared_ptr<MatrixType> mat)
     {
         ASSERT (mat != 0, " Cannot assemble with an empty matrix");
         addTo (*mat);
+    }
+
+
+    template <typename MatrixType>
+    inline void addToSubdomain (boost::shared_ptr<MatrixType> mat)
+    {
+        ASSERT (mat != 0, " Cannot assemble with an empty matrix");
+        addToSubdomain (*mat);
     }
 
     //! Method that performs the assembly
@@ -221,11 +252,13 @@ public:
       Specialized for the case where the matrix is passed as a shared_ptr
      */
     template <typename MatrixType>
-    inline void addToClosed (boost::shared_ptr<MatrixType> mat)
+    inline void addToClosed (std::shared_ptr<MatrixType> mat)
     {
         ASSERT (mat != 0, " Cannot assemble with an empty matrix");
         addToClosed (*mat);
     }
+
+
     //@}
 
 private:
@@ -253,14 +286,14 @@ private:
     //@}
 
     // Pointer on the mesh
-    boost::shared_ptr<MeshType> M_mesh;
+    std::shared_ptr<MeshType> M_mesh;
 
     // Quadrature to be used
     QRAdapterType M_qrAdapter;
 
     // Shared pointer on the Spaces
-    boost::shared_ptr<TestSpaceType> M_testSpace;
-    boost::shared_ptr<SolutionSpaceType> M_solutionSpace;
+    std::shared_ptr<TestSpaceType> M_testSpace;
+    std::shared_ptr<SolutionSpaceType> M_solutionSpace;
 
     // Tree to compute the values for the assembly
     evaluation_Type M_evaluation;
@@ -280,8 +313,11 @@ private:
     // Data for multi-threaded assembly
     OpenMPParameters M_ompParams;
 
-    // Data for integration on one subRegion
+    // Data for integration on one subRegion, flag and elements on which perform the integration
     const UInt M_regionFlag;
+    const UInt M_numVolumeElements;
+    const UInt * M_volumeElements;
+    const bool M_integrateOnSubdomains;
 
 };
 
@@ -296,14 +332,17 @@ private:
 
 template < typename MeshType, typename TestSpaceType, typename SolutionSpaceType, typename ExpressionType, typename QRAdapterType>
 IntegrateMatrixElement<MeshType, TestSpaceType, SolutionSpaceType, ExpressionType, QRAdapterType>::
-IntegrateMatrixElement (const boost::shared_ptr<MeshType>& mesh,
+IntegrateMatrixElement (const std::shared_ptr<MeshType>& mesh,
                         const QRAdapterType& qrAdapter,
-                        const boost::shared_ptr<TestSpaceType>& testSpace,
-                        const boost::shared_ptr<SolutionSpaceType>& solutionSpace,
+                        const std::shared_ptr<TestSpaceType>& testSpace,
+                        const std::shared_ptr<SolutionSpaceType>& solutionSpace,
                         const ExpressionType& expression,
                         const UInt offsetUp,
                         const UInt offsetLeft,
-                        const UInt regionFlag )
+                        const UInt regionFlag,
+                        const UInt numVolumeElements,
+                        const UInt * const volumeElements,
+                        const bool subDomain )
     :   M_mesh (mesh),
         M_qrAdapter (qrAdapter),
         M_testSpace (testSpace),
@@ -319,8 +358,10 @@ IntegrateMatrixElement (const boost::shared_ptr<MeshType>& mesh,
         M_offsetUp (offsetUp),
         M_offsetLeft (offsetLeft),
         M_ompParams(),
-        M_regionFlag( regionFlag )
-
+        M_regionFlag( regionFlag ),
+        M_numVolumeElements( numVolumeElements ),
+        M_volumeElements( volumeElements ),
+        M_integrateOnSubdomains( subDomain )
 {
     switch (MeshType::geoShape_Type::BasRefSha::S_shape)
     {
@@ -356,15 +397,18 @@ IntegrateMatrixElement (const boost::shared_ptr<MeshType>& mesh,
 
 template < typename MeshType, typename TestSpaceType, typename SolutionSpaceType, typename ExpressionType, typename QRAdapterType>
 IntegrateMatrixElement<MeshType, TestSpaceType, SolutionSpaceType, ExpressionType, QRAdapterType>::
-IntegrateMatrixElement (const boost::shared_ptr<MeshType>& mesh,
+IntegrateMatrixElement (const std::shared_ptr<MeshType>& mesh,
                         const QRAdapterType& qrAdapter,
-                        const boost::shared_ptr<TestSpaceType>& testSpace,
-                        const boost::shared_ptr<SolutionSpaceType>& solutionSpace,
+                        const std::shared_ptr<TestSpaceType>& testSpace,
+                        const std::shared_ptr<SolutionSpaceType>& solutionSpace,
                         const ExpressionType& expression,
                         const OpenMPParameters& ompParams,
                         const UInt offsetUp,
                         const UInt offsetLeft,
-                        const UInt regionFlag )
+                        const UInt regionFlag,
+                        const UInt numVolumeElements,
+                        const UInt * const volumeElements,
+                        const bool subDomain )
     :   M_mesh (mesh),
         M_qrAdapter (qrAdapter),
         M_testSpace (testSpace),
@@ -379,7 +423,10 @@ IntegrateMatrixElement (const boost::shared_ptr<MeshType>& mesh,
         M_offsetUp (offsetUp),
         M_offsetLeft (offsetLeft),
         M_ompParams (ompParams),
-        M_regionFlag( regionFlag )
+        M_regionFlag( regionFlag ),
+        M_numVolumeElements(numVolumeElements),
+        M_volumeElements( volumeElements ),
+        M_integrateOnSubdomains( subDomain )
 {
     switch (MeshType::geoShape_Type::BasRefSha::S_shape)
     {
@@ -433,7 +480,10 @@ IntegrateMatrixElement (const IntegrateMatrixElement<MeshType, TestSpaceType, So
         M_offsetLeft (integrator.M_offsetLeft),
 
         M_ompParams (integrator.M_ompParams),
-        M_regionFlag( integrator.M_regionFlag )
+        M_regionFlag( integrator.M_regionFlag ),
+        M_numVolumeElements( integrator.M_numVolumeElements ),
+        M_volumeElements( integrator.M_volumeElements ),
+        M_integrateOnSubdomains( integrator.M_integrateOnSubdomains )
 {
     switch (MeshType::geoShape_Type::BasRefSha::S_shape)
     {
@@ -476,6 +526,8 @@ IntegrateMatrixElement<MeshType, TestSpaceType, SolutionSpaceType, ExpressionTyp
     delete M_testCFE_adapted;
     delete M_solutionCFE_std;
     delete M_solutionCFE_adapted;
+//    delete M_volumeElements;
+    M_volumeElements = nullptr;
 }
 
 // ===================================================
@@ -579,65 +631,51 @@ addTo (MatrixType& mat)
     // Defaulted to true for security
     bool isPreviousAdapted (true);
 
-//    std::cout << "M_regionFlag is " << M_regionFlag << std::endl;
-
     for (UInt iElement (0); iElement < nbElements; ++iElement)
     {
-        // Extracting the marker
-        UInt markerID = M_testSpace->mesh()->element ( iElement ).markerID( );
-
-
-        if ( M_regionFlag == 0 )
-        {
-            markerID = M_regionFlag;
-        }
 
         elementalMatrix.zero();
 
-        if ( markerID == M_regionFlag )
+        // Update the quadrature rule adapter
+        M_qrAdapter.update (iElement);
+
+        if (M_qrAdapter.isAdaptedElement() )
         {
+            // Set the quadrature rule everywhere
+            evaluation.setQuadrature ( M_qrAdapter.adaptedQR() );
+            M_globalCFE_adapted -> setQuadratureRule ( M_qrAdapter.adaptedQR() );
+            M_testCFE_adapted -> setQuadratureRule ( M_qrAdapter.adaptedQR() );
+            M_solutionCFE_adapted -> setQuadratureRule ( M_qrAdapter.adaptedQR() );
 
-            // Update the quadrature rule adapter
-            M_qrAdapter.update (iElement);
+            // Reset the CurrentFEs in the evaluation
+            evaluation.setGlobalCFE ( M_globalCFE_adapted );
+            evaluation.setTestCFE ( M_testCFE_adapted );
+            evaluation.setSolutionCFE ( M_solutionCFE_adapted );
 
-            if (M_qrAdapter.isAdaptedElement() )
+            integrateElement (iElement, M_qrAdapter.adaptedQR().nbQuadPt(), nbTestDof, nbSolutionDof,
+                              elementalMatrix, evaluation, *M_globalCFE_adapted , //*globalCFE,
+                              *M_testCFE_adapted, *M_solutionCFE_adapted);
+
+            isPreviousAdapted = true;
+
+        }
+        else
+        {
+            // Change in the evaluation if needed
+            if (isPreviousAdapted)
             {
-                // Set the quadrature rule everywhere
-                evaluation.setQuadrature ( M_qrAdapter.adaptedQR() );
-                M_globalCFE_adapted -> setQuadratureRule ( M_qrAdapter.adaptedQR() );
-                M_testCFE_adapted -> setQuadratureRule ( M_qrAdapter.adaptedQR() );
-                M_solutionCFE_adapted -> setQuadratureRule ( M_qrAdapter.adaptedQR() );
+                M_evaluation.setQuadrature ( M_qrAdapter.standardQR() );
+                M_evaluation.setGlobalCFE ( M_globalCFE_std );
+                M_evaluation.setTestCFE ( M_testCFE_std );
+                M_evaluation.setSolutionCFE ( M_solutionCFE_std );
 
-                // Reset the CurrentFEs in the evaluation
-                evaluation.setGlobalCFE ( M_globalCFE_adapted );
-                evaluation.setTestCFE ( M_testCFE_adapted );
-                evaluation.setSolutionCFE ( M_solutionCFE_adapted );
-
-                integrateElement (iElement, M_qrAdapter.adaptedQR().nbQuadPt(), nbTestDof, nbSolutionDof,
-                                  elementalMatrix, evaluation, *M_globalCFE_adapted , //*globalCFE,
-                                  *M_testCFE_adapted, *M_solutionCFE_adapted);
-
-                isPreviousAdapted = true;
-
+                isPreviousAdapted = false;
             }
-            else
-            {
-                // Change in the evaluation if needed
-                if (isPreviousAdapted)
-                {
-                    M_evaluation.setQuadrature ( M_qrAdapter.standardQR() );
-                    M_evaluation.setGlobalCFE ( M_globalCFE_std );
-                    M_evaluation.setTestCFE ( M_testCFE_std );
-                    M_evaluation.setSolutionCFE ( M_solutionCFE_std );
 
-                    isPreviousAdapted = false;
-                }
+            integrateElement (iElement, M_qrAdapter.standardQR().nbQuadPt(), nbTestDof, nbSolutionDof,
+                              elementalMatrix, evaluation, *M_globalCFE_std , //*globalCFE,
+                              *M_testCFE_std, *M_solutionCFE_std);
 
-                integrateElement (iElement, M_qrAdapter.standardQR().nbQuadPt(), nbTestDof, nbSolutionDof,
-                                  elementalMatrix, evaluation, *M_globalCFE_std , //*globalCFE,
-                                  *M_testCFE_std, *M_solutionCFE_std);
-
-            }
         }
 
         elementalMatrix.pushToGlobal (mat);
@@ -664,8 +702,8 @@ addToClosed (MatrixType& mat)
 
 
         // Update the currentFEs
-        boost::scoped_ptr<ETCurrentFE<MeshType::S_geoDimensions, 1> > globalCFE_std;
-        boost::scoped_ptr<ETCurrentFE<MeshType::S_geoDimensions, 1> > globalCFE_adapted;
+        std::unique_ptr<ETCurrentFE<MeshType::S_geoDimensions, 1> > globalCFE_std;
+        std::unique_ptr<ETCurrentFE<MeshType::S_geoDimensions, 1> > globalCFE_adapted;
 
         switch (MeshType::geoShape_Type::BasRefSha::S_shape)
         {
@@ -724,7 +762,7 @@ addToClosed (MatrixType& mat)
         bool isPreviousAdapted (true);
 
         #pragma omp for schedule(runtime)
-        for (UInt iElement (0); iElement < nbElements; ++iElement)
+        for (UInt iElement = 0; iElement < nbElements; ++iElement)
         {
             // Update the quadrature rule adapter
             qrAdapter.update (iElement);
@@ -778,6 +816,97 @@ addToClosed (MatrixType& mat)
         M_ompParams.restorePreviousNumThreads();
     }
 }
+
+
+
+
+template < typename MeshType, typename TestSpaceType, typename SolutionSpaceType, typename ExpressionType, typename QRAdapterType>
+template <typename MatrixType>
+void
+IntegrateMatrixElement<MeshType, TestSpaceType, SolutionSpaceType, ExpressionType, QRAdapterType>::
+addToSubdomain ( MatrixType& mat )
+{
+    UInt nbElements ( M_numVolumeElements );
+    //UInt nbQuadPt_std (M_qrAdapter.standardQR().nbQuadPt() );
+    UInt nbTestDof (M_testSpace->refFE().nbDof() );
+    UInt nbSolutionDof (M_solutionSpace->refFE().nbDof() );
+
+    ETMatrixElemental elementalMatrix (TestSpaceType::field_dim * M_testSpace->refFE().nbDof(),
+                                       SolutionSpaceType::field_dim * M_solutionSpace->refFE().nbDof() );
+
+    evaluation_Type evaluation (M_evaluation);
+
+    if( M_volumeElements != nullptr )
+    {
+
+        std::stringstream convertNumbEl;
+        convertNumbEl << nbElements;
+
+        // Defaulted to true for security
+        bool isPreviousAdapted (true);
+
+        for (UInt iVolumeElement (0); iVolumeElement < nbElements; ++iVolumeElement)
+        {
+
+            UInt iElement = M_volumeElements[iVolumeElement];
+
+            // Extracting the marker
+            // UInt markerID = M_testSpace->mesh()->element ( iElement ).markerID( );
+
+            // Update the quadrature rule adapter
+            M_qrAdapter.update (iElement);
+
+            if (M_qrAdapter.isAdaptedElement() )
+            {
+                // Set the quadrature rule everywhere
+                evaluation.setQuadrature ( M_qrAdapter.adaptedQR() );
+                M_globalCFE_adapted -> setQuadratureRule ( M_qrAdapter.adaptedQR() );
+                M_testCFE_adapted -> setQuadratureRule ( M_qrAdapter.adaptedQR() );
+                M_solutionCFE_adapted -> setQuadratureRule ( M_qrAdapter.adaptedQR() );
+
+                // Reset the CurrentFEs in the evaluation
+                evaluation.setGlobalCFE ( M_globalCFE_adapted );
+                evaluation.setTestCFE ( M_testCFE_adapted );
+                evaluation.setSolutionCFE ( M_solutionCFE_adapted );
+
+                integrateElement (iElement, M_qrAdapter.adaptedQR().nbQuadPt(), nbTestDof, nbSolutionDof,
+                                  elementalMatrix, evaluation, *M_globalCFE_adapted , //*globalCFE,
+                                  *M_testCFE_adapted, *M_solutionCFE_adapted);
+
+                isPreviousAdapted = true;
+
+            }
+            else
+            {
+                // Change in the evaluation if needed
+                if (isPreviousAdapted)
+                {
+                    M_evaluation.setQuadrature ( M_qrAdapter.standardQR() );
+                    M_evaluation.setGlobalCFE ( M_globalCFE_std );
+                    M_evaluation.setTestCFE ( M_testCFE_std );
+                    M_evaluation.setSolutionCFE ( M_solutionCFE_std );
+
+                    isPreviousAdapted = false;
+                }
+
+                integrateElement (iElement, M_qrAdapter.standardQR().nbQuadPt(), nbTestDof, nbSolutionDof,
+                                  elementalMatrix, evaluation, *M_globalCFE_std , //*globalCFE,
+                                  *M_testCFE_std, *M_solutionCFE_std);
+
+            }
+
+            elementalMatrix.pushToGlobal (mat);
+        }
+
+    }
+
+}
+
+
+
+
+
+
 
 } // Namespace ExpressionAssembly
 

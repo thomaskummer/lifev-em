@@ -38,9 +38,6 @@
 
 #include <lifev/core/LifeV.hpp>
 
-#include <lifev/core/array/MatrixSmall.hpp>
-
-
 namespace LifeV
 {
 //! class OperationSmallAddition  Class containing information about the power operation between the *Small classes.
@@ -60,7 +57,7 @@ namespace LifeV
   the LifeV::Real type.
 
 */
-template <typename Base>
+template <typename Argument>
 class OperationSmallSquareRoot
 {
 private:

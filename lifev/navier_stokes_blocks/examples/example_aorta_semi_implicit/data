@@ -1,0 +1,50 @@
+[exporter]
+	type       = hdf5 # hdf5 (if library compiled with hdf5 support) or ensight
+	multimesh  = false
+	start      = 0
+	save       = 1
+	filename   = result_aorta_semi_implicit
+[../]
+
+[newton]
+    convectiveImplicit      =  false
+[../]
+
+[fluid]
+
+    options_preconditioner = solversOptionsFast
+    preconditionerType     = SIMPLE
+    save_every             = 1
+    penalize_reverse_flow  = true
+    flag_outflow           = 2
+    
+    [./physics]
+    density         = 1.0    # density
+    viscosity       = 0.035  # viscosity
+
+    [../time_discretization]
+    initialtime     = 0.05
+    endtime         = 3.2
+    timestep        = 0.005
+
+    BDF_order       = 2
+
+    [../space_discretization]
+    mesh_dir        = ./
+    mesh_file       = Aorta_fluid_30K_NE.mesh
+    mesh_type       = .mesh
+
+    vel_order       = P1
+    pres_order      = P1
+    stiff_strain    = true
+
+    [../stabilization]
+    use             = true
+    type            = SUPG_SEMI_IMPLICIT
+    vel_order       = 1
+
+    [../miscellaneous]
+    verbose         = 1
+    steady          = false
+    
+[../]

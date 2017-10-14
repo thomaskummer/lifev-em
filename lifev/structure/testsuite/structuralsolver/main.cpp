@@ -66,12 +66,12 @@
 
 #include <lifev/structure/solver/StructuralConstitutiveLaw.hpp>
 #include <lifev/structure/solver/StructuralOperator.hpp>
-#include <lifev/structure/solver/VenantKirchhoffMaterialLinear.hpp>
-#include <lifev/structure/solver/VenantKirchhoffMaterialNonLinear.hpp>
-#include <lifev/structure/solver/ExponentialMaterialNonLinear.hpp>
-#include <lifev/structure/solver/VenantKirchhoffMaterialNonLinearPenalized.hpp>
-#include <lifev/structure/solver/SecondOrderExponentialMaterialNonLinear.hpp>
-#include <lifev/structure/solver/NeoHookeanMaterialNonLinear.hpp>
+#include <lifev/structure/solver/isotropic/VenantKirchhoffMaterialLinear.hpp>
+#include <lifev/structure/solver/isotropic/VenantKirchhoffMaterialNonLinear.hpp>
+#include <lifev/structure/solver/isotropic/ExponentialMaterialNonLinear.hpp>
+#include <lifev/structure/solver/isotropic/VenantKirchhoffMaterialNonLinearPenalized.hpp>
+#include <lifev/structure/solver/isotropic/SecondOrderExponentialMaterialNonLinear.hpp>
+#include <lifev/structure/solver/isotropic/NeoHookeanMaterialNonLinear.hpp>
 
 #include <lifev/core/filter/ExporterEnsight.hpp>
 #ifdef HAVE_HDF5
@@ -126,7 +126,7 @@ public:
     //@{
     Structure ( int                                   argc,
                 char**                                argv,
-                boost::shared_ptr<Epetra_Comm>        structComm );
+                std::shared_ptr<Epetra_Comm>        structComm );
 
     ~Structure()
     {}
@@ -162,7 +162,7 @@ private:
 
 private:
     struct Private;
-    boost::shared_ptr<Private> parameters;
+    std::shared_ptr<Private> parameters;
 };
 
 
@@ -172,12 +172,12 @@ struct Structure::Private
     Private() :
         rho (1), poisson (1), young (1), bulk (1), alpha (1), gamma (1)
     {}
-    typedef boost::function<Real ( Real const&, Real const&, Real const&, Real const&, ID const& ) > fct_type;
+    typedef std::function<Real ( Real const&, Real const&, Real const&, Real const&, ID const& ) > fct_type;
     double rho, poisson, young, bulk, alpha, gamma;
 
     std::string data_file_name;
 
-    boost::shared_ptr<Epetra_Comm>     comm;
+    std::shared_ptr<Epetra_Comm>     comm;
 
     static Real bcZero (const Real& /*t*/, const Real&  /*X*/, const Real& /*Y*/, const Real& /*Z*/, const ID& /*i*/)
     {
@@ -222,11 +222,11 @@ struct Structure::Private
 
 Structure::Structure ( int                                   argc,
                        char**                                argv,
-                       boost::shared_ptr<Epetra_Comm>        structComm) :
+                       std::shared_ptr<Epetra_Comm>        structComm) :
     parameters ( new Private() )
 {
     GetPot command_line (argc, argv);
-    string data_file_name = command_line.follow ("data", 2, "-f", "--file");
+    std::string data_file_name = command_line.follow ("data", 2, "-f", "--file");
     GetPot dataFile ( data_file_name );
     parameters->data_file_name = data_file_name;
 
@@ -267,38 +267,42 @@ void
 Structure::run3d()
 {
     typedef StructuralOperator< RegionMesh<LinearTetra> >::vector_Type  vector_Type;
-    typedef boost::shared_ptr<vector_Type>                              vectorPtr_Type;
-    typedef boost::shared_ptr< TimeAdvance< vector_Type > >             timeAdvance_Type;
+    typedef std::shared_ptr<vector_Type>                              vectorPtr_Type;
+    typedef std::shared_ptr< TimeAdvance< vector_Type > >             timeAdvance_Type;
     typedef FESpace< RegionMesh<LinearTetra>, MapEpetra >               solidFESpace_Type;
-    typedef boost::shared_ptr<solidFESpace_Type>                        solidFESpacePtr_Type;
+    typedef std::shared_ptr<solidFESpace_Type>                        solidFESpacePtr_Type;
 
     typedef ETFESpace< RegionMesh<LinearTetra>, MapEpetra, 3, 3 >       solidETFESpace_Type;
-    typedef boost::shared_ptr<solidETFESpace_Type>                      solidETFESpacePtr_Type;
+    typedef std::shared_ptr<solidETFESpace_Type>                      solidETFESpacePtr_Type;
 
 
     bool verbose = (parameters->comm->MyPID() == 0);
 
     //! Number of boundary conditions for the velocity and mesh motion
-    boost::shared_ptr<BCHandler> BCh ( new BCHandler() );
+    std::shared_ptr<BCHandler> BCh ( new BCHandler() );
 
     //! dataElasticStructure
     GetPot dataFile ( parameters->data_file_name.c_str() );
 
-    boost::shared_ptr<StructuralConstitutiveLawData> dataStructure (new StructuralConstitutiveLawData( ) );
+    std::shared_ptr<StructuralConstitutiveLawData> dataStructure (new StructuralConstitutiveLawData( ) );
     dataStructure->setup (dataFile);
 
     MeshData             meshData;
     meshData.setup (dataFile, "solid/space_discretization");
 
-    boost::shared_ptr<RegionMesh<LinearTetra> > fullMeshPtr (new RegionMesh<LinearTetra> (  parameters->comm  ) );
+
+    std::shared_ptr<RegionMesh<LinearTetra> > fullMeshPtr (new RegionMesh<LinearTetra> (  parameters->comm  ) );
+    std::shared_ptr<RegionMesh<LinearTetra> > localMeshPtr (new RegionMesh<LinearTetra> (  parameters->comm  ) );
+
     readMesh (*fullMeshPtr, meshData);
 
     MeshPartitioner< RegionMesh<LinearTetra> > meshPart ( fullMeshPtr, parameters->comm );
+    localMeshPtr = meshPart.meshPartition();
 
     std::string dOrder =  dataFile ( "solid/space_discretization/order", "P1");
 
     //Mainly used for BCs assembling (Neumann type)
-    solidFESpacePtr_Type dFESpace ( new solidFESpace_Type (meshPart, dOrder, 3, parameters->comm) );
+    solidFESpacePtr_Type dFESpace ( new solidFESpace_Type (localMeshPtr, dOrder, 3, parameters->comm) );
     solidETFESpacePtr_Type dETFESpace ( new solidETFESpace_Type (meshPart, & (dFESpace->refFE() ), & (dFESpace->fe().geoMap() ), parameters->comm) );
 
     if (verbose)
@@ -342,7 +346,7 @@ Structure::run3d()
     BCFunctionBase zero (Private::bcZero);
     BCFunctionBase nonZero;
 
-    if ( dataStructure->solidType().compare ("secondOrderExponential") )
+    if ( dataStructure->solidTypeIsotropic().compare ("secondOrderExponential") )
     {
         nonZero.setFunction (Private::bcNonZero);
     }
@@ -407,7 +411,7 @@ Structure::run3d()
 
     vectorPtr_Type initialDisplacement (new vector_Type (solid.displacement(), Unique) );
 
-    if ( !dataStructure->solidType().compare ("secondOrderExponential") )
+    if ( !dataStructure->solidTypeIsotropic().compare ("secondOrderExponential") )
     {
         dFESpace->interpolate ( static_cast<solidFESpace_Type::function_Type> ( Private::d0 ), *initialDisplacement, 0.0 );
     }
@@ -420,7 +424,7 @@ Structure::run3d()
         {
             Real previousTimeStep = tZero - previousPass * dt;
             std::cout << "BDF " << previousTimeStep << "\n";
-            if ( !dataStructure->solidType().compare ("secondOrderExponential") )
+            if ( !dataStructure->solidTypeIsotropic().compare ("secondOrderExponential") )
             {
                 uv0.push_back (initialDisplacement);
             }
@@ -437,7 +441,7 @@ Structure::run3d()
 
     timeAdvance->updateRHSContribution ( dt );
 
-    if ( !dataStructure->solidType().compare ("secondOrderExponential") )
+    if ( !dataStructure->solidTypeIsotropic().compare ("secondOrderExponential") )
     {
         solid.initialize ( initialDisplacement );
     }
@@ -453,7 +457,7 @@ Structure::run3d()
         std::cout << "ok." << std::endl;
     }
 
-    boost::shared_ptr< Exporter<RegionMesh<LinearTetra> > > exporter;
+    std::shared_ptr< Exporter<RegionMesh<LinearTetra> > > exporter;
 
     std::string const exporterType =  dataFile ( "exporter/type", "ensight");
 #ifdef HAVE_HDF5
@@ -589,23 +593,23 @@ Structure::run3d()
         std::cout << "The norm 2 of the displacement field is: " << normVect << std::endl;
 
         ///////// CHECKING THE RESULTS OF THE TEST AT EVERY TIMESTEP
-        if (!dataStructure->solidType().compare ("linearVenantKirchhoff") )
+        if (!dataStructure->solidTypeIsotropic().compare ("linearVenantKirchhoff") )
         {
             CheckResultLE (normVect, dataStructure->dataTime()->time() );
         }
-        else if (!dataStructure->solidType().compare ("nonLinearVenantKirchhoff") )
+        else if (!dataStructure->solidTypeIsotropic().compare ("nonLinearVenantKirchhoff") )
         {
             CheckResultSVK (normVect, dataStructure->dataTime()->time() );
         }
-        else if (!dataStructure->solidType().compare ("nonLinearVenantKirchhoffPenalized") )
+        else if (!dataStructure->solidTypeIsotropic().compare ("nonLinearVenantKirchhoffPenalized") )
         {
             CheckResultSVKPenalized (normVect, dataStructure->dataTime()->time() );
         }
-        else if (!dataStructure->solidType().compare ("exponential") )
+        else if (!dataStructure->solidTypeIsotropic().compare ("exponential") )
         {
             CheckResultEXP (normVect, dataStructure->dataTime()->time() );
         }
-        else if (!dataStructure->solidType().compare ("secondOrderExponential") )
+        else if (!dataStructure->solidTypeIsotropic().compare ("secondOrderExponential") )
         {
             CheckResult2ndOrderExponential (normVect, dataStructure->dataTime()->time() );
         }
@@ -760,14 +764,14 @@ main ( int argc, char** argv )
 
 #ifdef HAVE_MPI
     MPI_Init (&argc, &argv);
-    boost::shared_ptr<Epetra_MpiComm> Comm (new Epetra_MpiComm ( MPI_COMM_WORLD ) );
+    std::shared_ptr<Epetra_MpiComm> Comm (new Epetra_MpiComm ( MPI_COMM_WORLD ) );
     if ( Comm->MyPID() == 0 )
     {
-        cout << "% using MPI" << endl;
+        std::cout << "% using MPI" << std::endl;
     }
 #else
-    boost::shared_ptr<Epetra_SerialComm> Comm ( new Epetra_SerialComm() );
-    cout << "% using serial Version" << endl;
+    std::shared_ptr<Epetra_SerialComm> Comm ( new Epetra_SerialComm() );
+    std::cout << "% using serial Version" << std::endl;
 #endif
 
     Structure structure ( argc, argv, Comm );

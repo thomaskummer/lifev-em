@@ -154,6 +154,7 @@ FSIMonolithicGI::evalResidual ( vector_Type&       res,
     {
         M_BChs.push_back (M_BCh_d);
         M_BChs.push_back (M_BCh_u);
+
         M_FESpaces.push_back (M_dFESpace);
         M_FESpaces.push_back (M_uFESpace);
 
@@ -363,7 +364,7 @@ void FSIMonolithicGI::setupBlockPrec()
 
         if (M_data->dataFluid()->useShapeDerivatives() )
         {
-            boost::shared_ptr<MatrixEpetra<Real> > staticCast = boost::static_pointer_cast<MatrixEpetra<Real> > (M_shapeDerivativesBlock);
+            std::shared_ptr<MatrixEpetra<Real> > staticCast = std::static_pointer_cast<MatrixEpetra<Real> > (M_shapeDerivativesBlock);
             M_precPtr->push_back_coupling ( staticCast );
         }
     }

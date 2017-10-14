@@ -45,7 +45,7 @@ namespace LifeV
 // ===================================================
 // Constructors & Destructor
 // ===================================================
-PreconditionerLinearSolver::PreconditionerLinearSolver ( boost::shared_ptr<Epetra_Comm> comm ) :
+PreconditionerLinearSolver::PreconditionerLinearSolver ( std::shared_ptr<Epetra_Comm> comm ) :
     Preconditioner          ( comm ),
     M_printSubiterationCount ( false ),
     M_precName              ( "" ),
@@ -209,7 +209,7 @@ PreconditionerLinearSolver::setSolver ( SolverAztecOO& /*solver*/ )
 bool
 PreconditionerLinearSolver::isPreconditionerSet() const
 {
-    return M_solver != 0 ? true : false;
+    return M_solver != nullptr ? true : false;
 }
 
 PreconditionerLinearSolver::prec_raw_type*

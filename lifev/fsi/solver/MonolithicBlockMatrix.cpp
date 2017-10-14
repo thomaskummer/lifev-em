@@ -146,7 +146,7 @@ void MonolithicBlockMatrix::applyPreconditioner ( const matrixPtr_Type prec, mat
 }
 
 
-void MonolithicBlockMatrix::createInterfaceMap ( const MapEpetra& interfaceMap , const std::map<ID, ID>& locDofMap, const UInt subdomainMaxId,  const boost::shared_ptr<Epetra_Comm> epetraWorldComm )
+void MonolithicBlockMatrix::createInterfaceMap ( const MapEpetra& interfaceMap , const std::map<ID, ID>& locDofMap, const UInt subdomainMaxId,  const std::shared_ptr<Epetra_Comm> epetraWorldComm )
 {
     //std::map<ID, ID> const& locDofMap = M_dofStructureToHarmonicExtension->locDofMap();
     std::map<ID, ID>::const_iterator ITrow;
@@ -231,11 +231,13 @@ void MonolithicBlockMatrix::applyBoundaryConditions (const Real& time, vectorPtr
 
 void MonolithicBlockMatrix::applyBoundaryConditions (const Real& time, vectorPtr_Type& rhs, const UInt block)
 {
+
     bcManage ( *M_globalMatrix , *rhs, *super_Type::M_FESpace[block]->mesh(), super_Type::M_FESpace[block]->dof(), *super_Type::M_bch[block], super_Type::M_FESpace[block]->feBd(), 1., time);
 }
 
 void MonolithicBlockMatrix::applyBoundaryConditions (const Real& time, const UInt block)
 {
+
     bcManageMatrix ( *M_globalMatrix , *super_Type::M_FESpace[block]->mesh(), super_Type::M_FESpace[block]->dof(), *super_Type::M_bch[block], super_Type::M_FESpace[block]->feBd(), 1., time);
 }
 

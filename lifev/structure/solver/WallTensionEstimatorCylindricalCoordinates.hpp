@@ -117,26 +117,26 @@ public:
 
     typedef StructuralConstitutiveLawData                 data_Type;
     typedef WallTensionEstimatorData                      analysisData_Type;
-    typedef typename boost::shared_ptr<data_Type>         dataPtr_Type;
-    typedef typename boost::shared_ptr<analysisData_Type> analysisDataPtr_Type;
+    typedef typename std::shared_ptr<data_Type>         dataPtr_Type;
+    typedef typename std::shared_ptr<analysisData_Type> analysisDataPtr_Type;
 
     //Matrices 3x3 and std::vector for the invariants
     typedef Epetra_SerialDenseMatrix                      matrix_Type;
-    typedef boost::shared_ptr<matrix_Type>                matrixPtr_Type;
+    typedef std::shared_ptr<matrix_Type>                matrixPtr_Type;
     typedef std::vector<LifeV::Real>                      vector_Type;
-    typedef boost::shared_ptr<vector_Type>                vectorPtr_Type;
+    typedef std::shared_ptr<vector_Type>                vectorPtr_Type;
 
     // These two are to handle the vector displacement read from hdf5
     typedef VectorEpetra                                  solutionVect_Type;
-    typedef boost::shared_ptr<VectorEpetra>               solutionVectPtr_Type;
+    typedef std::shared_ptr<VectorEpetra>               solutionVectPtr_Type;
 
     // Displayer and Exporter classes
-    typedef typename boost::shared_ptr<const Displayer>   displayerPtr_Type;
-    typedef typename boost::shared_ptr< Exporter<Mesh> >  exporterPtr_Type;
+    typedef typename std::shared_ptr<const Displayer>   displayerPtr_Type;
+    typedef typename std::shared_ptr< Exporter<Mesh> >  exporterPtr_Type;
 
     // Materials
     typedef StructuralConstitutiveLaw<Mesh>               material_Type;
-    typedef boost::shared_ptr<material_Type>              materialPtr_Type;
+    typedef std::shared_ptr<material_Type>              materialPtr_Type;
 
     //@}
 
@@ -304,7 +304,7 @@ WallTensionEstimatorCylindricalCoordinates<Mesh >::analyzeTensionsRecoveryDispla
     LifeChrono chrono;
 
     this->M_displayer->leaderPrint (" \n*********************************\n  ");
-    this->M_displayer->leaderPrint ("   Performing the analysis recovering the displacement..., ", this->M_dataMaterial->solidType() );
+    this->M_displayer->leaderPrint ("   Performing the analysis recovering the displacement..., ", this->M_dataMaterial->solidTypeIsotropic() );
     this->M_displayer->leaderPrint (" \n*********************************\n  ");
 
     solutionVectPtr_Type grDisplX ( new solutionVect_Type (* (this->M_FESpace->mapPtr() ) ) );
@@ -413,7 +413,7 @@ WallTensionEstimatorCylindricalCoordinates<Mesh >::analyzeTensionsRecoveryEigenv
     LifeChrono chrono;
 
     this->M_displayer->leaderPrint (" \n*********************************\n  ");
-    this->M_displayer->leaderPrint ("   Performing the analysis recovering the tensions..., ", this->M_dataMaterial->solidType() );
+    this->M_displayer->leaderPrint ("   Performing the analysis recovering the tensions..., ", this->M_dataMaterial->solidTypeIsotropic() );
     this->M_displayer->leaderPrint (" \n*********************************\n  ");
 
     solutionVect_Type patchArea (* (this->M_displacement), Unique, Add);
@@ -647,7 +647,7 @@ WallTensionEstimatorCylindricalCoordinates<Mesh >::constructGlobalStressVector()
     this->M_FESpace->setQuadRule (fakeQuadratureRule);
 
     this->M_displayer->leaderPrint (" \n*********************************\n  ");
-    this->M_displayer->leaderPrint ("   Performing the analysis recovering the Cauchy stresses..., ", this->M_dataMaterial->solidType() );
+    this->M_displayer->leaderPrint ("   Performing the analysis recovering the Cauchy stresses..., ", this->M_dataMaterial->solidTypeIsotropic() );
     this->M_displayer->leaderPrint (" \n*********************************\n  ");
 
     UInt totalDof = this->M_FESpace->dof().numTotalDof();

@@ -52,14 +52,17 @@ namespace LifeV
 
   \section flag_definition What is a flag?
 
-  At first sight, we might think that a flag is a complicated class implemented to do exaclty what we want,
+  At first sight, we might think that a flag is a complicated class implemented to do exactly what we want,
   with overloaded operators... Actually, it is much simpler: a LifeV::flag_Type is just an unsigned integer.
 
   \section flag_primitive How to define a flag?
 
-  The flags use the binary representation of the integers to work. This enables a very fast definition and use of the flags. To understand it, let us make a simple example. Suppose that we can update three quantities A,B and C.
+  The flags use the binary representation of the integers to work. This enables a very fast definition and
+  use of the flags. To understand it, let us make a simple example. Suppose that we can update three
+  quantities A,B and C.
 
-  The first step is to define a "primitive" flag for each of these quantities. These flags are defined as powers of 2. Here, we will define
+  The first step is to define a "primitive" flag for each of these quantities. These flags are defined as
+  powers of 2. Here, we will define
 
   \code
   flag_Type UPDATE_A(1);
@@ -133,7 +136,7 @@ typedef unsigned int flag_Type;
 // PRIMITIVE FLAGS
 // The flags containing "ONLY" are not intended to be directly used.
 // They are rather meant to be composed into other flags that take
-// care for the completness of the procedure.
+// care for the completeness of the procedure.
 
 // Do nothing flag
 const flag_Type ET_UPDATE_NONE (0);
@@ -165,14 +168,20 @@ const flag_Type ET_UPDATE_ONLY_D2PHI (128);
 // Update the divergence of the basis functions
 const flag_Type ET_UPDATE_ONLY_DIVERGENCE (256);
 
+// Update the laplacian of the basis functions
+const flag_Type ET_UPDATE_ONLY_LAPLACIAN (512);
+
 // Update the diameter of the triangle
-const flag_Type ET_UPDATE_ONLY_DIAMETER (512);
+const flag_Type ET_UPDATE_ONLY_DIAMETER (1024);
 
 // Update the measure of the triangle
-const flag_Type ET_UPDATE_ONLY_MEASURE (1024);
+const flag_Type ET_UPDATE_ONLY_MEASURE (2048);
+
+// Update the metric tensor of the tetrahedra
+const flag_Type ET_UPDATE_ONLY_METRIC (4096);
 
 // Update everything
-const flag_Type ET_UPDATE_ALL (2048 - 1);
+const flag_Type ET_UPDATE_ALL (8192 - 1);
 
 
 // COMPOSITE FLAGS
@@ -212,9 +221,21 @@ const flag_Type ET_UPDATE_DIVERGENCE (ET_UPDATE_ONLY_CELL_NODE
                                       | ET_UPDATE_ONLY_DPHI
                                       | ET_UPDATE_ONLY_DIVERGENCE);
 
+// Flag for the laplacian of the basis functions
+const flag_Type ET_UPDATE_LAPLACIAN  (ET_UPDATE_ONLY_CELL_NODE
+                                      | ET_UPDATE_ONLY_JACOBIAN
+                                      | ET_UPDATE_ONLY_DET_JACOBIAN
+                                      | ET_UPDATE_ONLY_T_INVERSE_JACOBIAN
+                                      | ET_UPDATE_ONLY_D2PHI
+                                      | ET_UPDATE_ONLY_LAPLACIAN);
+
 // Flag for the diameter of the cell
 const flag_Type ET_UPDATE_DIAMETER (ET_UPDATE_ONLY_CELL_NODE
                                     | ET_UPDATE_ONLY_DIAMETER);
+
+// Flag for the metric of the cell
+const flag_Type ET_UPDATE_METRIC (ET_UPDATE_ONLY_CELL_NODE
+                                    | ET_UPDATE_ONLY_METRIC);
 
 // Flag for the diameter of the cell
 const flag_Type ET_UPDATE_MEASURE (ET_UPDATE_WDET

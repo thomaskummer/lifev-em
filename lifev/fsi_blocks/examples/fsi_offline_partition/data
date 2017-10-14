@@ -1,0 +1,36 @@
+###################################################################################################
+#
+#                       This file is part of the LifeV Applications                        
+#                Copyright (C) 2004, 2005, 2007 EPFL, Politecnico di Milano, INRIA
+#                Copyright (C) 2010 EPFL, Politecnico di Milano, Emory University      
+#
+#      Author(s):
+#           Date: 00-00-0000
+#  License Terms: GNU LGPL
+#
+###################################################################################################
+### DATA FILE #####################################################################################
+###################################################################################################
+
+[test]
+    num_parts = 4
+    fluid_hdf5_file_name = fluid_P1_4parts.h5
+    solid_hdf5_file_name = solid_P1_4parts.h5
+    interface_hdf5_file_name = interface_P1_4parts.h5
+    fluidVertexFlag = 20
+
+[fluid_mesh]
+    mesh_dir       = ./
+    mesh_file      = tube20.mesh
+    mesh_type      = .mesh
+    verbose        = false
+    order   	   = P1
+    interface_flag = 1
+    
+[solid_mesh]
+    mesh_dir       = ./
+    mesh_file      = vessel20.mesh
+    mesh_type      = .mesh
+    verbose        = false
+    order          = P1
+    interface_flag = 1

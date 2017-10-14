@@ -1327,7 +1327,7 @@ Real aortaFlux5 (const Real&  t, const Real& /*x*/, const Real& /*y*/, const Rea
     {
         return  3.016E-06 * 1e6;
     }
-}//first branch_1,
+}//first branchstd::placeholders::_1,
 
 Real aortaFlux6 (const Real&  t, const Real& /*x*/, const Real& /*y*/, const Real& /*z*/, const ID& /*i*/)
 {
@@ -3507,6 +3507,7 @@ Real aortaFlux3_ (const Real&  t, const Real& /*x*/, const Real& /*y*/, const Re
     {
         return  33.1             ;
     }
+    RETURN_UNDEFINED;
 }
 
 Real aortaFlux6_ (const Real&  t, const Real& /*x*/, const Real& /*y*/, const Real& /*z*/, const ID& /*i*/)
@@ -3831,6 +3832,7 @@ Real aortaFlux6_ (const Real&  t, const Real& /*x*/, const Real& /*y*/, const Re
     {
         return    0.6674071250000001;
     }
+    RETURN_UNDEFINED;
 }
 
 Real u2 (Real  /*t*/, const Real& /*x*/, const Real& /*y*/, const Real& /*z*/, const ID& /*i*/)
@@ -3839,4 +3841,3 @@ Real u2 (Real  /*t*/, const Real& /*x*/, const Real& /*y*/, const Real& /*z*/, c
 }
 
 }
-

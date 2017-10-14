@@ -1,0 +1,56 @@
+[exporter]
+	type       = hdf5 
+	multimesh  = false
+	start      = 0
+	save       = 1
+	filename   = result_external_fluid_flow
+[../]
+
+[newton]
+    convectiveImplicit      =  false
+[../]
+
+[fluid]
+
+    options_preconditioner = solversOptionsFast
+    preconditionerType     = SIMPLE 
+    save_every             = 4
+    save_after             = 0.005
+    penalize_reverse_flow  = true
+    flag_outflow           = 3
+    
+    [./physics]
+    	density         = 1000.0    # density
+    	viscosity       = 1.0       # viscosity
+
+    [../time_discretization]
+    	initialtime     = 0.0
+    	endtime         = 15.0
+    	timestep        = 0.0025
+    	BDF_order       = 2
+
+    [../space_discretization]
+    	mesh_dir        = ./
+    	mesh_file       = flow_square_coarse.mesh
+    	mesh_type       = .mesh
+    	vel_order       = P1
+    	pres_order      = P1
+
+    [../stabilization]
+    	use             = true
+    	type            = SUPG_SEMI_IMPLICIT
+    	vel_order       = 1
+    
+    [../miscellaneous]
+    	verbose         = 1
+    	steady          = false
+    
+    [../weak_bc]
+    	use             = true  # if here you put true, then comment line 68 in the boundaryConditions.hpp file
+    	flag            = 4     # flag of the cylinder
+    	mesh_size       = 0.1   # mesh size in the normal direction of the cylinder
+    
+    [../forces]
+    	compute         = true
+    
+[../]

@@ -82,9 +82,9 @@ public:
     //@{
 
     typedef Epetra_FECrsMatrix             matrix_type;
-    typedef boost::shared_ptr<matrix_type> matrix_ptrtype;
+    typedef std::shared_ptr<matrix_type> matrix_ptrtype;
     typedef VectorEpetra                   vector_type;
-    typedef boost::shared_ptr<vector_type> vectorPtr_Type;
+    typedef std::shared_ptr<vector_type> vectorPtr_Type;
 
     //@}
 
@@ -112,6 +112,13 @@ public:
       @param numEntries The average number of entries for each row.
      */
     MatrixEpetra ( const MapEpetra& map, Int numEntries = 50, bool ignoreNonLocalValues = false );
+
+    //! Constructor for square and rectangular matrices, knowing the number of entries per row
+    /*!
+      @param map Row map. The column map will be defined in MatrixEpetra<DataType>::GlobalAssemble(...,...)
+      @param numEntriesPerRow Contains the number of entries for each row.
+     */
+    MatrixEpetra ( const MapEpetra& map, Int* numEntriesPerRow, bool ignoreNonLocalValues = false );
 
     //! Copy Constructor
     /*!
@@ -257,7 +264,7 @@ public:
     void add ( const DataType scalar, const MatrixEpetra& matrix );
 
     //! Returns a pointer to a new matrix which contains the transpose of the current matrix
-    boost::shared_ptr<MatrixEpetra<DataType> > transpose( );
+    std::shared_ptr<MatrixEpetra<DataType> > transpose( );
 
     //! Set entries (rVec(i),rVec(i)) to coefficient and the rest of the row entries to zero
     /*!
@@ -313,7 +320,7 @@ public:
       @param filename file where the matrix will be saved
      */
     void spy ( std::string const& fileName );
-
+    
 #ifdef HAVE_HDF5
     //! Save the matrix into a HDF5 (.h5) file
     /*!
@@ -360,8 +367,8 @@ public:
      @param domainMap The domain map
      @param rangeMap The range map
      */
-    Int globalAssemble ( const boost::shared_ptr<const MapEpetra>& domainMap,
-                         const boost::shared_ptr<const MapEpetra>& rangeMap );
+    Int globalAssemble ( const std::shared_ptr<const MapEpetra>& domainMap,
+                         const std::shared_ptr<const MapEpetra>& rangeMap );
 
     //! Fill complete of a square matrix with default domain and range map
     Int fillComplete();
@@ -378,6 +385,7 @@ public:
       @param Map The MapEpetra
       @param offset An offset for the insertion of the diagonal entries
     */
+
     void insertValueDiagonal ( const DataType entry, const MapEpetra& Map, const UInt offset = 0 );
 
     //! insert the given value into the diagonal
@@ -546,7 +554,7 @@ public:
     }
 
     //! Return the shared_pointer of the Epetra_Map
-    boost::shared_ptr<MapEpetra> mapPtr()
+    std::shared_ptr<MapEpetra> mapPtr()
     {
         return M_map;
     }
@@ -576,12 +584,26 @@ public:
      */
     const MapEpetra& domainMap() const;
 
+    const boost::shared_ptr< const MapEpetra >& domainMapPtr() const;
+
+
     //! Return the range MapEpetra of the MatrixEpetra
     /*!
       This function should be called only after MatrixEpetra<DataType>::GlobalAssemble(...) has been called.
       If this is an open matrix that M_domainMap is an invalid pointer
      */
     const MapEpetra& rangeMap() const;
+    const boost::shared_ptr< const MapEpetra >& rangeMapPtr() const;
+    
+    //! Restrict the matrix to the dofs contained in the input map
+    /*!
+     @param map        MapEpetra that contains the indices
+     @param matrix_out Matrix restricted
+     */
+    void restrict ( const std::shared_ptr<MapEpetra>& map,
+    				const std::shared_ptr<VectorEpetra>& numeration,
+    				const UInt& offset,
+    				std::shared_ptr<MatrixEpetra<DataType> > & matrix_out );
 
     //@}
 
@@ -601,7 +623,7 @@ private:
 
 
     // Shared pointer on the row MapEpetra used in the assembling
-    boost::shared_ptr< MapEpetra > M_map;
+    std::shared_ptr< MapEpetra > M_map;
 
     // Shared pointer on the domain MapEpetra.
     /*
@@ -610,7 +632,7 @@ private:
       NOTE: Epetra assume the domain map to be 1-1 and onto (Unique)
       M_domainMap is a NULL pointer until MatrixEpetra<DataType> is called.
      */
-    boost::shared_ptr< const MapEpetra > M_domainMap;
+    std::shared_ptr< const MapEpetra > M_domainMap;
 
     //! Shared pointer on the range MapEpetra.
     /*
@@ -619,7 +641,7 @@ private:
       NOTE: Epetra assume the domain map to be 1-1 and onto (Unique)
       M_rangeMap is a NULL pointer until MatrixEpetra<DataType> is called.
      */
-    boost::shared_ptr< const MapEpetra > M_rangeMap;
+    std::shared_ptr< const MapEpetra > M_rangeMap;
 
     // Pointer on a Epetra_FECrsMatrix
     matrix_ptrtype  M_epetraCrs;
@@ -647,6 +669,14 @@ MatrixEpetra<DataType>::MatrixEpetra ( const MapEpetra& map, const Epetra_FECrsG
 
 template <typename DataType>
 MatrixEpetra<DataType>::MatrixEpetra ( const MapEpetra& map, Int numEntries, bool ignoreNonLocalValues ) :
+    M_map       ( new MapEpetra ( map ) ),
+    M_epetraCrs ( new matrix_type ( Copy, *M_map->map ( Unique ), numEntries, ignoreNonLocalValues) )
+{
+
+}
+
+template <typename DataType>
+MatrixEpetra<DataType>::MatrixEpetra ( const MapEpetra& map, int* numEntries, bool ignoreNonLocalValues ) :
     M_map       ( new MapEpetra ( map ) ),
     M_epetraCrs ( new matrix_type ( Copy, *M_map->map ( Unique ), numEntries, ignoreNonLocalValues) )
 {
@@ -854,7 +884,7 @@ Int MatrixEpetra<DataType>::multiply ( bool transposeCurrent,
                                                       *result.matrixPtr(), false );
     if (callFillCompleteOnResult)
     {
-        boost::shared_ptr<const MapEpetra> domainMap, rangeMap;
+        std::shared_ptr<const MapEpetra> domainMap, rangeMap;
         if (transposeCurrent)
         {
             rangeMap = M_domainMap;
@@ -935,15 +965,15 @@ void MatrixEpetra<DataType>::add ( const DataType scalar, const MatrixEpetra& ma
 }
 
 template <typename DataType>
-boost::shared_ptr<MatrixEpetra<DataType> > MatrixEpetra<DataType>::transpose( )
+std::shared_ptr<MatrixEpetra<DataType> > MatrixEpetra<DataType>::transpose( )
 {
     ASSERT_PRE (M_epetraCrs->Filled(), "The transpose can be formed only if the matrix is already filled!");
-    boost::shared_ptr<Epetra_FECrsMatrix> transposedFE;
+    std::shared_ptr<Epetra_FECrsMatrix> transposedFE;
     transposedFE.reset (new Epetra_FECrsMatrix (Copy, M_epetraCrs->OperatorDomainMap(), M_epetraCrs->OperatorRangeMap(), 0, false) );
     EpetraExt::RowMatrix_Transpose transposer;
     *dynamic_cast<Epetra_CrsMatrix*> (& (*transposedFE) ) = dynamic_cast<Epetra_CrsMatrix&> (transposer (*M_epetraCrs) );
     transposedFE->FillComplete();
-    boost::shared_ptr<MatrixEpetra<DataType> > transposedMatrix (new MatrixEpetra<DataType> (*M_domainMap) );
+    std::shared_ptr<MatrixEpetra<DataType> > transposedMatrix (new MatrixEpetra<DataType> (*M_domainMap) );
     transposedMatrix->globalAssemble (M_rangeMap, M_domainMap);
     transposedMatrix->matrixPtr() = transposedFE;
 
@@ -1419,8 +1449,8 @@ Int MatrixEpetra<DataType>::fillComplete()
 }
 
 template <typename DataType>
-Int MatrixEpetra<DataType>::globalAssemble ( const boost::shared_ptr<const MapEpetra>& domainMap,
-                                             const boost::shared_ptr<const MapEpetra>& rangeMap )
+Int MatrixEpetra<DataType>::globalAssemble ( const std::shared_ptr<const MapEpetra>& domainMap,
+                                             const std::shared_ptr<const MapEpetra>& rangeMap )
 {
 
     if ( !M_epetraCrs->Filled() && domainMap->mapsAreSimilar ( *rangeMap) )
@@ -1435,8 +1465,7 @@ Int MatrixEpetra<DataType>::globalAssemble ( const boost::shared_ptr<const MapEp
 }
 
 template <typename DataType>
-void
-MatrixEpetra<DataType>::insertValueDiagonal ( const DataType entry, const MapEpetra& Map, const UInt offset )
+void MatrixEpetra<DataType>::insertValueDiagonal ( const DataType entry, const MapEpetra& Map, const UInt offset )
 {
     for ( Int i = 0 ; i < Map.map (Unique)->NumMyElements(); ++i )
     {
@@ -1655,10 +1684,22 @@ const MapEpetra& MatrixEpetra<DataType>::domainMap() const
 }
 
 template <typename DataType>
+const boost::shared_ptr< const MapEpetra >& MatrixEpetra<DataType>::domainMapPtr() const
+{
+    return M_domainMap;
+}
+
+template <typename DataType>
 const MapEpetra& MatrixEpetra<DataType>::rangeMap() const
 {
     ASSERT ( M_rangeMap.get() != 0, "MatrixEpetra::getRangeMap: Error: M_rangeMap pointer is null" );
     return *M_rangeMap;
+}
+
+template <typename DataType>
+const boost::shared_ptr< const MapEpetra >& MatrixEpetra<DataType>::rangeMapPtr() const
+{
+    return M_rangeMap;
 }
 
 template <typename DType>
@@ -1702,6 +1743,41 @@ MatrixEpetra<DType>* PtAP (const MatrixEpetra<DType>& A, const MatrixEpetra<DTyp
     return matrix;
 }
 
+template <typename DataType>
+void MatrixEpetra<DataType>::restrict ( const std::shared_ptr<MapEpetra>& map,
+										const std::shared_ptr<VectorEpetra>& numeration,
+										const UInt& offset,
+										std::shared_ptr<MatrixEpetra<DataType> > & matrix_out )
+{
+    // 1) create matrix P and R
+    MatrixEpetra<DataType> P (*M_rangeMap, 50 );
+    MatrixEpetra<DataType> R (*map, 50 );
+    double value = 1.0;
+    int offsetMap = numeration->size();
+    for(int i = 0; i < numeration->epetraVector().MyLength(); ++i)
+    {
+        P.addToCoefficient(numeration->blockMap().GID(i)           , (*numeration)[numeration->blockMap().GID(i)]              , value);
+        P.addToCoefficient(numeration->blockMap().GID(i) +   offset, (*numeration)[numeration->blockMap().GID(i)] + offsetMap  , value);
+        P.addToCoefficient(numeration->blockMap().GID(i) + 2*offset, (*numeration)[numeration->blockMap().GID(i)] + 2*offsetMap, value);
+
+        R.addToCoefficient((*numeration)[numeration->blockMap().GID(i)]              , numeration->blockMap().GID(i)           , value);
+        R.addToCoefficient((*numeration)[numeration->blockMap().GID(i)] + offsetMap  , numeration->blockMap().GID(i) + offset  , value);
+        R.addToCoefficient((*numeration)[numeration->blockMap().GID(i)] + 2*offsetMap, numeration->blockMap().GID(i) + 2*offset, value);
+    }
+        
+    P.globalAssemble( map, M_rangeMap );
+    R.globalAssemble( M_rangeMap, map );
+    
+    // 2) Perform tmp = matrix x P
+    MatrixEpetra<DataType> tmp (*M_rangeMap, 50 );
+    this->multiply(false, P, false, tmp, false);
+    tmp.globalAssemble( map, M_rangeMap );
+    
+    // 3) Perform restricted_matrix = R x tmp
+    matrix_out.reset(new MatrixEpetra<DataType> (*map, 50 ));
+    R.multiply(false, tmp, false, *matrix_out, false);
+    matrix_out->globalAssemble();
+}
 
 } // end namespace LifeV
 //@@

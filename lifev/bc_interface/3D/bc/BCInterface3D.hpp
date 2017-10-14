@@ -45,7 +45,6 @@
  * In particular:
  *
  * for Fluid:
->>>>>>> master
 #include <lifev/bc_interface/3D/function/fluid/BCInterfaceFunctionParserFluid3D.hpp>
 #include <lifev/bc_interface/3D/function/fluid/BCInterfaceFunctionParserSolverFluid3D.hpp>
 #include <lifev/bc_interface/3D/function/fluid/BCInterfaceFunctionUserDefinedFluid3D.hpp>
@@ -56,12 +55,6 @@
 #include <lifev/bc_interface/3D/function/solid/BCInterfaceFunctionSolverDefinedSolid3D.hpp>
 #include <lifev/bc_interface/3D/function/solid/BCInterfaceFunctionUserDefinedSolid3D.hpp>
 
-<<<<<<< HEAD
-//#include <lifev/bc_interface/3D/function/fsi/BCInterfaceFunctionParserFSI3D.hpp>
-//#include <lifev/bc_interface/3D/function/fsi/BCInterfaceFunctionParserSolverFSI3D.hpp>
-//#include <lifev/bc_interface/3D/function/fsi/BCInterfaceFunctionSolverDefinedFSI3D.hpp>
-//#include <lifev/bc_interface/3D/function/fsi/BCInterfaceFunctionUserDefinedFSI3D.hpp>
-=======
  * For FSI:
 #include <lifev/bc_interface/3D/function/fsi/BCInterfaceFunctionParserFSI3D.hpp>
 #include <lifev/bc_interface/3D/function/fsi/BCInterfaceFunctionParserSolverFSI3D.hpp>
@@ -146,18 +139,18 @@ public:
     typedef typename bcInterface_Type::vectorFunctionSolverDefined_Type vectorFunctionSolverDefined_Type;
 
     typedef BCInterfaceData3D                                           data_Type;
-    typedef boost::shared_ptr< data_Type >                              dataPtr_Type;
+    typedef std::shared_ptr< data_Type >                              dataPtr_Type;
 
     typedef BCFunctionRobin                                             bcFunctionRobin_Type;
-    typedef boost::shared_ptr< bcFunctionRobin_Type >                   bcFunctionRobinPtr_Type;
+    typedef std::shared_ptr< bcFunctionRobin_Type >                   bcFunctionRobinPtr_Type;
     typedef std::vector< bcFunctionRobinPtr_Type >                      vectorFunctionRobin_Type;
 
     typedef BCFunctionDirectional                                       bcFunctionDirectional_Type;
-    typedef boost::shared_ptr< bcFunctionDirectional_Type >             bcFunctionDirectionalPtr_Type;
+    typedef std::shared_ptr< bcFunctionDirectional_Type >             bcFunctionDirectionalPtr_Type;
     typedef std::vector< bcFunctionDirectionalPtr_Type >                vectorFunctionDirectional_Type;
 
     typedef BCDataInterpolator                                          bcFunctionDataInterpolator_Type;
-    typedef boost::shared_ptr< bcFunctionDataInterpolator_Type >        bcFunctionDataInterpolatorPtr_Type;
+    typedef std::shared_ptr< bcFunctionDataInterpolator_Type >        bcFunctionDataInterpolatorPtr_Type;
     typedef std::vector< bcFunctionDataInterpolatorPtr_Type >           vectorDataInterpolator_Type;
 
     //@}

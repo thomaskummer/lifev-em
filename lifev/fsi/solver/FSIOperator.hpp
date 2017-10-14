@@ -63,13 +63,18 @@
 #include <lifev/core/algorithm/NonLinearAitken.hpp>
 
 #include <lifev/structure/solver/StructuralOperator.hpp>
-#include <lifev/structure/solver/StructuralConstitutiveLaw.hpp>
-#include <lifev/structure/solver/VenantKirchhoffMaterialNonLinear.hpp>
-#include <lifev/structure/solver/VenantKirchhoffMaterialNonLinearPenalized.hpp>
-#include <lifev/structure/solver/SecondOrderExponentialMaterialNonLinear.hpp>
-#include <lifev/structure/solver/VenantKirchhoffMaterialLinear.hpp>
-#include <lifev/structure/solver/ExponentialMaterialNonLinear.hpp>
-#include <lifev/structure/solver/NeoHookeanMaterialNonLinear.hpp>
+
+#include <lifev/structure/solver/isotropic/VenantKirchhoffMaterialNonLinear.hpp>
+#include <lifev/structure/solver/isotropic/VenantKirchhoffMaterialLinear.hpp>
+#include <lifev/structure/solver/isotropic/ExponentialMaterialNonLinear.hpp>
+#include <lifev/structure/solver/isotropic/NeoHookeanMaterialNonLinear.hpp>
+#include <lifev/structure/solver/isotropic/VenantKirchhoffMaterialNonLinearPenalized.hpp>
+#include <lifev/structure/solver/isotropic/SecondOrderExponentialMaterialNonLinear.hpp>
+
+#ifdef ENABLE_ANISOTROPIC_LAW
+#include <lifev/structure/solver/anisotropic/HolzapfelMaterialNonLinear.hpp>
+#include <lifev/structure/solver/anisotropic/HolzapfelGeneralizedMaterialNonLinear.hpp>
+#endif
 
 #include <lifev/core/fem/DOFInterface3Dto3D.hpp>
 #include <lifev/core/fem/DOFInterface3Dto2D.hpp>
@@ -122,35 +127,35 @@ public:
     typedef HarmonicExtensionSolver<mesh_Type>                                      meshMotion_Type;
     typedef OseenSolverShapeDerivative   <mesh_Type>                                fluidLin_Type;
     typedef StructuralOperator  <mesh_Type>                                           solidLin_Type;
-    typedef boost::shared_ptr<fluid_Type>                                           fluidPtr_Type;
-    typedef boost::shared_ptr<solid_Type>                                           solidPtr_Type;
-    typedef boost::shared_ptr<meshMotion_Type>                                      meshMotionPtr_Type;
-    typedef boost::shared_ptr<fluidLin_Type>                                        fluidLinPtr_Type;
-    typedef boost::shared_ptr<solidLin_Type>                                        solidLinPtr_Type;
+    typedef std::shared_ptr<fluid_Type>                                           fluidPtr_Type;
+    typedef std::shared_ptr<solid_Type>                                           solidPtr_Type;
+    typedef std::shared_ptr<meshMotion_Type>                                      meshMotionPtr_Type;
+    typedef std::shared_ptr<fluidLin_Type>                                        fluidLinPtr_Type;
+    typedef std::shared_ptr<solidLin_Type>                                        solidLinPtr_Type;
     typedef fluid_Type::vector_Type/*fluidPtr_Type::vector_Type*/                   vector_Type;
-    typedef boost::shared_ptr<vector_Type>                                          vectorPtr_Type;
+    typedef std::shared_ptr<vector_Type>                                          vectorPtr_Type;
     typedef vector_Type                                                             solution_Type;
-    typedef boost::shared_ptr<solution_Type>                                        solutionPtr_Type;
+    typedef std::shared_ptr<solution_Type>                                        solutionPtr_Type;
     typedef fluid_Type::source_Type/*fluidPtr_Type::source_Type*/                   fluidSource_Type;
     typedef solid_Type::source_Type                                                 solidSource_Type;
-    typedef boost::function < Real ( const Real&, const Real&,
+    typedef std::function < Real ( const Real&, const Real&,
                                      const Real&, const Real&, const ID& ) >           function_Type;
     typedef Real                                                                    ( *bcFunction_Type ) ( const Real&, const Real&,
             const Real&, const Real&, const ID& );
-    typedef boost::shared_ptr<DOFInterface3Dto3D>                                   dofInterface3DPtr_Type;
-    typedef boost::shared_ptr<DOFInterface3Dto2D>                                   dofInterface2DPtr_Type;
-    typedef boost::shared_ptr<BCVectorInterface>                                    bcVectorInterfacePtr_Type;
+    typedef std::shared_ptr<DOFInterface3Dto3D>                                   dofInterface3DPtr_Type;
+    typedef std::shared_ptr<DOFInterface3Dto2D>                                   dofInterface2DPtr_Type;
+    typedef std::shared_ptr<BCVectorInterface>                                    bcVectorInterfacePtr_Type;
     typedef fluid_Type::bcHandlerPtr_Type/*fluidPtr_Type::bchandlerPtr_Type*/       fluidBchandlerPtr_Type;
     typedef fluid_Type::bcHandler_Type/*fluidPtr_Type::bchandler_Type*/             fluidBchandler_Type;
     typedef BCHandler                                                               solidBchandler_Type;
-    typedef boost::shared_ptr<solidBchandler_Type>                                  solidBchandlerPtr_Type;
+    typedef std::shared_ptr<solidBchandler_Type>                                  solidBchandlerPtr_Type;
     typedef FSIData                                                                 data_Type;
-    typedef boost::shared_ptr<data_Type>                                            dataPtr_Type;
+    typedef std::shared_ptr<data_Type>                                            dataPtr_Type;
     typedef std::map<ID, ID>::const_iterator                                        iterator_Type;
     typedef FactorySingleton<Factory<FSIOperator, std::string> >                    FSIFactory_Type;
     typedef Displayer::commPtr_Type/*Displayer::commPtr_Type*/                      commPtr_Type;
     typedef GetPot                                                                  dataFile_Type;
-    typedef boost::shared_ptr<dataFile_Type>                                        dataFilePtr_Type;
+    typedef std::shared_ptr<dataFile_Type>                                        dataFilePtr_Type;
     //@}
 
 
@@ -324,33 +329,46 @@ public:
 
     //!@name Factory Methods
     //@{
-    static StructuralConstitutiveLaw< FSIOperator::mesh_Type >*    createVenantKirchhoffLinear()
+    static StructuralIsotropicConstitutiveLaw< FSIOperator::mesh_Type >*    createVenantKirchhoffLinear()
     {
         return new VenantKirchhoffMaterialLinear< FSIOperator::mesh_Type >();
     }
 
-    static StructuralConstitutiveLaw< FSIOperator::mesh_Type >*    createVenantKirchhoffNonLinear()
+    static StructuralIsotropicConstitutiveLaw< FSIOperator::mesh_Type >*    createVenantKirchhoffNonLinear()
     {
         return new VenantKirchhoffMaterialNonLinear< FSIOperator::mesh_Type >();
     }
-    static StructuralConstitutiveLaw< FSIOperator::mesh_Type >*    createExponentialMaterialNonLinear()
+    static StructuralIsotropicConstitutiveLaw< FSIOperator::mesh_Type >*    createExponentialMaterialNonLinear()
     {
         return new ExponentialMaterialNonLinear< FSIOperator::mesh_Type >();
     }
 
-    static StructuralConstitutiveLaw< FSIOperator::mesh_Type >*    createNeoHookeanMaterialNonLinear()
+    static StructuralIsotropicConstitutiveLaw< FSIOperator::mesh_Type >*    createNeoHookeanMaterialNonLinear()
     {
         return new NeoHookeanMaterialNonLinear< FSIOperator::mesh_Type >();
     }
-    static StructuralConstitutiveLaw< FSIOperator::mesh_Type >*    createVenantKirchhoffNonLinearPenalized()
+    static StructuralIsotropicConstitutiveLaw< FSIOperator::mesh_Type >*    createVenantKirchhoffNonLinearPenalized()
     {
         return new VenantKirchhoffMaterialNonLinearPenalized< FSIOperator::mesh_Type >();
     }
 
-    static StructuralConstitutiveLaw< FSIOperator::mesh_Type >*    createSecondOrderExponentialMaterialNonLinear()
+    static StructuralIsotropicConstitutiveLaw< FSIOperator::mesh_Type >*    createSecondOrderExponentialMaterialNonLinear()
     {
         return new SecondOrderExponentialMaterialNonLinear< FSIOperator::mesh_Type >();
     }
+
+#ifdef ENABLE_ANISOTROPIC_LAW
+    static StructuralAnisotropicConstitutiveLaw< FSIOperator::mesh_Type >*  createHolzapfelMaterialNonLinear()
+    {
+        return new HolzapfelMaterialNonLinear<MeshType >();
+    }
+    static StructuralAnisotropicConstitutiveLaw< FSIOperator::mesh_Type >*  createHolzapfelGeneralizedMaterialNonLinear()
+    {
+        return new HolzapfelGeneralizedMaterialNonLinear<MeshType >();
+    }
+
+
+#endif
 
 
     //@}
@@ -677,7 +695,7 @@ public:
     {
         return *M_uFESpace;
     }
-    boost::shared_ptr<FESpace<mesh_Type, MapEpetra> > uFESpacePtr() const
+    std::shared_ptr<FESpace<mesh_Type, MapEpetra> > uFESpacePtr() const
     {
         return M_uFESpace;
     }
@@ -686,7 +704,7 @@ public:
     {
         return *M_pFESpace;
     }
-    boost::shared_ptr<FESpace<mesh_Type, MapEpetra> > pFESpacePtr() const
+    std::shared_ptr<FESpace<mesh_Type, MapEpetra> > pFESpacePtr() const
     {
         return M_pFESpace;
     }
@@ -695,7 +713,7 @@ public:
     {
         return *M_dFESpace;
     }
-    boost::shared_ptr<FESpace<mesh_Type, MapEpetra> > dFESpacePtr() const
+    std::shared_ptr<FESpace<mesh_Type, MapEpetra> > dFESpacePtr() const
     {
         return M_dFESpace;
     }
@@ -704,7 +722,7 @@ public:
     {
         return *M_dETFESpace;
     }
-    boost::shared_ptr<ETFESpace<mesh_Type, MapEpetra, 3, 3> > dFESpaceETPtr() const
+    std::shared_ptr<ETFESpace<mesh_Type, MapEpetra, 3, 3> > dFESpaceETPtr() const
     {
         return M_dETFESpace;
     }
@@ -713,7 +731,7 @@ public:
     {
         return *M_mmFESpace;
     }
-    boost::shared_ptr<FESpace<mesh_Type, MapEpetra> > mmFESpacePtr() const
+    std::shared_ptr<FESpace<mesh_Type, MapEpetra> > mmFESpacePtr() const
     {
         return M_mmFESpace;
     }
@@ -756,17 +774,17 @@ public:
         return M_dofHarmonicExtensionToFluid;
     }
 
-    boost::shared_ptr<MapEpetra>& fluidInterfaceMap()
+    std::shared_ptr<MapEpetra>& fluidInterfaceMap()
     {
         return M_fluidInterfaceMap;
     }
-    boost::shared_ptr<MapEpetra>& solidInterfaceMap()
+    std::shared_ptr<MapEpetra>& solidInterfaceMap()
     {
         return M_solidInterfaceMap;
     }
 
     //! Getter for the map of the variable used for the coupling
-    virtual boost::shared_ptr<MapEpetra>& couplingVariableMap()
+    virtual std::shared_ptr<MapEpetra>& couplingVariableMap()
     {
         return M_solidInterfaceMap;
     }
@@ -872,28 +890,28 @@ public:
         return M_rhs;
     }
 
-    const boost::shared_ptr<TimeAdvance<vector_Type> > ALETimeAdvance() const
+    const std::shared_ptr<TimeAdvance<vector_Type> > ALETimeAdvance() const
     {
         return  M_ALETimeAdvance;
     }
-    const boost::shared_ptr<TimeAdvance<vector_Type> > fluidTimeAdvance() const
+    const std::shared_ptr<TimeAdvance<vector_Type> > fluidTimeAdvance() const
     {
         return  M_fluidTimeAdvance;
     }
-    const boost::shared_ptr<TimeAdvance<vector_Type> > solidTimeAdvance() const
+    const std::shared_ptr<TimeAdvance<vector_Type> > solidTimeAdvance() const
     {
         return  M_solidTimeAdvance;
     }
 
-    const string ALETimeAdvanceMethod() const
+    const std::string ALETimeAdvanceMethod() const
     {
         return  M_ALETimeAdvanceMethod;
     }
-    const string fluidTimeAdvanceMethod() const
+    const std::string fluidTimeAdvanceMethod() const
     {
         return  M_fluidTimeAdvanceMethod;
     }
-    const string solidTimeAdvanceMethod() const
+    const std::string solidTimeAdvanceMethod() const
     {
         return  M_solidTimeAdvanceMethod;
     }
@@ -1175,17 +1193,17 @@ protected:
     //!@name Protected Attributes
     //@{
 
-    boost::shared_ptr<FESpace<mesh_Type, MapEpetra> > M_uFESpace;
-    boost::shared_ptr<FESpace<mesh_Type, MapEpetra> > M_pFESpace;
-    boost::shared_ptr<FESpace<mesh_Type, MapEpetra> > M_dFESpace;
-    boost::shared_ptr<ETFESpace<mesh_Type, MapEpetra, 3, 3> > M_dETFESpace;
-    boost::shared_ptr<FESpace<mesh_Type, MapEpetra> > M_mmFESpace;
+    std::shared_ptr<FESpace<mesh_Type, MapEpetra> > M_uFESpace;
+    std::shared_ptr<FESpace<mesh_Type, MapEpetra> > M_pFESpace;
+    std::shared_ptr<FESpace<mesh_Type, MapEpetra> > M_dFESpace;
+    std::shared_ptr<ETFESpace<mesh_Type, MapEpetra, 3, 3> > M_dETFESpace;
+    std::shared_ptr<FESpace<mesh_Type, MapEpetra> > M_mmFESpace;
 
-    boost::shared_ptr<mesh_Type>                      M_fluidMesh;
-    boost::shared_ptr<mesh_Type>                      M_solidMesh;
+    std::shared_ptr<mesh_Type>                      M_fluidMesh;
+    std::shared_ptr<mesh_Type>                      M_solidMesh;
 
-    boost::shared_ptr<mesh_Type>                      M_fluidLocalMesh;
-    boost::shared_ptr<mesh_Type>                      M_solidLocalMesh;
+    std::shared_ptr<mesh_Type>                      M_fluidLocalMesh;
+    std::shared_ptr<mesh_Type>                      M_solidLocalMesh;
 
     fluidBchandlerPtr_Type                            M_BCh_u;
     solidBchandlerPtr_Type                            M_BCh_d;
@@ -1209,26 +1227,26 @@ protected:
     std::string                                       M_solidTimeAdvanceMethod;
     std::string                                       M_ALETimeAdvanceMethod;
 
-    boost::shared_ptr<TimeAdvance<vector_Type> >      M_fluidTimeAdvance;
-    boost::shared_ptr<TimeAdvance<vector_Type> >      M_fluidMassTimeAdvance;
-    boost::shared_ptr<TimeAdvance<vector_Type> >      M_solidTimeAdvance;
-    boost::shared_ptr<TimeAdvance<vector_Type> >      M_ALETimeAdvance;
+    std::shared_ptr<TimeAdvance<vector_Type> >      M_fluidTimeAdvance;
+    std::shared_ptr<TimeAdvance<vector_Type> >      M_fluidMassTimeAdvance;
+    std::shared_ptr<TimeAdvance<vector_Type> >      M_solidTimeAdvance;
+    std::shared_ptr<TimeAdvance<vector_Type> >      M_ALETimeAdvance;
 
 
     dataFile_Type                                     M_dataFile;
 
-    boost::shared_ptr<MeshData>                       M_meshDataFluid;
-    boost::shared_ptr<MeshData>                       M_meshDataSolid;
+    std::shared_ptr<MeshData>                       M_meshDataFluid;
+    std::shared_ptr<MeshData>                       M_meshDataSolid;
 
     dataPtr_Type                                      M_data;
 
-    boost::shared_ptr<MapEpetra>                      M_fluidInterfaceMap;
-    boost::shared_ptr<MapEpetra>                      M_solidInterfaceMap;
+    std::shared_ptr<MapEpetra>                      M_fluidInterfaceMap;
+    std::shared_ptr<MapEpetra>                      M_solidInterfaceMap;
 
     //!\todo{kill this attribute}
-    boost::shared_ptr<MapEpetra>                      M_fluidInterfaceMapOnZero;
+    std::shared_ptr<MapEpetra>                      M_fluidInterfaceMapOnZero;
     //!\todo{kill this attribute}
-    boost::shared_ptr<MapEpetra>                      M_solidInterfaceMapOnZero;
+    std::shared_ptr<MapEpetra>                      M_solidInterfaceMapOnZero;
 
     dofInterface3DPtr_Type                            M_dofFluidToStructure; // Needed
     // dofInterface3DPtr_Type                         M_dofSolidToFluid;
