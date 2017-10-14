@@ -59,35 +59,35 @@ int main (int argc, char** argv)
     //============================================//
     
     typedef RegionMesh<LinearTetra>                         mesh_Type;
-    typedef boost::shared_ptr<mesh_Type>                    meshPtr_Type;
+    typedef std::shared_ptr<mesh_Type>                    meshPtr_Type;
     
-    typedef boost::function < Real (const Real & t,
+    typedef std::function < Real (const Real & t,
                                     const Real &   x,
                                     const Real &   y,
                                     const Real & z,
                                     const ID&   /*i*/ ) >   function_Type;
     
     typedef VectorEpetra                                    vector_Type;
-    typedef boost::shared_ptr<vector_Type>                  vectorPtr_Type;
+    typedef std::shared_ptr<vector_Type>                  vectorPtr_Type;
     
     typedef BCVector                                        bcVector_Type;
-    typedef boost::shared_ptr<bcVector_Type>                bcVectorPtr_Type;
+    typedef std::shared_ptr<bcVector_Type>                bcVectorPtr_Type;
     
     typedef EMMonodomainSolver<mesh_Type>                   monodomain_Type;
 
     typedef FESpace< mesh_Type, MapEpetra >                 solidFESpace_Type;
-    typedef boost::shared_ptr<solidFESpace_Type>            solidFESpacePtr_Type;
+    typedef std::shared_ptr<solidFESpace_Type>            solidFESpacePtr_Type;
     
     typedef ETFESpace< mesh_Type, MapEpetra, 3, 3 >         solidETFESpace_Type;
-    typedef boost::shared_ptr<solidETFESpace_Type>          solidETFESpacePtr_Type;
+    typedef std::shared_ptr<solidETFESpace_Type>          solidETFESpacePtr_Type;
     
     typedef StructuralConstitutiveLawData                   constitutiveLaw_Type;
-    typedef boost::shared_ptr<constitutiveLaw_Type>         constitutiveLawPtr_Type;
+    typedef std::shared_ptr<constitutiveLaw_Type>         constitutiveLawPtr_Type;
     
     typedef BCHandler                                       bc_Type;
     typedef StructuralOperator< mesh_Type >                 physicalSolver_Type;
     typedef BCInterface3D< bc_Type, physicalSolver_Type >   bcInterface_Type;
-    typedef boost::shared_ptr< bcInterface_Type >           bcInterfacePtr_Type;
+    typedef std::shared_ptr< bcInterface_Type >           bcInterfacePtr_Type;
     
 
     //============================================//
@@ -97,7 +97,7 @@ int main (int argc, char** argv)
     MPI_Init ( &argc, &argv );
 #endif
 
-    boost::shared_ptr<Epetra_Comm>  comm ( new Epetra_MpiComm (MPI_COMM_WORLD) );
+    std::shared_ptr<Epetra_Comm>  comm ( new Epetra_MpiComm (MPI_COMM_WORLD) );
     Displayer displayer ( comm );
     
     displayer.leaderPrint("\n\nEMHeart running ...\n\n");
