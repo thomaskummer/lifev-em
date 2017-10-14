@@ -76,50 +76,50 @@ public:
 
     //!@name Type definitions
     //@{
-    typedef typename boost::shared_ptr<const Displayer>   displayerPtr_Type;
+    typedef typename std::shared_ptr<const Displayer>   displayerPtr_Type;
     typedef StructuralConstitutiveLaw<MeshType> super;
     typedef MatrixEpetra<Real>            matrix_Type;
-    typedef boost::shared_ptr<matrix_Type>         matrixPtr_Type;
+    typedef std::shared_ptr<matrix_Type>         matrixPtr_Type;
     typedef VectorEpetra           vector_Type;
-    typedef boost::shared_ptr<vector_Type>         vectorPtr_Type;
+    typedef std::shared_ptr<vector_Type>         vectorPtr_Type;
 
     typedef ETFESpace<MeshType, MapEpetra, 3, 3 >         ETFESpace_Type;
-    typedef boost::shared_ptr<ETFESpace_Type>             ETFESpacePtr_Type;
+    typedef std::shared_ptr<ETFESpace_Type>             ETFESpacePtr_Type;
 
     typedef FESpace< MeshType, MapEpetra >                FESpace_Type;
-    typedef boost::shared_ptr<FESpace_Type>               FESpacePtr_Type;
+    typedef std::shared_ptr<FESpace_Type>               FESpacePtr_Type;
 
     typedef MeshType                                        mesh_Type;
     typedef ETFESpace< mesh_Type, MapEpetra, 3, 1 >                        scalarETFESpace_Type;
-    typedef boost::shared_ptr<ETFESpace< mesh_Type, MapEpetra, 3, 1 > >    scalarETFESpacePtr_Type;
+    typedef std::shared_ptr<ETFESpace< mesh_Type, MapEpetra, 3, 1 > >    scalarETFESpacePtr_Type;
 
     typedef MapEpetra map_Type;
-    typedef boost::shared_ptr<map_Type>             mapPtr_Type;
+    typedef std::shared_ptr<map_Type>             mapPtr_Type;
 
     //    typedef EMMaterial<MeshType>                              material_Type;
 
     typedef StructuralConstitutiveLawData          data_Type;
-    typedef typename boost::shared_ptr<data_Type>  dataPtr_Type;
+    typedef typename std::shared_ptr<data_Type>  dataPtr_Type;
 
     //    typedef FactorySingleton<Factory<StructuralConstitutiveLaw<MeshType>, std::string> >  StructureMaterialFactory;
 
     typedef std::vector< typename MeshType::element_Type* > vectorVolumes_Type;
 
     typedef std::map< UInt, vectorVolumes_Type>           mapMarkerVolumes_Type;
-    typedef boost::shared_ptr<mapMarkerVolumes_Type>      mapMarkerVolumesPtr_Type;
+    typedef std::shared_ptr<mapMarkerVolumes_Type>      mapMarkerVolumesPtr_Type;
 
     typedef std::vector<UInt>                             vectorIndexes_Type;
     typedef std::map< UInt, vectorIndexes_Type>           mapMarkerIndexes_Type;
-    typedef boost::shared_ptr<mapMarkerIndexes_Type>      mapMarkerIndexesPtr_Type;
+    typedef std::shared_ptr<mapMarkerIndexes_Type>      mapMarkerIndexesPtr_Type;
 
     typedef EMMaterialType<MeshType>                      material_Type;
-    typedef boost::shared_ptr<material_Type>              materialPtr_Type;
+    typedef std::shared_ptr<material_Type>              materialPtr_Type;
 
     typedef EMPassiveMaterialType<MeshType>               passiveMaterial_Type;
-    typedef boost::shared_ptr<passiveMaterial_Type>       passiveMaterialPtr_Type;
+    typedef std::shared_ptr<passiveMaterial_Type>       passiveMaterialPtr_Type;
 
     typedef EMActiveMaterialType<MeshType>                activeMaterial_Type;
-    typedef boost::shared_ptr<activeMaterial_Type>        activeMaterialPtr_Type;
+    typedef std::shared_ptr<activeMaterial_Type>        activeMaterialPtr_Type;
 
     
     
@@ -209,7 +209,7 @@ public:
     }
 
 
-    inline void setupFiberVector ( std::string& name, boost::shared_ptr<mesh_Type> mesh )
+    inline void setupFiberVector ( std::string& name, std::shared_ptr<mesh_Type> mesh )
     {
         ElectrophysiologyUtility::importFibers ( M_fiberVectorPtr, name, mesh  );
         ElectrophysiologyUtility::normalize (*M_fiberVectorPtr);
@@ -231,7 +231,7 @@ public:
         ElectrophysiologyUtility::normalize (*M_fiberVectorPtr);
     }
 
-    inline void setupSheetVector ( std::string& name, boost::shared_ptr<mesh_Type> mesh )
+    inline void setupSheetVector ( std::string& name, std::shared_ptr<mesh_Type> mesh )
     {
         ElectrophysiologyUtility::importFibers ( M_sheetVectorPtr, name, mesh  );
         ElectrophysiologyUtility::normalize (*M_sheetVectorPtr);
@@ -275,7 +275,7 @@ public:
     */
     virtual void setup ( const FESpacePtr_Type& dFESpace,
                          const ETFESpacePtr_Type& ETFESpace,
-                         const boost::shared_ptr<const MapEpetra>&   monolithicMap,
+                         const std::shared_ptr<const MapEpetra>&   monolithicMap,
                          const UInt offset, const dataPtr_Type& dataMaterial,
                          const displayerPtr_Type& displayer  );
 
@@ -1425,7 +1425,7 @@ template <typename MeshType>
 void
 EMStructuralConstitutiveLaw<MeshType>::setup ( const FESpacePtr_Type&                      dFESpace,
                                                const ETFESpacePtr_Type&                    dETFESpace,
-                                               const boost::shared_ptr<const MapEpetra>&   monolithicMap,
+                                               const std::shared_ptr<const MapEpetra>&   monolithicMap,
                                                const UInt                                  offset,
                                                const dataPtr_Type&                         dataMaterial,
                                                const displayerPtr_Type&                    displayer)
@@ -1514,7 +1514,7 @@ EMStructuralConstitutiveLaw<MeshType>::setup ( const FESpacePtr_Type&           
 //    }
 //
 //    
-//VectorEpetra pathologic activation ( VectorEpetra& vec, boost::shared_ptr<  RegionMesh<LinearTetra> > fullMesh, Real value, std::vector<UInt> flags)
+//VectorEpetra pathologic activation ( VectorEpetra& vec, std::shared_ptr<  RegionMesh<LinearTetra> > fullMesh, Real value, std::vector<UInt> flags)
 //{
 //    VectorEpetra fiberActivation ( M_fiberActivationPtr );
 //
@@ -1553,11 +1553,11 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
     * (this->M_jacobian) *= 0.0;
     
 
-    boost::shared_ptr<MatrixStdVector> msv (new MatrixStdVector);
-    boost::shared_ptr<VectorStdVector> vsv (new VectorStdVector);
-    //boost::shared_ptr<ScalarStdVector> ssv (new ScalarStdVector);
+    std::shared_ptr<MatrixStdVector> msv (new MatrixStdVector);
+    std::shared_ptr<VectorStdVector> vsv (new VectorStdVector);
+    //std::shared_ptr<ScalarStdVector> ssv (new ScalarStdVector);
 
-    boost::shared_ptr<HolzapfelOgdenMaterial> hom (new HolzapfelOgdenMaterial);
+    std::shared_ptr<HolzapfelOgdenMaterial> hom (new HolzapfelOgdenMaterial);
 
     {
         using namespace ExpressionAssembly;
@@ -1605,11 +1605,11 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
     I(2,0) = 0.; I(2,1) = 0., I(2,2) = 1.;
 
     
-    boost::shared_ptr<FAInverse> fAInversefct (new FAInverse);
+    std::shared_ptr<FAInverse> fAInversefct (new FAInverse);
 
-    boost::shared_ptr<HeavisideFct> heaviside (new HeavisideFct);
-    boost::shared_ptr<CrossProduct> crossProduct (new CrossProduct);
-    boost::shared_ptr<OrthonormalizeVector> orthonormalizeVector (new OrthonormalizeVector);
+    std::shared_ptr<HeavisideFct> heaviside (new HeavisideFct);
+    std::shared_ptr<CrossProduct> crossProduct (new CrossProduct);
+    std::shared_ptr<OrthonormalizeVector> orthonormalizeVector (new OrthonormalizeVector);
     
     {
         using namespace ExpressionAssembly;

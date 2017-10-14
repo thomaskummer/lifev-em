@@ -146,7 +146,7 @@ public:
     }
     
     
-    boost::shared_ptr<VectorEpetra> createPatch (EMSolver<RegionMesh<LinearTetra>, EMMonodomainSolver<RegionMesh<LinearTetra> > >& solver, const Vector3D& center, const Real& radius, const int& currentFlag, const int& newFlag)
+    std::shared_ptr<VectorEpetra> createPatch (EMSolver<RegionMesh<LinearTetra>, EMMonodomainSolver<RegionMesh<LinearTetra> > >& solver, const Vector3D& center, const Real& radius, const int& currentFlag, const int& newFlag)
     {
         for (auto& mesh : solver.mesh())
         {
@@ -180,9 +180,9 @@ public:
         }
     }
     
-    boost::shared_ptr<VectorEpetra> directionalVectorField (const boost::shared_ptr<FESpace<RegionMesh<LinearTetra>, MapEpetra >> dFeSpace, Vector3D& direction, const Real& disp)
+    std::shared_ptr<VectorEpetra> directionalVectorField (const std::shared_ptr<FESpace<RegionMesh<LinearTetra>, MapEpetra >> dFeSpace, Vector3D& direction, const Real& disp)
     {
-        boost::shared_ptr<VectorEpetra> vectorField (new VectorEpetra( dFeSpace->map(), Repeated ));
+        std::shared_ptr<VectorEpetra> vectorField (new VectorEpetra( dFeSpace->map(), Repeated ));
         auto nCompLocalDof = vectorField->epetraVector().MyLength() / 3;
         
         direction.normalize();
@@ -354,7 +354,7 @@ protected:
     Real
     externalPower ( const VectorEpetra& dispCurrent,
                     const VectorEpetra& dispPrevious,
-                    const boost::shared_ptr<ETFESpace< RegionMesh<LinearTetra>, MapEpetra, 3, 3 > > dispETFESpace,
+                    const std::shared_ptr<ETFESpace< RegionMesh<LinearTetra>, MapEpetra, 3, 3 > > dispETFESpace,
                     Real pressure,
                     Real dt,
                     const unsigned int bdFlag) const

@@ -69,11 +69,11 @@ public:
     //@{
     typedef StructuralOperator<Mesh>                    structuralOperator_Type;
 
-    typedef boost::shared_ptr<structuralOperator_Type>  structuralOperatorPtr_Type;
+    typedef std::shared_ptr<structuralOperator_Type>  structuralOperatorPtr_Type;
 
     typedef EMStructuralConstitutiveLaw<Mesh>     material_Type;
 
-    typedef boost::shared_ptr<material_Type>            materialPtr_Type;
+    typedef std::shared_ptr<material_Type>            materialPtr_Type;
 
     //Old typedefs
     typedef StructuralOperator<Mesh>                    super;
@@ -105,11 +105,11 @@ public:
       \param BCh boundary conditions for the displacement
       \param comm the Epetra Comunicator
     */
-    void setup ( boost::shared_ptr<data_Type>  data,
+    void setup ( std::shared_ptr<data_Type>  data,
                  const FESpacePtr_Type&        dFESpace,
                  const ETFESpacePtr_Type&      dETFESpace,
                  bcHandler_Type&       BCh,
-                 boost::shared_ptr<Epetra_Comm>&     comm
+                 std::shared_ptr<Epetra_Comm>&     comm
                );
 
     /*! Get the offset parameter. It is taken into account when the boundary conditions
@@ -156,7 +156,7 @@ public:
     void solveLin ();
 
     void computePressureBC(const VectorEpetra& disp,
-			boost::shared_ptr<VectorEpetra> bcVectorPtr,
+			std::shared_ptr<VectorEpetra> bcVectorPtr,
 			const ETFESpacePtr_Type dETFESpace,
 			Real pressure, int bdFlag);
 
@@ -199,7 +199,7 @@ protected:
     Real                                 M_LVPressure;
     ID								M_LVPressureFlag;
     vectorPtr_Type M_boundaryVectorPtr;
-    boost::shared_ptr<BCVector>  M_bcVectorPtr;
+    std::shared_ptr<BCVector>  M_bcVectorPtr;
     bool M_LVpressureBC;
 
 
@@ -224,15 +224,15 @@ EMStructuralOperator<Mesh>::EMStructuralOperator( ) :
 
 template <typename Mesh>
 void
-EMStructuralOperator<Mesh>::setup (boost::shared_ptr<data_Type>          data,
+EMStructuralOperator<Mesh>::setup (std::shared_ptr<data_Type>          data,
                                    const FESpacePtr_Type& dFESpace,
                                    const ETFESpacePtr_Type& dETFESpace,
                                    bcHandler_Type&                    BCh,
-                                   boost::shared_ptr<Epetra_Comm>&   comm)
+                                   std::shared_ptr<Epetra_Comm>&   comm)
 {
 
     this->super::setup (data, dFESpace, dETFESpace, BCh, comm);
-    M_EMMaterial = boost::dynamic_pointer_cast<material_Type> (this -> material() );
+    M_EMMaterial = std::dynamic_pointer_cast<material_Type> (this -> material() );
     M_boundaryVectorPtr.reset(new vector_Type ( this->M_disp->map(), Repeated ) );
     M_I4fPtr.reset(new vector_Type ( M_EMMaterial->scalarETFESpacePtr()->map() ) );
     *M_I4fPtr += 1.0;
@@ -243,7 +243,7 @@ EMStructuralOperator<Mesh>::setup (boost::shared_ptr<data_Type>          data,
 template <typename Mesh>
 void
 EMStructuralOperator<Mesh>::computePressureBC(  const VectorEpetra& disp,
-										boost::shared_ptr<VectorEpetra> bcVectorPtr,
+										std::shared_ptr<VectorEpetra> bcVectorPtr,
 										const ETFESpacePtr_Type dETFESpace,
 										Real pressure, int bdFlag)
 {

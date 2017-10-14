@@ -83,55 +83,55 @@ class EMSolver
 public:
     typedef Mesh                                              mesh_Type;
 
-    typedef boost::shared_ptr<mesh_Type>                      meshPtr_Type;
+    typedef std::shared_ptr<mesh_Type>                      meshPtr_Type;
 
     typedef Epetra_Comm                                       comm_Type;
 
-    typedef boost::shared_ptr<Epetra_Comm>                    commPtr_Type;
+    typedef std::shared_ptr<Epetra_Comm>                    commPtr_Type;
 
     typedef VectorEpetra                                      vector_Type;
     
     typedef StructuralConstitutiveLawData                     structureData_Type;
 
-    typedef boost::shared_ptr<structureData_Type>             structureDataPtr_Type;
+    typedef std::shared_ptr<structureData_Type>             structureDataPtr_Type;
 
     typedef EMStructuralOperator< mesh_Type >                 structuralOperator_Type;
 
-    typedef boost::shared_ptr< structuralOperator_Type >      structuralOperatorPtr_Type;
+    typedef std::shared_ptr< structuralOperator_Type >      structuralOperatorPtr_Type;
 
     typedef BCHandler                                          bc_Type;
 
-    typedef boost::shared_ptr< bc_Type >                       bcPtr_Type;
+    typedef std::shared_ptr< bc_Type >                       bcPtr_Type;
 
     typedef StructuralOperator< mesh_Type >                   physicalSolver_Type;
 
     typedef BCInterface3D< bc_Type, physicalSolver_Type >  bcInterface_Type;
 
-    typedef boost::shared_ptr< bcInterface_Type >              bcInterfacePtr_Type;
+    typedef std::shared_ptr< bcInterface_Type >              bcInterfacePtr_Type;
 
-    typedef boost::shared_ptr<Activation>                     activationModelPtr_Type;
+    typedef std::shared_ptr<Activation>                     activationModelPtr_Type;
 
     typedef ElectroSolver                                      electroSolver_Type;
 
-    typedef boost::shared_ptr<electroSolver_Type>              electroSolverPtr_Type;
+    typedef std::shared_ptr<electroSolver_Type>              electroSolverPtr_Type;
 
     typedef ElectroIonicModel                                  ionicModel_Type;
 
-    typedef boost::shared_ptr<ionicModel_Type>                 ionicModelPtr_Type;
+    typedef std::shared_ptr<ionicModel_Type>                 ionicModelPtr_Type;
 
     typedef ExporterHDF5< Mesh >                               exporter_Type;
 
-    typedef boost::shared_ptr<ExporterHDF5< Mesh > >           exporterPtr_Type;
+    typedef std::shared_ptr<ExporterHDF5< Mesh > >           exporterPtr_Type;
 
     typedef FESpace< RegionMesh<LinearTetra>, MapEpetra >      solidFESpace_Type;
 
-    typedef boost::shared_ptr<solidFESpace_Type>                solidFESpacePtr_Type;
+    typedef std::shared_ptr<solidFESpace_Type>                solidFESpacePtr_Type;
 
     typedef ETFESpace< RegionMesh<LinearTetra>, MapEpetra, 3, 3 > solidETFESpace_Type;
 
-    typedef boost::shared_ptr<solidETFESpace_Type>              solidETFESpacePtr_Type;
+    typedef std::shared_ptr<solidETFESpace_Type>              solidETFESpacePtr_Type;
 
-    typedef boost::function < Real (const Real& t,
+    typedef std::function < Real (const Real& t,
                                     const Real&    x,
                                     const Real&    y,
                                     const Real& z,
@@ -657,7 +657,7 @@ EMSolver<Mesh, ElectroSolver>::setupMechanicalSolver ( GetPot& dataFile)
         std::cout << "\nEMSolver: setupMechanicalSolver ... " << '\r' << std::flush;
     }
     
-    boost::shared_ptr<StructuralConstitutiveLawData> dataStructure (new StructuralConstitutiveLawData( ) );
+    std::shared_ptr<StructuralConstitutiveLawData> dataStructure (new StructuralConstitutiveLawData( ) );
     dataStructure->setup (dataFile);
 
     std::string dOrder =  dataFile ( "solid/space_discretization/order", "P1");
