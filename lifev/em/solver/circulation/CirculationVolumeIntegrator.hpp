@@ -19,10 +19,10 @@ public:
     
     VolumeIntegrator(const std::vector<int>& bdFlags,
                      const std::string& domain,
-                     const boost::shared_ptr <RegionMesh<LinearTetra> > fullMeshPtr,
-                     const boost::shared_ptr <RegionMesh<LinearTetra> > localMeshPtr,
-                     const boost::shared_ptr <ETFESpace<RegionMesh<LinearTetra>, MapEpetra, 3, 1> > ETFESpace,
-                     const boost::shared_ptr <FESpace<RegionMesh<LinearTetra>, MapEpetra> > FESpace ) :
+                     const std::shared_ptr <RegionMesh<LinearTetra> > fullMeshPtr,
+                     const std::shared_ptr <RegionMesh<LinearTetra> > localMeshPtr,
+                     const std::shared_ptr <ETFESpace<RegionMesh<LinearTetra>, MapEpetra, 3, 1> > ETFESpace,
+                     const std::shared_ptr <FESpace<RegionMesh<LinearTetra>, MapEpetra> > FESpace ) :
                 M_localMeshPtr  ( localMeshPtr ),
                 M_fullMesh      ( *fullMeshPtr ),
                 M_bdFlags       ( bdFlags ),
@@ -190,7 +190,7 @@ public:
         E1 (0) = 1.; E1 (1) = 0.; E1 (2) = 0.;
         
         const VectorEpetra positionVector ( currentPositionVector(disp) );
-        boost::shared_ptr<VectorEpetra> intergral ( new VectorEpetra ( positionVector.map() ) );
+        std::shared_ptr<VectorEpetra> intergral ( new VectorEpetra ( positionVector.map() ) );
         
         {
             using namespace ExpressionAssembly;
@@ -224,11 +224,11 @@ public:
     
     template<class space>
     const Real volume(const VectorEpetra& disp,
-                      const boost::shared_ptr <space> dETFESpace,
+                      const std::shared_ptr <space> dETFESpace,
                       const int direction = 1,
                       const unsigned int component = 0)
     {
-        const boost::shared_ptr<Epetra_Comm> comm = M_fullMesh.comm();
+        const std::shared_ptr<Epetra_Comm> comm = M_fullMesh.comm();
         
         // Compute volume over boundary
         Real volumeBoundary (0);
@@ -369,10 +369,10 @@ protected:
     }
     
     
-    const boost::shared_ptr<RegionMesh<LinearTetra> > M_localMeshPtr;
+    const std::shared_ptr<RegionMesh<LinearTetra> > M_localMeshPtr;
     const RegionMesh<LinearTetra>& M_fullMesh;
-    const boost::shared_ptr <ETFESpace<RegionMesh<LinearTetra>, MapEpetra, 3, 1> > M_ETFESpace;
-    const boost::shared_ptr <FESpace<RegionMesh<LinearTetra>, MapEpetra> > M_FESpace;
+    const std::shared_ptr <ETFESpace<RegionMesh<LinearTetra>, MapEpetra, 3, 1> > M_ETFESpace;
+    const std::shared_ptr <FESpace<RegionMesh<LinearTetra>, MapEpetra> > M_FESpace;
 
     const std::vector<int> M_bdFlags;
     const std::string M_domain;
