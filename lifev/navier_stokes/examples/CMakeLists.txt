@@ -13,7 +13,7 @@ ADD_SUBDIRECTORIES(
 
 IF(LifeV_ENABLE_ETA)
 ADD_SUBDIRECTORIES(
-  ETpseudo_fsi
-  computeWSS
+#ETpseudo_fsi
+#computeWSS
 )
 ENDIF()
