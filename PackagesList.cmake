@@ -82,11 +82,11 @@ SET( LifeV_PACKAGES_AND_DIRS_AND_CLASSIFICATIONS
   NavierStokesBlocks    lifev/navier_stokes_blocks        PS
   Structure             lifev/structure                   PS
   Electrophysiology     lifev/electrophysiology           EX
-  EM                    lifev/em                          EX
   FSI_blocks            lifev/fsi_blocks                  PS
   Heart                 lifev/heart                       EX
   FSI                   lifev/fsi                         PS
   BCInterface           lifev/bc_interface                PS
+  EM                    lifev/em                          EX
   ZeroDimensional       lifev/zero_dimensional            PS
   Multiscale            lifev/multiscale                  EX
   Dummy                 lifev/dummy                       EX
