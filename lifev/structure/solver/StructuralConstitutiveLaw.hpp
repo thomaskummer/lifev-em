@@ -312,10 +312,10 @@ public:
                  const mapMarkerVolumesPtr_Type mapsMarkerVolumes,
                  const mapMarkerIndexesPtr_Type mapsMarkerIndexes);
 
-    vectorsParametersPtr_Type vectorsParameters() const
-    {
-    	return M_vectorsParameters;
-    }
+//    vectorsParametersPtr_Type vectorsParameters() const
+//    {
+//        return M_vectorsParameters;
+//    }
     //@}
 
 protected:
