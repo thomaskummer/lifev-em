@@ -79,7 +79,7 @@ public:
     
     typedef std::shared_ptr<vector_Type>                vectorPtr_Type;
     
-    typedef MatrixEpetra                                matrix_Type;
+    typedef MatrixEpetra<Real>                          matrix_Type;
     
     typedef std::shared_ptr<matrix_Type>                matrixPtr_Type;
     
