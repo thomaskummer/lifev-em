@@ -234,7 +234,7 @@ public:
         Real volumeBoundary (0);
         for ( auto& bdFlag : M_bdFlags )
         {
-            volumeBoundary += computeBoundaryVolume(disp, dETFESpace, bdFlag);
+            //volumeBoundary += computeBoundaryVolume(disp, dETFESpace, bdFlag);
         }
         
         // Compute volume over open-end-boundary
