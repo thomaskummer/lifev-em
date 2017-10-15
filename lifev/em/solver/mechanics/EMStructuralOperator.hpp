@@ -75,6 +75,10 @@ public:
 
     typedef std::shared_ptr<material_Type>            materialPtr_Type;
 
+    typedef VectroEpetra                                vector_Type;
+    
+    typedef std::shared_ptr<vector_Type>                vectorPtr_Type;
+    
     //Old typedefs
     typedef StructuralOperator<Mesh>                    super;
 

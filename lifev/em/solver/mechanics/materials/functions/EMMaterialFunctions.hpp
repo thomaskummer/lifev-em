@@ -91,10 +91,10 @@ namespace MaterialFunctions
 {
 
 typedef VectorEpetra           vector_Type;
-typedef boost::shared_ptr<vector_Type>         vectorPtr_Type;
+typedef std::shared_ptr<vector_Type>         vectorPtr_Type;
 
 typedef MatrixEpetra<Real>           matrix_Type;
-typedef boost::shared_ptr<matrix_Type>         matrixPtr_Type;
+typedef std::shared_ptr<matrix_Type>         matrixPtr_Type;
 
 
 template <class Mesh>
@@ -103,14 +103,14 @@ class EMMaterialFunctions : public boost::enable_shared_from_this<EMMaterialFunc
 public:
 
 
-    typedef  boost::shared_ptr<ETFESpace<Mesh, MapEpetra, 3, 3 > > ETFESpacePtr_Type;
-    typedef boost::shared_ptr<ETFESpace<Mesh, MapEpetra, 3, 1 > > scalarETFESpacePtr_Type;
+    typedef  std::shared_ptr<ETFESpace<Mesh, MapEpetra, 3, 3 > > ETFESpacePtr_Type;
+    typedef std::shared_ptr<ETFESpace<Mesh, MapEpetra, 3, 1 > > scalarETFESpacePtr_Type;
     typedef Real return_Type;
     typedef MatrixSmall<3, 3> matrix_return_Type;
     typedef boost::enable_shared_from_this<EMMaterialFunctions< Mesh > > boostShared_Type;
 
     typedef EMData          data_Type;
-    typedef typename boost::shared_ptr<data_Type>  dataPtr_Type;
+    typedef typename std::shared_ptr<data_Type>  dataPtr_Type;
 
     virtual return_Type operator() (const MatrixSmall<3, 3>& F)
     {
@@ -146,7 +146,7 @@ public:
     EMMaterialFunctions (const EMMaterialFunctions&) {}
     virtual ~EMMaterialFunctions() {}
 
-    inline virtual boost::shared_ptr<EMMaterialFunctions<Mesh> > getMe()
+    inline virtual std::shared_ptr<EMMaterialFunctions<Mesh> > getMe()
     {
         //      shared_from_this();
         return boostShared_Type::shared_from_this();
