@@ -16,7 +16,7 @@ namespace LifeV
 {
 
 template<typename Mesh>
-class EMPassiveMaterialType : public virtual EMMaterialType<Mesh>b
+class EMPassiveMaterialType : public virtual EMMaterialType<Mesh>
 {
 public:
 
