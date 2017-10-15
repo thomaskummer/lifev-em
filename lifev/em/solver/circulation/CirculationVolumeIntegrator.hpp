@@ -195,12 +195,16 @@ public:
         {
             using namespace ExpressionAssembly;
 
-            BOOST_AUTO_TPL (I, value (Id) );
-            BOOST_AUTO_TPL (vE1, value (E1) );
-            BOOST_AUTO_TPL (Grad_u, grad (dETFESpace, disp, 0) );
-            BOOST_AUTO_TPL (F, (Grad_u + I) );
-            BOOST_AUTO_TPL (FmT, minusT (F) );
-            BOOST_AUTO_TPL (J, det (F) );
+//            BOOST_AUTO_TPL (I, value (Id) );
+//            BOOST_AUTO_TPL (vE1, value (E1) );
+//            BOOST_AUTO_TPL (Grad_u, grad (dETFESpace, disp, 0) );
+//            BOOST_AUTO_TPL (F, (Grad_u + I) );
+//            BOOST_AUTO_TPL (FmT, minusT (F) );
+//            BOOST_AUTO_TPL (J, det (F) );
+            
+            auto F = I + grad(super::M_dispETFESpace, disp, 0);
+            auto J = det(F);
+            auto FmT = minusT(F);
             
             QuadratureBoundary myBDQR (buildTetraBDQR (quadRuleTria7pt) );
 
@@ -234,7 +238,7 @@ public:
         Real volumeBoundary (0);
         for ( auto& bdFlag : M_bdFlags )
         {
-            //volumeBoundary += computeBoundaryVolume(disp, dETFESpace, bdFlag);
+            volumeBoundary += computeBoundaryVolume(disp, dETFESpace, bdFlag);
         }
         
         // Compute volume over open-end-boundary
