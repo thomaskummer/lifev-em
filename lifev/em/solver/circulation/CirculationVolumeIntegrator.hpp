@@ -212,7 +212,7 @@ public:
             integrate (boundary (M_localMeshPtr, bdFlag),
                        myBDQR,
                        M_ETFESpace,
-                       value(-1.0) * J * dot (vE1, FmT * Nface) * phi_i) >> intergral;
+                       value(-1.0) * J * dot (E1, FmT * Nface) * phi_i) >> intergral;
 
             intergral->globalAssemble();
 
