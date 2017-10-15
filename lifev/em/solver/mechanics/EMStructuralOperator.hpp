@@ -69,15 +69,19 @@ public:
     //@{
     typedef StructuralOperator<Mesh>                    structuralOperator_Type;
 
-    typedef std::shared_ptr<structuralOperator_Type>  structuralOperatorPtr_Type;
+    typedef std::shared_ptr<structuralOperator_Type>    structuralOperatorPtr_Type;
+    
+    typedef EMStructuralConstitutiveLaw<Mesh>           material_Type;
 
-    typedef EMStructuralConstitutiveLaw<Mesh>     material_Type;
-
-    typedef std::shared_ptr<material_Type>            materialPtr_Type;
+    typedef std::shared_ptr<material_Type>              materialPtr_Type;
 
     typedef VectorEpetra                                vector_Type;
     
     typedef std::shared_ptr<vector_Type>                vectorPtr_Type;
+    
+    typedef MatrixEpetra                                matrix_Type;
+    
+    typedef std::shared_ptr<matrix_Type>                matrixPtr_Type;
     
     //Old typedefs
     typedef StructuralOperator<Mesh>                    super;
