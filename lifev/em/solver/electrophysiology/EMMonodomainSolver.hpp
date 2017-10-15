@@ -73,51 +73,51 @@ public:
     //! Mesh
     typedef Mesh                                                        mesh_Type;
 
-    typedef boost::shared_ptr<mesh_Type>                                meshPtr_Type;
+    typedef std::shared_ptr<mesh_Type>                                meshPtr_Type;
 
     //! Distributed vector // For parallel usage
     typedef VectorEpetra                                                vector_Type;
 
-    typedef boost::shared_ptr<VectorEpetra>                             vectorPtr_Type;
+    typedef std::shared_ptr<VectorEpetra>                             vectorPtr_Type;
 
     typedef std::vector<vectorPtr_Type>                                 vectorOfPtr_Type;
 
     //! Distributed Matrix // For parallel usage
     typedef MatrixEpetra<Real>                                          matrix_Type;
 
-    typedef boost::shared_ptr<matrix_Type>                              matrixPtr_Type;
+    typedef std::shared_ptr<matrix_Type>                              matrixPtr_Type;
 
     //! Communicator to exchange informations among processes
     typedef Epetra_Comm                                                 comm_Type;
 
-    typedef boost::shared_ptr<comm_Type>                                commPtr_Type;
+    typedef std::shared_ptr<comm_Type>                                commPtr_Type;
 
     //! Expression template  scalar finite element space
     //! To be used in the expression assembly namespace
     typedef ETFESpace<mesh_Type, MapEpetra, 3, 1>                       ETFESpace_Type;
 
-    typedef boost::shared_ptr<ETFESpace<mesh_Type, MapEpetra, 3, 1> >   ETFESpacePtr_Type;
+    typedef std::shared_ptr<ETFESpace<mesh_Type, MapEpetra, 3, 1> >   ETFESpacePtr_Type;
 
     //! Expression template vectorial finite element space
     //! To be used in the expression assembly namespace
     typedef ETFESpace<mesh_Type, MapEpetra, 3, 3>                       ETFESpaceVectorial_Type;
 
-    typedef boost::shared_ptr<ETFESpaceVectorial_Type>                  ETFESpaceVectorialPtr_Type;
+    typedef std::shared_ptr<ETFESpaceVectorial_Type>                  ETFESpaceVectorialPtr_Type;
 
     //! Finite element space
     typedef FESpace<mesh_Type, MapEpetra>                               feSpace_Type;
 
-    typedef boost::shared_ptr<feSpace_Type>                             feSpacePtr_Type;
+    typedef std::shared_ptr<feSpace_Type>                             feSpacePtr_Type;
 
     //! Linear Solver
     typedef LinearSolver                                                linearSolver_Type;
 
-    typedef boost::shared_ptr<LinearSolver>                             linearSolverPtr_Type;
+    typedef std::shared_ptr<LinearSolver>                             linearSolverPtr_Type;
 
     //! Exporter to save the solution
     typedef Exporter<mesh_Type>                                         IOFile_Type;
 
-    typedef boost::shared_ptr<IOFile_Type>                              IOFilePtr_Type;
+    typedef std::shared_ptr<IOFile_Type>                              IOFilePtr_Type;
 
     //! Exporter data
     typedef ExporterData<mesh_Type>                                     IOData_Type;
@@ -131,12 +131,12 @@ public:
     //! Preconditioner
     typedef LifeV::Preconditioner                                       basePrec_Type;
 
-    typedef boost::shared_ptr<basePrec_Type>                            basePrecPtr_Type;
+    typedef std::shared_ptr<basePrec_Type>                            basePrecPtr_Type;
 
     //! MultiLevel Preconditioner
     typedef LifeV::PreconditionerML                                     prec_Type;
 
-    typedef boost::shared_ptr<prec_Type>                                precPtr_Type;
+    typedef std::shared_ptr<prec_Type>                                precPtr_Type;
 
     //! Ionic model
     typedef ElectroIonicModel                                           ionicModel_Type;
@@ -144,13 +144,13 @@ public:
     //! Base class of the ionic model
     typedef ElectroIonicModel                                           superIonicModel;
 
-    typedef boost::shared_ptr<ionicModel_Type>                          ionicModelPtr_Type;
+    typedef std::shared_ptr<ionicModel_Type>                          ionicModelPtr_Type;
 
     //! xml list to read parameters
     typedef Teuchos::ParameterList                                      list_Type;
 
-    //! boost function
-    typedef boost::function < Real (const Real& t,
+    //! std function
+    typedef std::function < Real (const Real& t,
                                     const Real& x,
                                     const Real& y,
                                     const Real& z,
@@ -173,8 +173,8 @@ public:
     //! Constructor
     /*!
      * @param GetPot datafile (for preconditioner)
-     * @param boost::shared_ptr<IonicModel>  chosen ionic model pointer
-     * @param boost::shared_ptr<Mesh> Pointer to the partitioned mesh
+     * @param std::shared_ptr<IonicModel>  chosen ionic model pointer
+     * @param std::shared_ptr<Mesh> Pointer to the partitioned mesh
      */
     EMMonodomainSolver (GetPot&            dataFile,
                         ionicModelPtr_Type model,
@@ -196,8 +196,8 @@ public:
      * @param string file name of the mesh
      * @param string path to the mesh
      * @param GetPot datafile (for preconditioner)
-     * @param boost::shared_ptr<IonicModel> chosen ionic model pointer
-     * @param boost::shared_ptr<Epetra_Comm> Epetra communicator
+     * @param std::shared_ptr<IonicModel> chosen ionic model pointer
+     * @param std::shared_ptr<Epetra_Comm> Epetra communicator
      */
     EMMonodomainSolver (std::string        meshName,
                         std::string        meshPath,
@@ -894,7 +894,7 @@ void EMMonodomainSolver<Mesh>::updateMatrices()
 //        {
 //            std::cout << "\nETA Monodomain Solver: updating rhs with SVI with mechanical coupling\n";
 //        }
-//        boost::shared_ptr<FESpace<mesh_Type, MapEpetra> > vectorialSpace (
+//        std::shared_ptr<FESpace<mesh_Type, MapEpetra> > vectorialSpace (
 //            new FESpace<mesh_Type, MapEpetra> (M_localMeshPtr, M_elementsOrder,
 //                                               3, M_commPtr) );
 //        M_ionicModelPtr -> computePotentialRhsSVI (M_globalSolution,
