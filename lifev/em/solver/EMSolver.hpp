@@ -89,7 +89,7 @@ public:
 
     typedef std::shared_ptr<Epetra_Comm>                    commPtr_Type;
 
-    typedef VectorEpetra                                      vector_Type
+    typedef VectorEpetra                                      vector_Type;
     
     typedef std::shared_ptr<vector_Type>                      vectorPtr_Type;
     
