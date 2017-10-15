@@ -77,8 +77,8 @@ std::string createOutputFolder (GetPot& command_line, Epetra_Comm& comm);
 
 template<class Mesh>
 void setupExporter ( ExporterHDF5<Mesh>& exporter,
-                     boost::shared_ptr<Mesh> localMeshPtr,
-                     boost::shared_ptr<Epetra_Comm> commPtr,
+                     std::shared_ptr<Mesh> localMeshPtr,
+                     std::shared_ptr<Epetra_Comm> commPtr,
                      std::string fileName,
                      std::string folder)
 {
@@ -117,7 +117,7 @@ Real FLRelationship(Real I4f);
 
 
 template<typename DispVectorPtr, typename FESpaceType>
-void computeZZGradient(VectorEpetra& displacement, std::vector<DispVectorPtr> gradientPtr, boost::shared_ptr<FESpaceType>  dFESpace)
+void computeZZGradient(VectorEpetra& displacement, std::vector<DispVectorPtr> gradientPtr, std::shared_ptr<FESpaceType>  dFESpace)
 {
     gradientPtr[0].reset( &GradientRecovery::ZZGradient(dFESpace, displacement, 0) );
     gradientPtr[1].reset( &GradientRecovery::ZZGradient(dFESpace, displacement, 1) );
@@ -126,7 +126,7 @@ void computeZZGradient(VectorEpetra& displacement, std::vector<DispVectorPtr> gr
 
 
 template< typename FESpaceType >
-void computeI4 ( VectorEpetra& I4, VectorEpetra& displacement, VectorEpetra& fibers, boost::shared_ptr<FESpaceType> dFESpace )
+void computeI4 ( VectorEpetra& I4, VectorEpetra& displacement, VectorEpetra& fibers, std::shared_ptr<FESpaceType> dFESpace )
 {
 
 	if( 0 == I4.comm().MyPID() )
@@ -136,7 +136,7 @@ void computeI4 ( VectorEpetra& I4, VectorEpetra& displacement, VectorEpetra& fib
 //    VectorEpetra sx = GradientRecovery::ZZGradient (dFESpace, displacement, 0);
 //    VectorEpetra sy = GradientRecovery::ZZGradient (dFESpace, displacement, 1);
 //    VectorEpetra sz = GradientRecovery::ZZGradient (dFESpace, displacement, 2);
-    std::vector<boost::shared_ptr<VectorEpetra> >gradientPtr(3);
+    std::vector<std::shared_ptr<VectorEpetra> >gradientPtr(3);
     EMUtility::computeZZGradient(displacement, gradientPtr, dFESpace);
 
     I4 *= 0.0;

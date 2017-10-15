@@ -333,13 +333,13 @@ void IonicMinimalModel::computePotentialRhsSVI ( const std::vector<vectorPtr_Typ
                                                  std::vector<vectorPtr_Type>&        rhs,
                                                  FESpace<mesh_Type, MapEpetra>&  uFESpace,
                                                  vector_Type& disp,
-                                                 boost::shared_ptr<FESpace<mesh_Type, MapEpetra> > /*dispFESPace*/)
+                                                 std::shared_ptr<FESpace<mesh_Type, MapEpetra> > /*dispFESPace*/)
 {
     typedef ETFESpace<mesh_Type, MapEpetra, 3, 1> ETFESpace_Type;
-    typedef boost::shared_ptr<ETFESpace_Type> ETFESpacePtr_Type;
+    typedef std::shared_ptr<ETFESpace_Type> ETFESpacePtr_Type;
 
     typedef ETFESpace<mesh_Type, MapEpetra, 3, 3> ETFESpaceVectorial_Type;
-    typedef boost::shared_ptr<ETFESpaceVectorial_Type> ETFESpaceVectorialPtr_Type;
+    typedef std::shared_ptr<ETFESpaceVectorial_Type> ETFESpaceVectorialPtr_Type;
 
     * (rhs[0]) *= 0.0;
 
@@ -355,9 +355,9 @@ void IonicMinimalModel::computePotentialRhsSVI ( const std::vector<vectorPtr_Typ
     {
         using namespace ExpressionAssembly;
 
-        boost::shared_ptr<MMTanhFunctor> tanh (new MMTanhFunctor);
-        boost::shared_ptr<MMHFunctor> H (new MMHFunctor);
-        boost::shared_ptr<MMSV> sv (new MMSV);
+        std::shared_ptr<MMTanhFunctor> tanh (new MMTanhFunctor);
+        std::shared_ptr<MMHFunctor> H (new MMHFunctor);
+        std::shared_ptr<MMSV> sv (new MMSV);
 
         MatrixSmall<3, 3> id;
         id (0, 0) = 1.0;

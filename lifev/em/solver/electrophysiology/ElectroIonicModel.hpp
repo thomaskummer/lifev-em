@@ -81,13 +81,13 @@ public:
     //@{
 
     typedef VectorEpetra                            vector_Type;
-    typedef boost::shared_ptr<VectorEpetra>         vectorPtr_Type;
-    typedef boost::shared_ptr<VectorElemental>  elvecPtr_Type;
+    typedef std::shared_ptr<VectorEpetra>         vectorPtr_Type;
+    typedef std::shared_ptr<VectorElemental>  elvecPtr_Type;
     typedef RegionMesh<LinearTetra>                 mesh_Type;
     typedef MatrixEpetra<Real> matrix_Type;
-    typedef boost::shared_ptr<matrix_Type> matrixPtr_Type;
+    typedef std::shared_ptr<matrix_Type> matrixPtr_Type;
     typedef FESpace<mesh_Type, MapEpetra> feSpace_Type;
-    typedef boost::shared_ptr<feSpace_Type> feSpacePtr_Type;
+    typedef std::shared_ptr<feSpace_Type> feSpacePtr_Type;
     typedef boost::function <
     Real (const Real& t, const Real& x, const Real& y, const Real& z,
           const ID& i) > function_Type;
@@ -407,7 +407,7 @@ public:
                                           std::vector<vectorPtr_Type>&        rhs,
                                           FESpace<mesh_Type, MapEpetra>&  uFESpace,
                                           vector_Type& disp,
-                                          boost::shared_ptr<FESpace<mesh_Type, MapEpetra> > dispFESPace);
+                                          std::shared_ptr<FESpace<mesh_Type, MapEpetra> > dispFESPace);
     //@}
 
 

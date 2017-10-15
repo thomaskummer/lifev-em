@@ -56,8 +56,8 @@ public:
     //! @name Type definitions
     //@{
     typedef ElectroIonicModel                         super;
-    typedef boost::shared_ptr<VectorEpetra>         vectorPtr_Type;
-    typedef boost::shared_ptr<VectorElemental>  elvecPtr_Type;
+    typedef std::shared_ptr<VectorEpetra>         vectorPtr_Type;
+    typedef std::shared_ptr<VectorElemental>  elvecPtr_Type;
     typedef RegionMesh<LinearTetra>                 mesh_Type;
     //@}
 
@@ -355,7 +355,7 @@ public:
                                   std::vector<vectorPtr_Type>&        rhs,
                                   FESpace<mesh_Type, MapEpetra>&  uFESpace,
                                   vector_Type& disp,
-                                  boost::shared_ptr<FESpace<mesh_Type, MapEpetra> > dispFESPace);
+                                  std::shared_ptr<FESpace<mesh_Type, MapEpetra> > dispFESPace);
 
     //
     void computeGatingVariablesWithRushLarsen ( std::vector<Real>& v, const Real dt );

@@ -84,7 +84,7 @@ public:
 
 
     typedef EMData          data_Type;
-    typedef typename boost::shared_ptr<data_Type>  dataPtr_Type;
+    typedef typename std::shared_ptr<data_Type>  dataPtr_Type;
 
 
 

@@ -605,7 +605,7 @@ void ElectroIonicModel::computePotentialRhsSVI (   const std::vector<vectorPtr_T
                                                    std::vector<vectorPtr_Type>& rhs,
                                                    FESpace<mesh_Type, MapEpetra>& uFESpace,
                                                    vector_Type& disp,
-                                                   boost::shared_ptr<FESpace<mesh_Type, MapEpetra> >  dispFESPace )
+                                                   std::shared_ptr<FESpace<mesh_Type, MapEpetra> >  dispFESPace )
 {
 
     if ( uFESpace.map().commPtr() -> MyPID() == 0)

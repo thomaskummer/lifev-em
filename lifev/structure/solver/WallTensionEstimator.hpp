@@ -196,7 +196,7 @@ public:
                  const feSpaceETPtr_Type& feSpaceET,
                  const commPtr_Type& comm,
                  UInt marker,
-                 const boost::shared_ptr< EMStructuralConstitutiveLaw<Mesh> >& EMMaterial);
+                 const std::shared_ptr< EMStructuralConstitutiveLaw<Mesh> >& EMMaterial);
 
     //! This method computes the Cauchy stress tensor and its principal values. It uses the displacement vector that has to be set
     virtual void analyzeTensions();
@@ -610,7 +610,7 @@ WallTensionEstimator<Mesh >::setup ( const dataPtr_Type& dataMaterial,
                                      const feSpaceETPtr_Type& feSpaceET,
                                      const commPtr_Type& comm,
                                      UInt marker,
-                                     const boost::shared_ptr< EMStructuralConstitutiveLaw<Mesh> >& EMMaterial )
+                                     const std::shared_ptr< EMStructuralConstitutiveLaw<Mesh> >& EMMaterial )
 {
     // Data classes & Volumes markers
     M_dataMaterial = dataMaterial;

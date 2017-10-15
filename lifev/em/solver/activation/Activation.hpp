@@ -30,7 +30,7 @@ public:
 
     typedef VectorEpetra                                                vector_Type;
 
-    typedef boost::shared_ptr<VectorEpetra>                             vectorPtr_Type;
+    typedef std::shared_ptr<VectorEpetra>                             vectorPtr_Type;
 
     typedef FactorySingleton<Factory<Activation, std::string> >  EMActivationFactory;
 
@@ -50,7 +50,7 @@ public:
 
     virtual void solveModel(Real& timeStep) = 0;
 
-    virtual void solveModelPathology ( Real& timeStep, boost::shared_ptr<RegionMesh<LinearTetra> > fullMeshPtr, const boost::shared_ptr<FESpace<RegionMesh<LinearTetra>, MapEpetra >> dFeSpace) {}
+    virtual void solveModelPathology ( Real& timeStep, std::shared_ptr<RegionMesh<LinearTetra> > fullMeshPtr, const std::shared_ptr<FESpace<RegionMesh<LinearTetra>, MapEpetra >> dFeSpace) {}
 
 
     VectorEpetra& fiberActivation()

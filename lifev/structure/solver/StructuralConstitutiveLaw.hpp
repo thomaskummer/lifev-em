@@ -122,7 +122,7 @@ public:
     typedef std::shared_ptr<ETFESpace_Type>             ETFESpacePtr_Type;
 
     typedef ETFESpace<MeshType, MapEpetra, 3, 1 >         scalarETFESpace_Type;
-    typedef boost::shared_ptr<scalarETFESpace_Type>       scalarETFESpacePtr_Type;
+    typedef std::shared_ptr<scalarETFESpace_Type>       scalarETFESpacePtr_Type;
 
     typedef FESpace< MeshType, MapEpetra >                FESpace_Type;
     typedef std::shared_ptr<FESpace_Type>               FESpacePtr_Type;

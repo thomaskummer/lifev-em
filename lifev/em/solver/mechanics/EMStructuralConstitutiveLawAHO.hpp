@@ -562,7 +562,7 @@ protected:
     boost::scoped_ptr<MatrixElemental>                  M_elmatK;
     
     //! Vector: stiffness non-linear
-    boost::shared_ptr<boost::multi_array<Real, 3> >     M_CofFk;
+    std::shared_ptr<boost::multi_array<Real, 3> >     M_CofFk;
 
     //vectorPtr_Type                                    M_stiff;
     

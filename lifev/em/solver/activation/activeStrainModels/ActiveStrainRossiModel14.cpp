@@ -70,7 +70,7 @@ ActiveStrainRossiModel14::solveModel ( Real& timeStep )
 }
 
 void
-ActiveStrainRossiModel14::solveModelPathology ( Real& timeStep, boost::shared_ptr<RegionMesh<LinearTetra> > fullMeshPtr, const boost::shared_ptr<FESpace<RegionMesh<LinearTetra>, MapEpetra >> dFeSpace)
+ActiveStrainRossiModel14::solveModelPathology ( Real& timeStep, std::shared_ptr<RegionMesh<LinearTetra> > fullMeshPtr, const std::shared_ptr<FESpace<RegionMesh<LinearTetra>, MapEpetra >> dFeSpace)
 {
     if(!M_I4fPtr)
     {
@@ -119,7 +119,7 @@ ActiveStrainRossiModel14::solveModelPathology ( Real& timeStep, boost::shared_pt
 
     
 const VectorEpetra
-ActiveStrainRossiModel14::undeformedPositionVector (boost::shared_ptr<RegionMesh<LinearTetra> > fullMeshPtr, const boost::shared_ptr<FESpace<RegionMesh<LinearTetra>, MapEpetra >> dFeSpace) const
+ActiveStrainRossiModel14::undeformedPositionVector (std::shared_ptr<RegionMesh<LinearTetra> > fullMeshPtr, const std::shared_ptr<FESpace<RegionMesh<LinearTetra>, MapEpetra >> dFeSpace) const
 {
     // New P1 Space
     FESpace<RegionMesh<LinearTetra> , MapEpetra > p1FESpace ( dFeSpace->mesh(), "P1", 3, dFeSpace->map().commPtr() );
