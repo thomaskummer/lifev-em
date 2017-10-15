@@ -20,25 +20,25 @@ public:
 
     typedef Mesh mesh_Type;
 
-    typedef typename boost::shared_ptr<MaterialFunctions::EMMaterialFunctions<Mesh> >    materialFunctionsPtr_Type;
+    typedef typename std::shared_ptr<MaterialFunctions::EMMaterialFunctions<Mesh> >    materialFunctionsPtr_Type;
     typedef std::vector<materialFunctionsPtr_Type>  vectorMaterialsPtr_Type;
 
     typedef ETFESpace< mesh_Type, MapEpetra, 3, 1 >                        scalarETFESpace_Type;
-    typedef boost::shared_ptr<ETFESpace< mesh_Type, MapEpetra, 3, 1 > >    scalarETFESpacePtr_Type;
+    typedef std::shared_ptr<ETFESpace< mesh_Type, MapEpetra, 3, 1 > >    scalarETFESpacePtr_Type;
 
     typedef FactorySingleton<Factory<EMActiveMaterialType<Mesh>, std::string> >  EMActiveMaterialFactory;
 
 
     //template <class Mesh>
-    typedef boost::shared_ptr<ETFESpace<Mesh, MapEpetra, 3, 3 > > ETFESpacePtr_Type;
+    typedef std::shared_ptr<ETFESpace<Mesh, MapEpetra, 3, 3 > > ETFESpacePtr_Type;
     //template <class Mesh>
-    typedef boost::shared_ptr< FESpace< Mesh, MapEpetra >  > FESpacePtr_Type;
+    typedef std::shared_ptr< FESpace< Mesh, MapEpetra >  > FESpacePtr_Type;
 
     typedef VectorEpetra           vector_Type;
-    typedef boost::shared_ptr<vector_Type>         vectorPtr_Type;
+    typedef std::shared_ptr<vector_Type>         vectorPtr_Type;
 
     typedef MatrixEpetra<Real>           matrix_Type;
-    typedef boost::shared_ptr<matrix_Type>         matrixPtr_Type;
+    typedef std::shared_ptr<matrix_Type>         matrixPtr_Type;
 
     typedef EMMaterialType<Mesh> super;
 
