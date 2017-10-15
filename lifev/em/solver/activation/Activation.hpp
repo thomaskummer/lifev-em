@@ -30,7 +30,7 @@ public:
 
     typedef VectorEpetra                                                vector_Type;
 
-    typedef std::shared_ptr<VectorEpetra>                             vectorPtr_Type;
+    typedef std::shared_ptr<vector_Type>                             vectorPtr_Type;
 
     typedef FactorySingleton<Factory<Activation, std::string> >  EMActivationFactory;
 
