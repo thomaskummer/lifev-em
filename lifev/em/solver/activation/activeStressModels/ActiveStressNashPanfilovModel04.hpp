@@ -20,7 +20,7 @@ public:
     //! Distributed vector // For parallel usage
     typedef VectorEpetra                                                vector_Type;
 
-    typedef boost::shared_ptr<VectorEpetra>                             vectorPtr_Type;
+    typedef std::shared_ptr<VectorEpetra>                             vectorPtr_Type;
 
     typedef ActiveStressActivation                                      super;
 

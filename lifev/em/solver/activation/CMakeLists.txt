@@ -1,5 +1,5 @@
 ADD_SUBDIRECTORIES(
-#activeStressModels
+activeStressModels
 activeStrainModels
 xBridgeModels
 )
