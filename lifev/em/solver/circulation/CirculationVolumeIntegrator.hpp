@@ -202,7 +202,7 @@ public:
 //            BOOST_AUTO_TPL (FmT, minusT (F) );
 //            BOOST_AUTO_TPL (J, det (F) );
             
-            auto F = Id + grad(super::M_dispETFESpace, disp, 0);
+            auto F = Id + grad(dETFESpace, disp, 0);
             auto J = det(F);
             auto FmT = minusT(F);
             
