@@ -23,7 +23,7 @@ public:
     
     EssentialPatchBCCircular(){}
     ~EssentialPatchBCCircular(){}
-    
+
     virtual void setup(const GetPot& dataFile, const std::string& name)
     {
         super::setup(dataFile, name);
