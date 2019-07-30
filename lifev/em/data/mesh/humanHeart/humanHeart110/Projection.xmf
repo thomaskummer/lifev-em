@@ -12,10 +12,10 @@
       <Time TimeType="Single" Value="0" />
       <Topology
          Type="Tetrahedron"
-         NumberOfElements="20611"
+         NumberOfElements="20244"
          BaseOffset="0">
          <DataStructure Format="HDF"
-                        Dimensions="20611 4"
+                        Dimensions="20244 4"
                         DataType="Int"
                         Precision="8">
              Projection.h5:/Connections/Values
@@ -23,19 +23,19 @@
       </Topology>
       <Geometry Type="X_Y_Z">
          <DataStructure Format="HDF"
-                        Dimensions="5698"
+                        Dimensions="5672"
                         DataType="Float"
                         Precision="8">
              Projection.h5:/PointsX.00000/Values
          </DataStructure>
          <DataStructure Format="HDF"
-                        Dimensions="5698"
+                        Dimensions="5672"
                         DataType="Float"
                         Precision="8">
              Projection.h5:/PointsY.00000/Values
          </DataStructure>
          <DataStructure Format="HDF"
-                        Dimensions="5698"
+                        Dimensions="5672"
                         DataType="Float"
                         Precision="8">
              Projection.h5:/PointsZ.00000/Values
@@ -48,16 +48,16 @@
          Center="Node"
          Name="projection">
          <DataStructure ItemType="HyperSlab"
-                        Dimensions="5698 3"
+                        Dimensions="5672 3"
                         Type="HyperSlab">
            <DataStructure  Dimensions="3 2"
                            Format="XML">
                0    0
                1    1
-               5698 3
+               5672 3
            </DataStructure>
            <DataStructure  Format="HDF"
-                           Dimensions="36604 3"
+                           Dimensions="36194 3"
                            DataType="Float"
                            Precision="8">
                Projection.h5:/projection.00000/Values
