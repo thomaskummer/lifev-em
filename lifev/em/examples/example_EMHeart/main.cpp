@@ -54,7 +54,7 @@
 #include <lifev/em/examples/example_EMHeart/EssentialPatchBCShell.hpp>
 
 // Track nan
-// #include <fenv.h>
+ #include <fenv.h>
 
 
 
@@ -66,7 +66,7 @@ using namespace LifeV;
 int main (int argc, char** argv)
 {
 
-//    feenableexcept(FE_INVALID | FE_OVERFLOW);
+    feenableexcept(FE_INVALID | FE_OVERFLOW);
     
     //============================================
     // Typedefs
