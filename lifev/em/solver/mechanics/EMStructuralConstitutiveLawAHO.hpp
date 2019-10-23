@@ -1767,15 +1767,8 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
 //        // Sum up contributions and integrate /
 //        auto P = Pvol + P1E + P4fE + P4sE + P8fsE;
 
-            auto I = _I;
-            auto GradU =grad(super::M_dispETFESpace, disp, 0);
-            auto F = I + GradU;
-            auto J = det(F);
-            auto Jm23 = pow(J, 2 / (-3.) );
-            auto FmT = minusT(F);
-            auto H = J * FmT;
-            auto I1 = dot(F, F);
-            auto dI1bar = value(2.0) * Jm23 * (  F + value(1/(-3.)) * I1 * FmT );
+
+
             auto P = 0.5 * 4960 * dI1bar ;
 
 
