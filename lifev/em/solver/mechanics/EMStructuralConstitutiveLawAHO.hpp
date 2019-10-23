@@ -1616,15 +1616,44 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
         
         auto grad_u =  grad(super::M_dispETFESpace, disp, 0);
 
-        auto f_0 = value (super::M_dispETFESpace, *M_fiberVectorPtr);
-        auto s_0 = value (super::M_dispETFESpace, *M_sheetVectorPtr);
+//        auto f_0 = value (super::M_dispETFESpace, *M_fiberVectorPtr);
+//        auto s_0 = value (super::M_dispETFESpace, *M_sheetVectorPtr);
+//
+//        auto gf = value (M_scalarETFESpacePtr, *M_fiberActivationPtr);
+//
+//        auto vectors = eval(vsv, f_0, s_0);
+//        auto matrices = eval(msv, grad_u, grad(phi_j));
+//
+//        auto dP = eval(hom, matrices, vectors, gf);
+        
+        
+        
+        MatrixSmall<3,3> I;
+        I(0,0) = 1.; I(0,1) = 0., I(0,2) = 0.;
+        I(1,0) = 0.; I(1,1) = 1., I(1,2) = 0.;
+        I(2,0) = 0.; I(2,1) = 0., I(2,2) = 1.;
+        
+        auto dF = grad(phi_j);
+        auto GradU = grad(super::M_dispETFESpace, disp, 0);
+        auto F = I + GradU;
+        auto FmT = minusT(F);
+        auto dFmTdF = value(-1.0) * FmT * transpose(dF) * FmT;
+        auto J = det(F);
+        auto Jm23 = pow(J, - 2. / 3.);
+        auto dJm23 = value(- 2. / 3. ) * Jm23 * FmT;
+        auto d2Jm23dF = value( -2. / 3. ) * ( dot( dJm23, dF ) * FmT + Jm23 * dFmTdF );
+        auto I1 = dot(F, F);
+        auto dI1 = value(2.0) * F;
+        auto d2I1 = value(2.0) * dF;
+        auto I1bar = Jm23 * I1;
+        auto dI1bar = dJm23 * I1 + Jm23 * dI1;
+        auto d2I1bardF = dot(dJm23, dF) * dI1 + Jm23 * d2I1 + dJm23 * dot(dI1, dF) + d2Jm23dF * I1;
+        // auto P = eval (W1, _F (dispETFESpace, disp, 0) ) * dI1bar ;
+    
+        auto dP = 0.5 * 4960 * d2I1bardF;
 
-        auto gf = value (M_scalarETFESpacePtr, *M_fiberActivationPtr);
+        // auto dP = 0.385 * F;
 
-        auto vectors = eval(vsv, f_0, s_0);
-        auto matrices = eval(msv, grad_u, grad(phi_j));
-
-        auto dP = eval(hom, matrices, vectors, gf);
         
         integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
                    quadRuleTetra4pt,
@@ -1709,34 +1738,49 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
         auto P1E = dWI1E * dI1barE * FAinv;
         
         
-        // P4fE
-        auto I4fE = dot (f,f) / pow (gf + 1, 2.0);
-        auto I4m1fE = I4fE - 1.0;
-        auto dW4fE = 185350 * I4m1fE * exp (15.972 * I4m1fE * I4m1fE ) * eval(heaviside, I4m1fE);
-        auto dI4fE = pow(gf + 1, -2.0);
-        auto dI4f = value(2.0) * outerProduct( f, f0 );
-        auto P4fE = dW4fE * dI4fE * dI4f;
- 
-        
-        // P4sE
-        auto I4sE = dot (s,s) / pow (gs + 1, 2.0);
-        auto I4m1sE = I4sE - 1.0;
-        auto dW4sE = 25640 * I4m1sE * exp (10.446 * I4m1sE * I4m1sE ) * eval(heaviside, I4m1sE);
-        auto dI4sE = pow(gs + 1, -2.0);
-        auto dI4s = value(2.0) * outerProduct( s, s0 );
-        auto P4sE = dW4sE * dI4sE * dI4s;
+//        // P4fE
+//        auto I4fE = dot (f,f) / pow (gf + 1, 2.0);
+//        auto I4m1fE = I4fE - 1.0;
+//        auto dW4fE = 185350 * I4m1fE * exp (15.972 * I4m1fE * I4m1fE ) * eval(heaviside, I4m1fE);
+//        auto dI4fE = pow(gf + 1, -2.0);
+//        auto dI4f = value(2.0) * outerProduct( f, f0 );
+//        auto P4fE = dW4fE * dI4fE * dI4f;
+//
+//
+//        // P4sE
+//        auto I4sE = dot (s,s) / pow (gs + 1, 2.0);
+//        auto I4m1sE = I4sE - 1.0;
+//        auto dW4sE = 25640 * I4m1sE * exp (10.446 * I4m1sE * I4m1sE ) * eval(heaviside, I4m1sE);
+//        auto dI4sE = pow(gs + 1, -2.0);
+//        auto dI4s = value(2.0) * outerProduct( s, s0 );
+//        auto P4sE = dW4sE * dI4sE * dI4s;
+//
+//
+//        // P8fsE
+//        auto I8fsE = dot (f,s) / ( (gf + 1) * (gs + 1) );
+//        auto dW8fsE = 4170 * I8fsE * exp ( 11.602 * I8fsE * I8fsE );
+//        auto dI8fsE = 1 / ( (gf + 1) * (gs + 1) );
+//        auto dI8fs = F * ( outerProduct( f0, s0 ) + outerProduct( s0, f0 ) );
+//        auto P8fsE = dW8fsE * dI8fsE * dI8fs;
+//
+//
+//        // Sum up contributions and integrate /
+//        auto P = Pvol + P1E + P4fE + P4sE + P8fsE;
 
+            auto I = _I;
+            auto GradU =grad(super::M_dispETFESpace, disp, 0);
+            auto F = I + GradU;
+            auto J = det(F);
+            auto Jm23 = pow(J, 2 / (-3.) );
+            auto FmT = minusT(F);
+            auto H = J * FmT;
+            auto I1 = dot(F, F);
+            auto dI1bar = value(2.0) * Jm23 * (  F + value(1/(-3.)) * I1 * FmT );
+            auto P = 0.5 * 4960 * dI1bar ;
+
+
+        // auto P = 4960 * F; // 0.385 * F;
         
-        // P8fsE
-        auto I8fsE = dot (f,s) / ( (gf + 1) * (gs + 1) );
-        auto dW8fsE = 4170 * I8fsE * exp ( 11.602 * I8fsE * I8fsE );
-        auto dI8fsE = 1 / ( (gf + 1) * (gs + 1) );
-        auto dI8fs = F * ( outerProduct( f0, s0 ) + outerProduct( s0, f0 ) );
-        auto P8fsE = dW8fsE * dI8fsE * dI8fs;
-        
-        
-        // Sum up contributions and integrate /
-        auto P = Pvol + P1E + P4fE + P4sE + P8fsE;
         integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
                    quadRuleTetra4pt,
                    super::M_dispETFESpace,
