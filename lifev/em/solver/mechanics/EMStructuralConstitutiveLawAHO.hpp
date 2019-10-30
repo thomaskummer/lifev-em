@@ -1092,7 +1092,7 @@ protected:
             
             auto f0 = vectors[0];
             auto s0 = vectors[1];
-            normalize(f0);
+            this -> normalize(f0);
             orthoNormalize(s0, f0);
             auto n0 = crossProduct(f0, s0);
 
