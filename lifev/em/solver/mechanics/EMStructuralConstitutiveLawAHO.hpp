@@ -647,23 +647,23 @@ protected:
             return s;
         }
         
-//        return_Type normalize(const VectorSmall<3>& v, const UInt& comp)
-//        {
-//            auto V (v);
-//            Real norm = std::sqrt (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
-////            if ( norm >= 1e-13 )
+        return_Type normalize(const VectorSmall<3>& v, const UInt& comp)
+        {
+            auto V (v);
+            Real norm = std::sqrt (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+//            if ( norm >= 1e-13 )
+            {
+                V[0] = v[0] / norm;
+                V[1] = v[1] / norm;
+                V[2] = v[2] / norm;
+            }
+//            else
 //            {
-//                V[0] = v[0] / norm;
-//                V[1] = v[1] / norm;
-//                V[2] = v[2] / norm;
+//                V *= 0.0;
+//                V[comp] = 1.0;
 //            }
-////            else
-////            {
-////                V *= 0.0;
-////                V[comp] = 1.0;
-////            }
-//            return V;
-//        }
+            return V;
+        }
         
         OrthonormalizeVector () {}
         ~OrthonormalizeVector () {}
@@ -1078,7 +1078,7 @@ protected:
     };
     
     
-    class NeoHookeanMaterial : public NonlinearMaterial
+    class NeoHookeanMaterial : NonlinearMaterial
     {
     public:
         using NonlinearMaterial:NonlinearMaterial;
@@ -1150,7 +1150,7 @@ protected:
         
     };
     
-    class HolzapfelOgdenMaterial : public NonlinearMaterial
+    class HolzapfelOgdenMaterial : NonlinearMaterial
     {
     public:
         using NonlinearMaterial:NonlinearMaterial;
