@@ -998,87 +998,87 @@ protected:
     };
     
     
-    class NonlinearMaterial
-    {
-    public:
-        
-        typedef LifeV::MatrixSmall<3,3> return_Type;
-
-        NonlinearMaterial() {}
-        ~NonlinearMaterial() {}
-        
-        virtual return_Type operator() (const std::vector<MatrixSmall<3,3> >& matrices, const std::vector<VectorSmall<3> >& vectors, const Real& g) = 0;
-        
-    protected:
-        
-        MatrixSmall<3,3> deformationGradient (const LifeV::MatrixSmall<3,3>& du) const
-        {
-            MatrixSmall<3,3> I;
-            I(0,0) = 1.; I(0,1) = 0., I(0,2) = 0.;
-            I(1,0) = 0.; I(1,1) = 1., I(1,2) = 0.;
-            I(2,0) = 0.; I(2,1) = 0., I(2,2) = 1.;
-            
-            MatrixSmall<3,3> F;
-            F = I + du;
-            
-            return F;
-        }
-
-        VectorSmall<3> crossProduct (const LifeV::VectorSmall<3>& v1, const LifeV::VectorSmall<3>& v2) const
-        {
-            VectorSmall<3> v;
-            v[0] = v1[1] * v2[2] - v1[2] * v2[1];
-            v[1] = v1[2] * v2[0] - v1[0] * v2[2];
-            v[2] = v1[0] * v2[1] - v1[1] * v2[0];
-            return v;
-        }
-        
-        MatrixSmall<3,3> outerProduct (const LifeV::VectorSmall<3>& f, const LifeV::VectorSmall<3>& s) const
-        {
-            MatrixSmall<3,3> M;
-            for (UInt i (0); i < 3; ++i)
-            {
-                for (UInt j (0); j < 3; ++j)
-                {
-                    M(i,j) = f(i) * s(j);
-                }
-            }
-            return M;
-        }
-        
-        void orthoNormalize (VectorSmall<3>& s, const VectorSmall<3>& f) const
-        {
-            normalize(s);
-            s = s - s.dot(f) * f;
-            normalize(s);
-        }
-        
-        void normalize (VectorSmall<3>& v) const
-        {
-            Real norm = std::sqrt (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
-            //            if ( norm >= 1e-13 )
-            //            {
-            v[0] = v[0] / norm;
-            v[1] = v[1] / norm;
-            v[2] = v[2] / norm;
-            //            }
-            //            else
-            //            {
-            //                V *= 0.0;
-            //                V[comp] = 1.0;
-            //            }
-        }
-
-        MatrixSmall<3,3> identity () const
-        {
-            MatrixSmall<3,3> I;
-            I(0,0) = 1.; I(0,1) = 0., I(0,2) = 0.;
-            I(1,0) = 0.; I(1,1) = 1., I(1,2) = 0.;
-            I(2,0) = 0.; I(2,1) = 0., I(2,2) = 1.;
-            return I;
-        }
-        
-    };
+//    class NonlinearMaterial
+//    {
+//    public:
+//
+//        typedef LifeV::MatrixSmall<3,3> return_Type;
+//
+//        NonlinearMaterial() {}
+//        ~NonlinearMaterial() {}
+//
+//        virtual return_Type operator() (const std::vector<MatrixSmall<3,3> >& matrices, const std::vector<VectorSmall<3> >& vectors, const Real& g) = 0;
+//
+//    protected:
+//
+//        MatrixSmall<3,3> deformationGradient (const LifeV::MatrixSmall<3,3>& du) const
+//        {
+//            MatrixSmall<3,3> I;
+//            I(0,0) = 1.; I(0,1) = 0., I(0,2) = 0.;
+//            I(1,0) = 0.; I(1,1) = 1., I(1,2) = 0.;
+//            I(2,0) = 0.; I(2,1) = 0., I(2,2) = 1.;
+//
+//            MatrixSmall<3,3> F;
+//            F = I + du;
+//
+//            return F;
+//        }
+//
+//        VectorSmall<3> crossProduct (const LifeV::VectorSmall<3>& v1, const LifeV::VectorSmall<3>& v2) const
+//        {
+//            VectorSmall<3> v;
+//            v[0] = v1[1] * v2[2] - v1[2] * v2[1];
+//            v[1] = v1[2] * v2[0] - v1[0] * v2[2];
+//            v[2] = v1[0] * v2[1] - v1[1] * v2[0];
+//            return v;
+//        }
+//
+//        MatrixSmall<3,3> outerProduct (const LifeV::VectorSmall<3>& f, const LifeV::VectorSmall<3>& s) const
+//        {
+//            MatrixSmall<3,3> M;
+//            for (UInt i (0); i < 3; ++i)
+//            {
+//                for (UInt j (0); j < 3; ++j)
+//                {
+//                    M(i,j) = f(i) * s(j);
+//                }
+//            }
+//            return M;
+//        }
+//
+//        void orthoNormalize (VectorSmall<3>& s, const VectorSmall<3>& f) const
+//        {
+//            normalize(s);
+//            s = s - s.dot(f) * f;
+//            normalize(s);
+//        }
+//
+//        void normalize (VectorSmall<3>& v) const
+//        {
+//            Real norm = std::sqrt (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+//            //            if ( norm >= 1e-13 )
+//            //            {
+//            v[0] = v[0] / norm;
+//            v[1] = v[1] / norm;
+//            v[2] = v[2] / norm;
+//            //            }
+//            //            else
+//            //            {
+//            //                V *= 0.0;
+//            //                V[comp] = 1.0;
+//            //            }
+//        }
+//
+//        MatrixSmall<3,3> identity () const
+//        {
+//            MatrixSmall<3,3> I;
+//            I(0,0) = 1.; I(0,1) = 0., I(0,2) = 0.;
+//            I(1,0) = 0.; I(1,1) = 1., I(1,2) = 0.;
+//            I(2,0) = 0.; I(2,1) = 0., I(2,2) = 1.;
+//            return I;
+//        }
+//
+//    };
     
     
     class NeoHookeanMaterial
@@ -1087,7 +1087,7 @@ protected:
         
         typedef LifeV::MatrixSmall<3,3> return_Type;
 
-        virtual return_Type operator() (const std::vector<MatrixSmall<3,3> >& matrices, const std::vector<VectorSmall<3> >& vectors, const Real& g)
+        return_Type operator() (const std::vector<MatrixSmall<3,3> >& matrices, const std::vector<VectorSmall<3> >& vectors, const Real& g)
         {
             auto grad_u = matrices[0];
             auto grad_phij = matrices[1];
@@ -1227,8 +1227,8 @@ protected:
     public:
         
         typedef LifeV::MatrixSmall<3,3> return_Type;
-
-        virtual return_Type operator() (const std::vector<MatrixSmall<3,3> >& matrices, const std::vector<VectorSmall<3> >& vectors, const Real& g)
+        
+        return_Type operator() (const std::vector<MatrixSmall<3,3> >& matrices, const std::vector<VectorSmall<3> >& vectors, const Real& g)
         {
             auto grad_u = matrices[0];
             auto grad_phij = matrices[1];
@@ -1350,8 +1350,6 @@ protected:
             
         }
         
-    protected:
-        
         Real dW1 (const Real& I1barE)
         {
             return ( 3300 / 2.0 * std::exp( 9.242 * (I1barE - 3 ) ) );
@@ -1462,7 +1460,6 @@ protected:
             I(2,0) = 0.; I(2,1) = 0., I(2,2) = 1.;
             return I;
         }
-    
         
         HolzapfelOgdenMaterial() {}
         ~HolzapfelOgdenMaterial() {}
