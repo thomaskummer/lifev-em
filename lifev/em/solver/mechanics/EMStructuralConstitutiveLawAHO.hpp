@@ -997,6 +997,81 @@ protected:
         ~dP8fsE() {}
     };
     
+    class NeoHookeanMaterial
+    {
+    public:
+        typedef LifeV::MatrixSmall<3,3> return_Type;
+        
+        return_Type operator() (const std::vector<MatrixSmall<3,3> >& matrices, const std::vector<VectorSmall<3> >& vectors, const Real& g)
+        {
+            auto grad_u = matrices[0];
+            auto grad_phij = matrices[1];
+            
+            auto f0 = vectors[0];
+            auto s0 = vectors[1];
+            normalize(f0);
+            orthoNormalize(s0, f0);
+            auto n0 = crossProduct(f0, s0);
+
+            auto gf = g;
+            auto gn = 4 * gf;
+            auto gs = 1 / ( (gf + 1) * (gn + 1) ) - 1;
+            
+            auto F = deformationGradient(grad_u);
+            
+            MatrixSmall<3,3> FAinv;
+            FAinv = identity() - gf/(gf+1) * outerProduct(f0,f0) - gs/(gs+1) * outerProduct(s0,s0) - gn/(gn+1) * outerProduct(n0,n0);
+            
+            
+            // ===============================//
+            // Pvol
+            // ===============================//
+
+            auto J = F.determinant();
+            auto FmT = F.minusTransposed();
+            auto dJ = J * FmT;
+            
+            auto dJdF = dJ.dot(grad_phij);
+            auto dFT = grad_phij.transpose();
+            auto dFmTdF = - 1.0 * FmT * dFT * FmT;
+            auto d2JdF = dJdF * FmT + J * dFmTdF;
+            //auto dWvol = ( 3500000 * ( J + J * std::log(J) - 1. ) ) / ( 2 * J );
+            auto dWvol = 3500000 * ( J*(J-1) + std::log(J) ) / ( 2 * J );
+            auto dPvol = dWvol * d2JdF;
+            
+            //auto ddWvol = ( 3500000 * ( J + 1. ) ) / ( 2. * J * J );
+            auto ddWvol = 3500000  / (2 * J * J) * ( 1 + J * J - std::log(J) );
+            auto ddPvol = ddWvol * dJdF * dJ;
+            
+            
+            // ===============================//
+            // NK
+            // ===============================//
+            
+            auto FmT = minusT(F);
+            auto dFmTdF = value(-1.0) * FmT * transpose(dF) * FmT;
+            auto J = det(F);
+            auto Jm23 = pow(J, - 2. / 3.);
+            auto dJm23 = value(- 2. / 3. ) * Jm23 * FmT;
+            auto d2Jm23dF = value( -2. / 3. ) * ( dot( dJm23, dF ) * FmT + Jm23 * dFmTdF );
+            auto I1 = dot(F, F);
+            auto dI1 = value(2.0) * F;
+            auto d2I1 = value(2.0) * dF;
+            auto I1bar = Jm23 * I1;
+            auto dI1bar = dJm23 * I1 + Jm23 * dI1;
+            auto d2I1bardF = dot(dJm23, dF) * dI1 + Jm23 * d2I1 + dJm23 * dot(dI1, dF) + d2Jm23dF * I1;
+            auto dNK = 0.5 * 4960 * d2I1bardF;
+            // auto dNK = 0.385 * F;
+
+
+            return ( dPvol + ddPvol + dNK);
+            
+        }
+        
+        NeoHookeanMaterial() {}
+        ~NeoHookeanMaterial() {}
+        
+    }
     
     class HolzapfelOgdenMaterial
     {
@@ -1609,6 +1684,7 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
     //boost::shared_ptr<ScalarStdVector> ssv (new ScalarStdVector);
 
     boost::shared_ptr<HolzapfelOgdenMaterial> hom (new HolzapfelOgdenMaterial);
+    boost::shared_ptr<NeoHookeanMaterial> nkm (new NeoHookeanMaterial);
 
     {
         using namespace ExpressionAssembly;
@@ -1616,54 +1692,20 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
         
         auto grad_u =  grad(super::M_dispETFESpace, disp, 0);
 
-//        auto f_0 = value (super::M_dispETFESpace, *M_fiberVectorPtr);
-//        auto s_0 = value (super::M_dispETFESpace, *M_sheetVectorPtr);
-//
-//        auto gf = value (M_scalarETFESpacePtr, *M_fiberActivationPtr);
-//
-//        auto vectors = eval(vsv, f_0, s_0);
-//        auto matrices = eval(msv, grad_u, grad(phi_j));
-//
-//        auto dP = eval(hom, matrices, vectors, gf);
-        
-        
-        
-        MatrixSmall<3,3> I;
-        I(0,0) = 1.; I(0,1) = 0., I(0,2) = 0.;
-        I(1,0) = 0.; I(1,1) = 1., I(1,2) = 0.;
-        I(2,0) = 0.; I(2,1) = 0., I(2,2) = 1.;
-        
-        
-        auto dF = grad(phi_j);
-        auto GradU = grad(super::M_dispETFESpace, disp, 0);
-        auto F = I + GradU;
-        auto FmT = minusT(F);
-        auto dFmTdF = value(-1.0) * FmT * transpose(dF) * FmT;
-        auto J = det(F);
-        auto Jm23 = pow(J, - 2. / 3.);
-        auto dJm23 = value(- 2. / 3. ) * Jm23 * FmT;
-        auto d2Jm23dF = value( -2. / 3. ) * ( dot( dJm23, dF ) * FmT + Jm23 * dFmTdF );
-        auto I1 = dot(F, F);
-        auto dI1 = value(2.0) * F;
-        auto d2I1 = value(2.0) * dF;
-        auto I1bar = Jm23 * I1;
-        auto dI1bar = dJm23 * I1 + Jm23 * dI1;
-        auto d2I1bardF = dot(dJm23, dF) * dI1 + Jm23 * d2I1 + dJm23 * dot(dI1, dF) + d2Jm23dF * I1;
-        // auto P = eval (W1, _F (dispETFESpace, disp, 0) ) * dI1bar ;
-    
-        
-        auto dJ = J * FmT;
-        auto dJdF = dot(dJ,dF);
-        auto d2JdF = dJdF * FmT + J * dFmTdF;
-        auto dWvol = 3500000 * ( J*(J-1) + log(J) ) / ( 2 * J );
-        auto dPvol = dWvol * d2JdF;
-        auto ddWvol = 3500000  / (2 * J * J) * ( 1 + J * J - log(J) );
-        auto ddPvol = ddWvol * dJdF * dJ;
-        
-        
-        auto dP = dPvol + ddPvol + 0.5 * 4960 * d2I1bardF;
+        auto f_0 = value (super::M_dispETFESpace, *M_fiberVectorPtr);
+        auto s_0 = value (super::M_dispETFESpace, *M_sheetVectorPtr);
 
-        // auto dP = 0.385 * F;
+        auto gf = value (M_scalarETFESpacePtr, *M_fiberActivationPtr);
+
+        auto vectors = eval(vsv, f_0, s_0);
+        auto matrices = eval(msv, grad_u, grad(phi_j));
+        
+        
+        // Holzapfel-Ogden
+        //auto dP = eval(hom, matrices, vectors, gf);
+        
+        // NeoHookean
+        auto dP = eval(nkm, matrices, vectors, gf);
 
         
         integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
