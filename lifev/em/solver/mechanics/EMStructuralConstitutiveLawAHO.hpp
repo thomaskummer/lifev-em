@@ -1081,7 +1081,7 @@ protected:
     };
     
     
-    class NeoHookeanMaterial : public NonlinearMaterial
+    class NeoHookeanMaterial
     {
     public:
         
@@ -1222,7 +1222,7 @@ protected:
         
     };
     
-    class HolzapfelOgdenMaterial : public NonlinearMaterial
+    class HolzapfelOgdenMaterial
     {
     public:
         
