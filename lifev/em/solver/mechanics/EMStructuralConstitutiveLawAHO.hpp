@@ -1885,7 +1885,7 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
         auto dJ = J * FmT;
         auto dJdF = dot(dJ,dF);
         auto dFT = transpose(dF);
-        auto dFmTdF = - 1.0 * FmT * dFT * FmT;
+        //auto dFmTdF = - 1.0 * FmT * dFT * FmT;
         auto d2JdF = dJdF * FmT + J * dFmTdF;
         auto dWvol = 3500000 * ( J*(J-1) + log(J) ) / ( 2 * J );
         auto dPvol = dWvol * d2JdF;
