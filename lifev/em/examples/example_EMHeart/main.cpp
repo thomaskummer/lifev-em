@@ -585,7 +585,7 @@ int main (int argc, char** argv)
             solver.bcInterfacePtr() -> updatePhysicalSolverVariables();
             solver.solveMechanics();
             
-            if (testPatchesAtPreload) heartSolver.postProcess(i-1);
+            if (!testPatchesAtPreload) heartSolver.postProcess(i-1);
         }
 
         auto maxI4fValue ( solver.activationModelPtr()->I4f().maxValue() );
