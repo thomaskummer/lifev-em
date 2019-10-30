@@ -1007,9 +1007,7 @@ protected:
         ~NonlinearMaterial() {}
         
         virtual return_Type operator() (const std::vector<MatrixSmall<3,3> >& matrices, const std::vector<VectorSmall<3> >& vectors, const Real& g) = 0;
-        
-    protected:
-        
+                
         MatrixSmall<3,3> deformationGradient (const LifeV::MatrixSmall<3,3>& du) const
         {
             MatrixSmall<3,3> I;
