@@ -1081,7 +1081,7 @@ protected:
     class NeoHookeanMaterial : public NonlinearMaterial
     {
     public:
-        using namespace NonlinearMaterial;
+        using NonlinearMaterial:NonlinearMaterial;
         
         typedef LifeV::MatrixSmall<3,3> return_Type;
 
@@ -1148,15 +1148,12 @@ protected:
             
         }
         
-        NeoHookeanMaterial() {}
-        ~NeoHookeanMaterial() {}
-        
     };
     
     class HolzapfelOgdenMaterial : public NonlinearMaterial
     {
     public:
-        using namespace NonlinearMaterial;
+        using NonlinearMaterial:NonlinearMaterial;
 
         typedef LifeV::MatrixSmall<3,3> return_Type;
 
@@ -1328,9 +1325,6 @@ protected:
             return ( 4170 * std::exp ( 11.602 * I8fsE * I8fsE ) * ( 2.0 * 11.602 * I8fsE * I8fsE + 1.0 ) );
         }
     
-        
-        HolzapfelOgdenMaterial() {}
-        ~HolzapfelOgdenMaterial() {}
     };
     
     
