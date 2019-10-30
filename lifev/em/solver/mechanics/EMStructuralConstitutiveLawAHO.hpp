@@ -1883,13 +1883,13 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
         auto d2I1bardF = dot(dJm23, dF) * dI1 + Jm23 * d2I1 + dJm23 * dot(dI1, dF) + d2Jm23dF * I1;
         
         auto dJ = J * FmT;
-        auto dJdF = dJ.dot(dF);
-        auto dFT = dF.transpose();
+        auto dJdF = dot(dJ,dF);
+        auto dFT = transpose(dF);
         auto dFmTdF = - 1.0 * FmT * dFT * FmT;
         auto d2JdF = dJdF * FmT + J * dFmTdF;
-        auto dWvol = 3500000 * ( J*(J-1) + std::log(J) ) / ( 2 * J );
+        auto dWvol = 3500000 * ( J*(J-1) + log(J) ) / ( 2 * J );
         auto dPvol = dWvol * d2JdF;
-        auto ddWvol = 3500000  / (2 * J * J) * ( 1 + J * J - std::log(J) );
+        auto ddWvol = 3500000  / (2 * J * J) * ( 1 + J * J - log(J) );
         auto ddPvol = ddWvol * dJdF * dJ;
         
         auto dP = dPvol + ddPvol + 0.5 * 4960 * d2I1bardF;
