@@ -1000,6 +1000,7 @@ protected:
     
     class NonlinearMaterial
     {
+    public:
         typedef LifeV::MatrixSmall<3,3> return_Type;
 
         NonlinearMaterial() {}
