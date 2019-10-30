@@ -1092,20 +1092,20 @@ protected:
             auto grad_u = matrices[0];
             auto grad_phij = matrices[1];
             
-            auto f0 = vectors[0];
-            auto s0 = vectors[1];
-            normalize(f0);
-            orthoNormalize(s0, f0);
-            auto n0 = crossProduct(f0, s0);
-
-            auto gf = g;
-            auto gn = 4 * gf;
-            auto gs = 1 / ( (gf + 1) * (gn + 1) ) - 1;
+//            auto f0 = vectors[0];
+//            auto s0 = vectors[1];
+//            normalize(f0);
+//            orthoNormalize(s0, f0);
+//            auto n0 = crossProduct(f0, s0);
+//
+//            auto gf = g;
+//            auto gn = 4 * gf;
+//            auto gs = 1 / ( (gf + 1) * (gn + 1) ) - 1;
             
             auto F = deformationGradient(grad_u);
             
-            MatrixSmall<3,3> FAinv;
-            FAinv = identity() - gf/(gf+1) * outerProduct(f0,f0) - gs/(gs+1) * outerProduct(s0,s0) - gn/(gn+1) * outerProduct(n0,n0);
+//            MatrixSmall<3,3> FAinv;
+//            FAinv = identity() - gf/(gf+1) * outerProduct(f0,f0) - gs/(gs+1) * outerProduct(s0,s0) - gn/(gn+1) * outerProduct(n0,n0);
             
             
             // ===============================//
@@ -1908,25 +1908,25 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
         auto dI1bar = value(2.0) * Jm23 * ( F + value(1/(-3.)) * I1 * FmT );
 
         
-        // Orthotropic activation
-        auto k = 4.0;
-        
-        auto gf = value (M_scalarETFESpacePtr, *M_fiberActivationPtr);
-        auto gn = k * gf;
-        auto gs = 1 / ( (gf + 1) * (gn + 1) ) - 1;
-        auto gm = value(-1.0) * ( gf ) / ( ( gf ) + 1.0 );
-        auto go = gf * ( k + gf * k + value(1.0) );
-        auto gmn = value(-1.0) * ( k*gf ) / ( ( k*gf ) + 1.0 ) ;
-        
-        
-        // Active strain
-        auto f0 = eval (orthonormalizeVector, value (super::M_dispETFESpace, *M_fiberVectorPtr));
-        auto s0 = eval (orthonormalizeVector, f0,  value (super::M_dispETFESpace, *M_sheetVectorPtr));
-        auto n0 = eval (crossProduct, f0, s0);
-        auto f = F * f0;
-        auto s = F * s0;
-        auto FAinv = eval(fAInversefct, f0, s0, gf);
-        auto FE =  F * FAinv;
+//        // Orthotropic activation
+//        auto k = 4.0;
+//
+//        auto gf = value (M_scalarETFESpacePtr, *M_fiberActivationPtr);
+//        auto gn = k * gf;
+//        auto gs = 1 / ( (gf + 1) * (gn + 1) ) - 1;
+//        auto gm = value(-1.0) * ( gf ) / ( ( gf ) + 1.0 );
+//        auto go = gf * ( k + gf * k + value(1.0) );
+//        auto gmn = value(-1.0) * ( k*gf ) / ( ( k*gf ) + 1.0 ) ;
+//
+//
+//        // Active strain
+//        auto f0 = eval (orthonormalizeVector, value (super::M_dispETFESpace, *M_fiberVectorPtr));
+//        auto s0 = eval (orthonormalizeVector, f0,  value (super::M_dispETFESpace, *M_sheetVectorPtr));
+//        auto n0 = eval (crossProduct, f0, s0);
+//        auto f = F * f0;
+//        auto s = F * s0;
+//        auto FAinv = eval(fAInversefct, f0, s0, gf);
+//        auto FE =  F * FAinv;
         
         
         // Pvol
@@ -1936,13 +1936,13 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
         auto Pvol = dWvol * dJ;
         
 
-        // P1E
-        auto I1barE = pow ( det(FE), 2 / -3.0 ) *  dot( FE, FE );
-        auto dI1barE = pow ( det(FE), 2 / -3.0 ) * ( value(2.0) * FE + dot( FE, FE ) * value(-2.0/3.0) * minusT(FE) );
-        auto dWI1E = 3300 / 2.0 * exp ( 9.242 * ( I1barE - 3 ) );
-        auto P1E = dWI1E * dI1barE * FAinv;
-        
-        
+//        // P1E
+//        auto I1barE = pow ( det(FE), 2 / -3.0 ) *  dot( FE, FE );
+//        auto dI1barE = pow ( det(FE), 2 / -3.0 ) * ( value(2.0) * FE + dot( FE, FE ) * value(-2.0/3.0) * minusT(FE) );
+//        auto dWI1E = 3300 / 2.0 * exp ( 9.242 * ( I1barE - 3 ) );
+//        auto P1E = dWI1E * dI1barE * FAinv;
+//
+//
 //        // P4fE
 //        auto I4fE = dot (f,f) / pow (gf + 1, 2.0);
 //        auto I4m1fE = I4fE - 1.0;
