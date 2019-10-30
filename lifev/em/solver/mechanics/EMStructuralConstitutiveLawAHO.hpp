@@ -1050,7 +1050,7 @@ protected:
             normalize(s);
         }
         
-        void normalize (VectorSmall<3>& v) const
+        void normalize (VectorSmall<3>& v)
         {
             Real norm = std::sqrt (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
             //            if ( norm >= 1e-13 )
