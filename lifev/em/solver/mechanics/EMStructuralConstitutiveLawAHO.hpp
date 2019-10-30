@@ -1082,7 +1082,7 @@ protected:
     {
     public:
         
-        return_Type operator() (const std::vector<MatrixSmall<3,3> >& matrices, const std::vector<VectorSmall<3> >& vectors, const Real& g)
+        virtual return_Type operator() (const std::vector<MatrixSmall<3,3> >& matrices, const std::vector<VectorSmall<3> >& vectors, const Real& g)
         {
             auto grad_u = matrices[0];
             auto grad_phij = matrices[1];
@@ -1157,7 +1157,7 @@ protected:
     {
     public:
         
-        return_Type operator() (const std::vector<MatrixSmall<3,3> >& matrices, const std::vector<VectorSmall<3> >& vectors, const Real& g)
+        virtual return_Type operator() (const std::vector<MatrixSmall<3,3> >& matrices, const std::vector<VectorSmall<3> >& vectors, const Real& g)
         {
             auto grad_u = matrices[0];
             auto grad_phij = matrices[1];
