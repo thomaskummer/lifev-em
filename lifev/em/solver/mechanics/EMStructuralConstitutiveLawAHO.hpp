@@ -1633,6 +1633,7 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
         I(1,0) = 0.; I(1,1) = 1., I(1,2) = 0.;
         I(2,0) = 0.; I(2,1) = 0., I(2,2) = 1.;
         
+        
         auto dF = grad(phi_j);
         auto GradU = grad(super::M_dispETFESpace, disp, 0);
         auto F = I + GradU;
@@ -1650,7 +1651,19 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
         auto d2I1bardF = dot(dJm23, dF) * dI1 + Jm23 * d2I1 + dJm23 * dot(dI1, dF) + d2Jm23dF * I1;
         // auto P = eval (W1, _F (dispETFESpace, disp, 0) ) * dI1bar ;
     
-        auto dP = 0.5 * 4960 * d2I1bardF;
+        
+        auto dJ = J * FmT;
+        auto dJdF = dJ.dot(dF);
+        auto dFT = dF.transpose();
+        auto dFmTdF = - 1.0 * FmT * dFT * FmT;
+        auto d2JdF = dJdF * FmT + J * dFmTdF;
+        auto dWvol = 3500000 * ( J*(J-1) + std::log(J) ) / ( 2 * J );
+        auto dPvol = dWvol * d2JdF;
+        auto ddWvol = 3500000  / (2 * J * J) * ( 1 + J * J - std::log(J) );
+        auto ddPvol = ddWvol * dJdF * dJ;
+        
+        
+        auto dP = dPvol + ddPvol + 0.5 * 4960 * d2I1bardF;
 
         // auto dP = 0.385 * F;
 
@@ -1769,7 +1782,7 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
 
 
 
-            auto P = 0.5 * 4960 * dI1bar ;
+            auto P = Pvol + 0.5 * 4960 * dI1bar ;
 
 
         // auto P = 4960 * F; // 0.385 * F;
