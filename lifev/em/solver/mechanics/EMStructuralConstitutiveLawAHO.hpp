@@ -1696,8 +1696,8 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
     boost::shared_ptr<VectorStdVector> vsv (new VectorStdVector);
     //boost::shared_ptr<ScalarStdVector> ssv (new ScalarStdVector);
 
-    boost::shared_ptr<HolzapfelOgdenMaterial> hom (new HolzapfelOgdenMaterial);
-    boost::shared_ptr<NeoHookeanMaterial> nkm (new NeoHookeanMaterial);
+    boost::shared_ptr<NonlinearMaterial> hom (new HolzapfelOgdenMaterial);
+    boost::shared_ptr<NonlinearMaterial> nkm (new NeoHookeanMaterial);
 
     {
         using namespace ExpressionAssembly;
