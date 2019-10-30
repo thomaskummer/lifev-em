@@ -1135,13 +1135,13 @@ protected:
 
             auto Jm23 = pow(J, - 2. / 3.);
             auto dJm23 = (- 2. / 3. ) * Jm23 * FmT;
-            auto d2Jm23dF = ( -2. / 3. ) * ( dot( dJm23, dF ) * FmT + Jm23 * dFmTdF );
-            auto I1 = dot(F, F);
+            auto d2Jm23dF = ( -2. / 3. ) * (  dJm23.dot(dF) ) * FmT + Jm23 * dFmTdF );
+            auto I1 = F.dot(F);
             auto dI1 = (2.0) * F;
             auto d2I1 = (2.0) * dF;
             auto I1bar = Jm23 * I1;
             auto dI1bar = dJm23 * I1 + Jm23 * dI1;
-            auto d2I1bardF = dot(dJm23, dF) * dI1 + Jm23 * d2I1 + dJm23 * dot(dI1, dF) + d2Jm23dF * I1;
+            auto d2I1bardF = dJm23.dot(dF) * dI1 + Jm23 * d2I1 + dJm23 * dI1.dot(dF) + d2Jm23dF * I1;
             auto dNK = 0.5 * 4960 * d2I1bardF;
             // auto dNK = 0.385 * F;
 
