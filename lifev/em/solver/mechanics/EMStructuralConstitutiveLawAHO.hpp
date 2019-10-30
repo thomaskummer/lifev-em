@@ -1103,7 +1103,7 @@ protected:
             auto F = NonlinearMaterial::deformationGradient(grad_u);
             
             MatrixSmall<3,3> FAinv;
-            FAinv = identity() - gf/(gf+1) * NonlinearMaterial::outerProduct(f0,f0) - gs/(gs+1) * NonlinearMaterial::outerProduct(s0,s0) - gn/(gn+1) * NonlinearMaterial::outerProduct(n0,n0);
+            FAinv = NonlinearMaterial::identity() - gf/(gf+1) * NonlinearMaterial::outerProduct(f0,f0) - gs/(gs+1) * NonlinearMaterial::outerProduct(s0,s0) - gn/(gn+1) * NonlinearMaterial::outerProduct(n0,n0);
             
             
             // ===============================//
@@ -1168,18 +1168,18 @@ protected:
             
             auto f0 = vectors[0];
             auto s0 = vectors[1];
-            normalize(f0);
-            orthoNormalize(s0, f0);
-            auto n0 = crossProduct(f0, s0);
+            NonlinearMaterial::normalize(f0);
+            NonlinearMaterial::orthoNormalize(s0, f0);
+            auto n0 = NonlinearMaterial::crossProduct(f0, s0);
 
             auto gf = g;
             auto gn = 4 * gf;
             auto gs = 1 / ( (gf + 1) * (gn + 1) ) - 1;
             
-            auto F = deformationGradient(grad_u);
+            auto F = NonlinearMaterial::deformationGradient(grad_u);
             
             MatrixSmall<3,3> FAinv;
-            FAinv = identity() - gf/(gf+1) * outerProduct(f0,f0) - gs/(gs+1) * outerProduct(s0,s0) - gn/(gn+1) * outerProduct(n0,n0);
+            FAinv = NonlinearMaterial::identity() - gf/(gf+1) * NonlinearMaterial::outerProduct(f0,f0) - gs/(gs+1) * NonlinearMaterial::outerProduct(s0,s0) - gn/(gn+1) * NonlinearMaterial::outerProduct(n0,n0);
             
             
             // ===============================//
