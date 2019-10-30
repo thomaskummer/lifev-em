@@ -1131,9 +1131,6 @@ protected:
             // NK
             // ===============================//
             
-            auto FmT = minusT(F);
-            auto dFmTdF = value(-1.0) * FmT * transpose(dF) * FmT;
-            auto J = det(F);
             auto Jm23 = pow(J, - 2. / 3.);
             auto dJm23 = value(- 2. / 3. ) * Jm23 * FmT;
             auto d2Jm23dF = value( -2. / 3. ) * ( dot( dJm23, dF ) * FmT + Jm23 * dFmTdF );
