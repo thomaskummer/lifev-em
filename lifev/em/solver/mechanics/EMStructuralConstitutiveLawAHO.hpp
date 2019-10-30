@@ -1835,29 +1835,65 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
     boost::shared_ptr<VectorStdVector> vsv (new VectorStdVector);
     //boost::shared_ptr<ScalarStdVector> ssv (new ScalarStdVector);
 
-    boost::shared_ptr<HolzapfelOgdenMaterial> hom (new HolzapfelOgdenMaterial);
-    boost::shared_ptr<NeoHookeanMaterial> nkm (new NeoHookeanMaterial);
+//    boost::shared_ptr<HolzapfelOgdenMaterial> hom (new HolzapfelOgdenMaterial);
+//    boost::shared_ptr<NeoHookeanMaterial> nkm (new NeoHookeanMaterial);
 
     {
         using namespace ExpressionAssembly;
         
         
-        auto grad_u =  grad(super::M_dispETFESpace, disp, 0);
-
-        auto f_0 = value (super::M_dispETFESpace, *M_fiberVectorPtr);
-        auto s_0 = value (super::M_dispETFESpace, *M_sheetVectorPtr);
-
-        auto gf = value (M_scalarETFESpacePtr, *M_fiberActivationPtr);
-
-        auto vectors = eval(vsv, f_0, s_0);
-        auto matrices = eval(msv, grad_u, grad(phi_j));
+//        auto grad_u =  grad(super::M_dispETFESpace, disp, 0);
+//
+//        auto f_0 = value (super::M_dispETFESpace, *M_fiberVectorPtr);
+//        auto s_0 = value (super::M_dispETFESpace, *M_sheetVectorPtr);
+//
+//        auto gf = value (M_scalarETFESpacePtr, *M_fiberActivationPtr);
+//
+//        auto vectors = eval(vsv, f_0, s_0);
+//        auto matrices = eval(msv, grad_u, grad(phi_j));
         
         
         // Holzapfel-Ogden
         //auto dP = eval(hom, matrices, vectors, gf);
         
         // NeoHookean
-        auto dP = eval(nkm, matrices, vectors, gf);
+//        auto dP = eval(nkm, matrices, vectors, gf);
+        
+        // NeoHookean
+        MatrixSmall<3,3> I;
+        I(0,0) = 1.; I(0,1) = 0., I(0,2) = 0.;
+        I(1,0) = 0.; I(1,1) = 1., I(1,2) = 0.;
+        I(2,0) = 0.; I(2,1) = 0., I(2,2) = 1.;
+        
+        
+        auto dF = grad(phi_j);
+        auto GradU = grad(super::M_dispETFESpace, disp, 0);
+        auto F = I + GradU;
+        auto FmT = minusT(F);
+        auto dFmTdF = value(-1.0) * FmT * transpose(dF) * FmT;
+        auto J = det(F);
+        auto Jm23 = pow(J, - 2. / 3.);
+        auto dJm23 = value(- 2. / 3. ) * Jm23 * FmT;
+        auto d2Jm23dF = value( -2. / 3. ) * ( dot( dJm23, dF ) * FmT + Jm23 * dFmTdF );
+        auto I1 = dot(F, F);
+        auto dI1 = value(2.0) * F;
+        auto d2I1 = value(2.0) * dF;
+        auto I1bar = Jm23 * I1;
+        auto dI1bar = dJm23 * I1 + Jm23 * dI1;
+        auto d2I1bardF = dot(dJm23, dF) * dI1 + Jm23 * d2I1 + dJm23 * dot(dI1, dF) + d2Jm23dF * I1;
+        
+        auto dJ = J * FmT;
+        auto dJdF = dJ.dot(dF);
+        auto dFT = dF.transpose();
+        auto dFmTdF = - 1.0 * FmT * dFT * FmT;
+        auto d2JdF = dJdF * FmT + J * dFmTdF;
+        auto dWvol = 3500000 * ( J*(J-1) + std::log(J) ) / ( 2 * J );
+        auto dPvol = dWvol * d2JdF;
+        auto ddWvol = 3500000  / (2 * J * J) * ( 1 + J * J - std::log(J) );
+        auto ddPvol = ddWvol * dJdF * dJ;
+        
+        auto dP = dPvol + ddPvol + 0.5 * 4960 * d2I1bardF;
+
 
         
         integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
