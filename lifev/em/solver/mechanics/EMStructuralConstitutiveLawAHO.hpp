@@ -1001,12 +1001,15 @@ protected:
     class NonlinearMaterial
     {
     public:
+        
         typedef LifeV::MatrixSmall<3,3> return_Type;
 
         NonlinearMaterial() {}
-        virtual ~NonlinearMaterial() {}
+        ~NonlinearMaterial() {}
         
         virtual return_Type operator() (const std::vector<MatrixSmall<3,3> >& matrices, const std::vector<VectorSmall<3> >& vectors, const Real& g) = 0;
+        
+    protected:
         
         MatrixSmall<3,3> deformationGradient (const LifeV::MatrixSmall<3,3>& du) const
         {
@@ -1081,7 +1084,6 @@ protected:
     class NeoHookeanMaterial : public NonlinearMaterial
     {
     public:
-        using NonlinearMaterial:NonlinearMaterial;
         
         typedef LifeV::MatrixSmall<3,3> return_Type;
 
@@ -1092,18 +1094,18 @@ protected:
             
             auto f0 = vectors[0];
             auto s0 = vectors[1];
-            this -> normalize(f0);
-            this -> orthoNormalize(s0, f0);
-            auto n0 = this -> crossProduct(f0, s0);
+            normalize(f0);
+            orthoNormalize(s0, f0);
+            auto n0 = crossProduct(f0, s0);
 
             auto gf = g;
             auto gn = 4 * gf;
             auto gs = 1 / ( (gf + 1) * (gn + 1) ) - 1;
             
-            auto F = this -> deformationGradient(grad_u);
+            auto F = deformationGradient(grad_u);
             
             MatrixSmall<3,3> FAinv;
-            FAinv = this -> identity() - gf/(gf+1) * this -> outerProduct(f0,f0) - gs/(gs+1) * this -> outerProduct(s0,s0) - gn/(gn+1) * this -> outerProduct(n0,n0);
+            FAinv = identity() - gf/(gf+1) * outerProduct(f0,f0) - gs/(gs+1) * outerProduct(s0,s0) - gn/(gn+1) * outerProduct(n0,n0);
             
             
             // ===============================//
@@ -1148,13 +1150,82 @@ protected:
             
         }
         
+        MatrixSmall<3,3> deformationGradient (const LifeV::MatrixSmall<3,3>& du) const
+        {
+            MatrixSmall<3,3> I;
+            I(0,0) = 1.; I(0,1) = 0., I(0,2) = 0.;
+            I(1,0) = 0.; I(1,1) = 1., I(1,2) = 0.;
+            I(2,0) = 0.; I(2,1) = 0., I(2,2) = 1.;
+            
+            MatrixSmall<3,3> F;
+            F = I + du;
+            
+            return F;
+        }
+
+        VectorSmall<3> crossProduct (const LifeV::VectorSmall<3>& v1, const LifeV::VectorSmall<3>& v2) const
+        {
+            VectorSmall<3> v;
+            v[0] = v1[1] * v2[2] - v1[2] * v2[1];
+            v[1] = v1[2] * v2[0] - v1[0] * v2[2];
+            v[2] = v1[0] * v2[1] - v1[1] * v2[0];
+            return v;
+        }
+        
+        MatrixSmall<3,3> outerProduct (const LifeV::VectorSmall<3>& f, const LifeV::VectorSmall<3>& s) const
+        {
+            MatrixSmall<3,3> M;
+            for (UInt i (0); i < 3; ++i)
+            {
+                for (UInt j (0); j < 3; ++j)
+                {
+                    M(i,j) = f(i) * s(j);
+                }
+            }
+            return M;
+        }
+        
+        void orthoNormalize (VectorSmall<3>& s, const VectorSmall<3>& f) const
+        {
+            normalize(s);
+            s = s - s.dot(f) * f;
+            normalize(s);
+        }
+        
+        void normalize (VectorSmall<3>& v) const
+        {
+            Real norm = std::sqrt (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+            //            if ( norm >= 1e-13 )
+            //            {
+            v[0] = v[0] / norm;
+            v[1] = v[1] / norm;
+            v[2] = v[2] / norm;
+            //            }
+            //            else
+            //            {
+            //                V *= 0.0;
+            //                V[comp] = 1.0;
+            //            }
+        }
+
+        MatrixSmall<3,3> identity () const
+        {
+            MatrixSmall<3,3> I;
+            I(0,0) = 1.; I(0,1) = 0., I(0,2) = 0.;
+            I(1,0) = 0.; I(1,1) = 1., I(1,2) = 0.;
+            I(2,0) = 0.; I(2,1) = 0., I(2,2) = 1.;
+            return I;
+        }
+        
+        NeoHookeanMaterial() {}
+        ~NeoHookeanMaterial() {}
+        
     };
     
     class HolzapfelOgdenMaterial : public NonlinearMaterial
     {
     public:
-        using NonlinearMaterial:NonlinearMaterial;
-
+        
         typedef LifeV::MatrixSmall<3,3> return_Type;
 
         virtual return_Type operator() (const std::vector<MatrixSmall<3,3> >& matrices, const std::vector<VectorSmall<3> >& vectors, const Real& g)
@@ -1164,18 +1235,18 @@ protected:
             
             auto f0 = vectors[0];
             auto s0 = vectors[1];
-            this -> normalize(f0);
-            this -> orthoNormalize(s0, f0);
-            auto n0 = this -> crossProduct(f0, s0);
+            normalize(f0);
+            orthoNormalize(s0, f0);
+            auto n0 = crossProduct(f0, s0);
 
             auto gf = g;
             auto gn = 4 * gf;
             auto gs = 1 / ( (gf + 1) * (gn + 1) ) - 1;
             
-            auto F = this -> deformationGradient(grad_u);
+            auto F = deformationGradient(grad_u);
             
             MatrixSmall<3,3> FAinv;
-            FAinv = this -> identity() - gf/(gf+1) * this -> outerProduct(f0,f0) - gs/(gs+1) * this -> outerProduct(s0,s0) - gn/(gn+1) * this -> outerProduct(n0,n0);
+            FAinv = identity() - gf/(gf+1) * outerProduct(f0,f0) - gs/(gs+1) * outerProduct(s0,s0) - gn/(gn+1) * outerProduct(n0,n0);
             
             
             // ===============================//
@@ -1324,7 +1395,77 @@ protected:
         {
             return ( 4170 * std::exp ( 11.602 * I8fsE * I8fsE ) * ( 2.0 * 11.602 * I8fsE * I8fsE + 1.0 ) );
         }
+        
+        MatrixSmall<3,3> deformationGradient (const LifeV::MatrixSmall<3,3>& du) const
+        {
+            MatrixSmall<3,3> I;
+            I(0,0) = 1.; I(0,1) = 0., I(0,2) = 0.;
+            I(1,0) = 0.; I(1,1) = 1., I(1,2) = 0.;
+            I(2,0) = 0.; I(2,1) = 0., I(2,2) = 1.;
+            
+            MatrixSmall<3,3> F;
+            F = I + du;
+            
+            return F;
+        }
+
+        VectorSmall<3> crossProduct (const LifeV::VectorSmall<3>& v1, const LifeV::VectorSmall<3>& v2) const
+        {
+            VectorSmall<3> v;
+            v[0] = v1[1] * v2[2] - v1[2] * v2[1];
+            v[1] = v1[2] * v2[0] - v1[0] * v2[2];
+            v[2] = v1[0] * v2[1] - v1[1] * v2[0];
+            return v;
+        }
+        
+        MatrixSmall<3,3> outerProduct (const LifeV::VectorSmall<3>& f, const LifeV::VectorSmall<3>& s) const
+        {
+            MatrixSmall<3,3> M;
+            for (UInt i (0); i < 3; ++i)
+            {
+                for (UInt j (0); j < 3; ++j)
+                {
+                    M(i,j) = f(i) * s(j);
+                }
+            }
+            return M;
+        }
+        
+        void orthoNormalize (VectorSmall<3>& s, const VectorSmall<3>& f) const
+        {
+            normalize(s);
+            s = s - s.dot(f) * f;
+            normalize(s);
+        }
+        
+        void normalize (VectorSmall<3>& v) const
+        {
+            Real norm = std::sqrt (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+            //            if ( norm >= 1e-13 )
+            //            {
+            v[0] = v[0] / norm;
+            v[1] = v[1] / norm;
+            v[2] = v[2] / norm;
+            //            }
+            //            else
+            //            {
+            //                V *= 0.0;
+            //                V[comp] = 1.0;
+            //            }
+        }
+
+        MatrixSmall<3,3> identity () const
+        {
+            MatrixSmall<3,3> I;
+            I(0,0) = 1.; I(0,1) = 0., I(0,2) = 0.;
+            I(1,0) = 0.; I(1,1) = 1., I(1,2) = 0.;
+            I(2,0) = 0.; I(2,1) = 0., I(2,2) = 1.;
+            return I;
+        }
     
+        
+        HolzapfelOgdenMaterial() {}
+        ~HolzapfelOgdenMaterial() {}
     };
     
     
@@ -1696,8 +1837,8 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
     boost::shared_ptr<VectorStdVector> vsv (new VectorStdVector);
     //boost::shared_ptr<ScalarStdVector> ssv (new ScalarStdVector);
 
-    boost::shared_ptr<NonlinearMaterial> hom (new HolzapfelOgdenMaterial);
-    boost::shared_ptr<NonlinearMaterial> nkm (new NeoHookeanMaterial);
+    boost::shared_ptr<HolzapfelOgdenMaterial> hom (new HolzapfelOgdenMaterial);
+    boost::shared_ptr<NeoHookeanMaterial> nkm (new NeoHookeanMaterial);
 
     {
         using namespace ExpressionAssembly;
