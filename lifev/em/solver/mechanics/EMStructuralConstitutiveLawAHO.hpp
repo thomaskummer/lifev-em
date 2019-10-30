@@ -1050,7 +1050,7 @@ protected:
             normalize(s);
         }
         
-        void normalize (VectorSmall<3>& v) const
+        virtual void normalize (VectorSmall<3>& v) const
         {
             Real norm = std::sqrt (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
             //            if ( norm >= 1e-13 )
@@ -1078,7 +1078,7 @@ protected:
     };
     
     
-    class NeoHookeanMaterial : NonlinearMaterial
+    class NeoHookeanMaterial : public NonlinearMaterial
     {
     public:
         using NonlinearMaterial:NonlinearMaterial;
@@ -1150,7 +1150,7 @@ protected:
         
     };
     
-    class HolzapfelOgdenMaterial : NonlinearMaterial
+    class HolzapfelOgdenMaterial : public NonlinearMaterial
     {
     public:
         using NonlinearMaterial:NonlinearMaterial;
