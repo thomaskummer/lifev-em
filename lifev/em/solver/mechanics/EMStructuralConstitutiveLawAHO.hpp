@@ -1133,9 +1133,10 @@ protected:
             // NK
             // ===============================//
 
+            auto dF = grad_phij;
             auto Jm23 = pow(J, - 2. / 3.);
             auto dJm23 = (- 2. / 3. ) * Jm23 * FmT;
-            auto d2Jm23dF = ( -2. / 3. ) * (  dJm23.dot(dF) ) * FmT + Jm23 * dFmTdF );
+            auto d2Jm23dF = ( -2. / 3. ) * dJm23.dot(dF) * FmT + Jm23 * dFmTdF;
             auto I1 = F.dot(F);
             auto dI1 = (2.0) * F;
             auto d2I1 = (2.0) * dF;
