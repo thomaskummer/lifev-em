@@ -1007,7 +1007,7 @@ protected:
         ~NonlinearMaterial() {}
         
         virtual return_Type operator() (const std::vector<MatrixSmall<3,3> >& matrices, const std::vector<VectorSmall<3> >& vectors, const Real& g) = 0;
-                
+        
         MatrixSmall<3,3> deformationGradient (const LifeV::MatrixSmall<3,3>& du) const
         {
             MatrixSmall<3,3> I;
@@ -1081,6 +1081,8 @@ protected:
     class NeoHookeanMaterial : public NonlinearMaterial
     {
     public:
+        using namespace NonlinearMaterial;
+        
         typedef LifeV::MatrixSmall<3,3> return_Type;
 
         virtual return_Type operator() (const std::vector<MatrixSmall<3,3> >& matrices, const std::vector<VectorSmall<3> >& vectors, const Real& g)
@@ -1090,18 +1092,18 @@ protected:
             
             auto f0 = vectors[0];
             auto s0 = vectors[1];
-            NonlinearMaterial::normalize(f0);
-            NonlinearMaterial::orthoNormalize(s0, f0);
-            auto n0 = NonlinearMaterial::crossProduct(f0, s0);
+            normalize(f0);
+            orthoNormalize(s0, f0);
+            auto n0 = crossProduct(f0, s0);
 
             auto gf = g;
             auto gn = 4 * gf;
             auto gs = 1 / ( (gf + 1) * (gn + 1) ) - 1;
             
-            auto F = NonlinearMaterial::deformationGradient(grad_u);
+            auto F = deformationGradient(grad_u);
             
             MatrixSmall<3,3> FAinv;
-            FAinv = NonlinearMaterial::identity() - gf/(gf+1) * NonlinearMaterial::outerProduct(f0,f0) - gs/(gs+1) * NonlinearMaterial::outerProduct(s0,s0) - gn/(gn+1) * NonlinearMaterial::outerProduct(n0,n0);
+            FAinv = identity() - gf/(gf+1) * outerProduct(f0,f0) - gs/(gs+1) * outerProduct(s0,s0) - gn/(gn+1) * outerProduct(n0,n0);
             
             
             // ===============================//
@@ -1128,7 +1130,7 @@ protected:
             // ===============================//
             // NK
             // ===============================//
-            
+
             auto Jm23 = pow(J, - 2. / 3.);
             auto dJm23 = value(- 2. / 3. ) * Jm23 * FmT;
             auto d2Jm23dF = value( -2. / 3. ) * ( dot( dJm23, dF ) * FmT + Jm23 * dFmTdF );
@@ -1154,6 +1156,8 @@ protected:
     class HolzapfelOgdenMaterial : public NonlinearMaterial
     {
     public:
+        using namespace NonlinearMaterial;
+
         typedef LifeV::MatrixSmall<3,3> return_Type;
 
         virtual return_Type operator() (const std::vector<MatrixSmall<3,3> >& matrices, const std::vector<VectorSmall<3> >& vectors, const Real& g)
@@ -1163,18 +1167,18 @@ protected:
             
             auto f0 = vectors[0];
             auto s0 = vectors[1];
-            NonlinearMaterial::normalize(f0);
-            NonlinearMaterial::orthoNormalize(s0, f0);
-            auto n0 = NonlinearMaterial::crossProduct(f0, s0);
+            normalize(f0);
+            orthoNormalize(s0, f0);
+            auto n0 = crossProduct(f0, s0);
 
             auto gf = g;
             auto gn = 4 * gf;
             auto gs = 1 / ( (gf + 1) * (gn + 1) ) - 1;
             
-            auto F = NonlinearMaterial::deformationGradient(grad_u);
+            auto F = deformationGradient(grad_u);
             
             MatrixSmall<3,3> FAinv;
-            FAinv = NonlinearMaterial::identity() - gf/(gf+1) * NonlinearMaterial::outerProduct(f0,f0) - gs/(gs+1) * NonlinearMaterial::outerProduct(s0,s0) - gn/(gn+1) * NonlinearMaterial::outerProduct(n0,n0);
+            FAinv = identity() - gf/(gf+1) * outerProduct(f0,f0) - gs/(gs+1) * outerProduct(s0,s0) - gn/(gn+1) * outerProduct(n0,n0);
             
             
             // ===============================//
