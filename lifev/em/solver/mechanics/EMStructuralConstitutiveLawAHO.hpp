@@ -1004,7 +1004,7 @@ protected:
         typedef LifeV::MatrixSmall<3,3> return_Type;
 
         NonlinearMaterial() {}
-        ~NonlinearMaterial() {}
+        virtual ~NonlinearMaterial() {}
         
         virtual return_Type operator() (const std::vector<MatrixSmall<3,3> >& matrices, const std::vector<VectorSmall<3> >& vectors, const Real& g) = 0;
         
@@ -1050,7 +1050,7 @@ protected:
             normalize(s);
         }
         
-        virtual void normalize (VectorSmall<3>& v) const
+        void normalize (VectorSmall<3>& v) const
         {
             Real norm = std::sqrt (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
             //            if ( norm >= 1e-13 )
