@@ -1081,7 +1081,8 @@ protected:
     class NeoHookeanMaterial : public NonlinearMaterial
     {
     public:
-        
+        typedef LifeV::MatrixSmall<3,3> return_Type;
+
         virtual return_Type operator() (const std::vector<MatrixSmall<3,3> >& matrices, const std::vector<VectorSmall<3> >& vectors, const Real& g)
         {
             auto grad_u = matrices[0];
@@ -1156,7 +1157,8 @@ protected:
     class HolzapfelOgdenMaterial : public NonlinearMaterial
     {
     public:
-        
+        typedef LifeV::MatrixSmall<3,3> return_Type;
+
         virtual return_Type operator() (const std::vector<MatrixSmall<3,3> >& matrices, const std::vector<VectorSmall<3> >& vectors, const Real& g)
         {
             auto grad_u = matrices[0];
