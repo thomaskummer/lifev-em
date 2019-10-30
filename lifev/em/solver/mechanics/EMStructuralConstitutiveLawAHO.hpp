@@ -1008,6 +1008,8 @@ protected:
         
         virtual return_Type operator() (const std::vector<MatrixSmall<3,3> >& matrices, const std::vector<VectorSmall<3> >& vectors, const Real& g) = 0;
         
+    protected:
+        
         MatrixSmall<3,3> deformationGradient (const LifeV::MatrixSmall<3,3>& du) const
         {
             MatrixSmall<3,3> I;
@@ -1280,6 +1282,8 @@ protected:
             return ( dPvol + ddPvol + dP1E + ddP1E + dP4fE + ddP4fE + dP4sE + ddP4sE + dP8fsE + ddP8fsE );
             
         }
+        
+    protected:
         
         Real dW1 (const Real& I1barE)
         {
