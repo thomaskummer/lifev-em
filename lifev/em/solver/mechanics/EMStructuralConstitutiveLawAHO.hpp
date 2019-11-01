@@ -1892,7 +1892,7 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
         auto ddWvol = 3500000  / (2 * J * J) * ( 1 + J * J - log(J) );
         auto ddPvol = ddWvol * dJdF * dJ;
         
-        auto dP = dPvol + ddPvol + 25 * 0.5 * 4960 * d2I1bardF;
+        auto dP = dPvol + ddPvol + 40 * 0.5 * 4960 * d2I1bardF;
 
 
         
@@ -2010,7 +2010,7 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
 
 
 
-            auto P = Pvol + 25 * 0.5 * 4960 * dI1bar ;
+            auto P = Pvol + 40 * 0.5 * 4960 * dI1bar ;
 
 
         // auto P = 4960 * F; // 0.385 * F;
