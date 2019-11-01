@@ -1347,8 +1347,8 @@ protected:
             auto ddP8fsE = ddW8fs(I8fsE) * dI8EdFE * dI8E * FAinv;
             
 
-            return ( dPvol + ddPvol + dP1E + ddP1E + dP4fE + ddP4fE + dP4sE + ddP4sE + dP8fsE + ddP8fsE );
-            
+            // return ( dPvol + ddPvol + dP1E + ddP1E + dP4fE + ddP4fE + dP4sE + ddP4sE + dP8fsE + ddP8fsE );
+            return ( dPvol + ddPvol + 0.5 * 40 * 2 * F );s
         }
         
         Real dW1 (const Real& I1barE)
