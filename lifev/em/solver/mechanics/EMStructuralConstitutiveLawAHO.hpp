@@ -600,7 +600,7 @@ protected:
     passiveMaterialPtr_Type                        M_passiveMaterialPtr;
     activeMaterialPtr_Type                         M_activeStressMaterialPtr;
 
-    std::string                                    M_material;s
+    std::string                                    M_material;
     
     vectorPtr_Type                                 M_fiberActivationPtr;
     vectorPtr_Type                                 M_sheetActivationPtr;

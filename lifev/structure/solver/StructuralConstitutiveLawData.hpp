@@ -440,6 +440,7 @@ protected:
     std::string            M_solidType;
     std::string            M_EMpassiveMaterialType;
     std::string            M_EMactiveStressMaterialType;
+    std::string            M_materialLawType;
     std::string            M_lawType;
     bool                   M_useExactJacobian;
 
