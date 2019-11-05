@@ -1849,7 +1849,7 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
     {
         using namespace ExpressionAssembly;
         
-        MatrixSmall<3,3> dP;
+        MatrixSmall dP;
 
         
         if ( M_material == "AHO" )
@@ -1864,7 +1864,7 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
             auto vectors = eval(vsv, f_0, s_0);
             auto matrices = eval(msv, grad_u, grad(phi_j));
                         
-            dP.castToMatrixSmall( eval(hom, matrices, vectors, gf) );
+            dP = eval(hom, matrices, vectors, gf);
         }
         
         
@@ -1896,7 +1896,7 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
             auto ddWvol = 3500000  / (2 * J * J) * ( 1 + J * J - log(J) );
             auto ddPvol = ddWvol * dJdF * dJ;
             
-            dP.castToMatrixSmall( dPvol + ddPvol + 40 * 0.5 * 4960 * d2I1bardF );
+            dP = dPvol + ddPvol + 40 * 0.5 * 4960 * d2I1bardF;
             // auto dP = eval(nkm, matrices, vectors, gf);
         }
 
@@ -1940,7 +1940,7 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
     {
         using namespace ExpressionAssembly;
         
-        MatrixSmall<3,3> P;
+        MatrixSmall P;
         
         
         // General nonlinear material variables
@@ -2011,13 +2011,13 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
 
 
             // Sum up contributions and integrate /
-            P.castToMatrixSmall( Pvol + P1E + P4fE + P4sE + P8fsE );
+            P = Pvol + P1E + P4fE + P4sE + P8fsE;
         }
         
         
         if ( M_material == "NH" )
         {
-            P.castToMatrixSmall( Pvol + 40 * 0.5 * 4960 * dI1bar );
+            P = Pvol + 40 * 0.5 * 4960 * dI1bar ;
         }
 
         
