@@ -1862,7 +1862,7 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
             auto vectors = eval(vsv, f_0, s_0);
             auto matrices = eval(msv, grad_u, grad(phi_j));
                         
-            dP = eval(hom, matrices, vectors, gf);
+            auto dP = eval(hom, matrices, vectors, gf);
             
             integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
                        quadRuleTetra4pt,
@@ -1901,7 +1901,7 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
             auto ddWvol = 3500000  / (2 * J * J) * ( 1 + J * J - log(J) );
             auto ddPvol = ddWvol * dJdF * dJ;
             
-            dP = dPvol + ddPvol + 40 * 0.5 * 4960 * d2I1bardF;
+            auto dP = dPvol + ddPvol + 40 * 0.5 * 4960 * d2I1bardF;
             // auto dP = eval(nkm, matrices, vectors, gf);
             
             integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
