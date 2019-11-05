@@ -1744,7 +1744,7 @@ EMStructuralConstitutiveLaw<MeshType>::setup ( const FESpacePtr_Type&           
     
     if (displayer->isLeader())
     {
-        std::cout << "EMStructuralConstitutiveLawAHO: material type: " << M_material << " - setup done\n";
+        std::cout << "\nEMStructuralConstitutiveLawAHO: material type: " << M_material << " - setup done\n";
     }
 
 }
@@ -1863,7 +1863,7 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
             auto matrices = eval(msv, grad_u, grad(phi_j));
                         
             auto dP = eval(hom, matrices, vectors, gf);
-            
+            std::cout << "\n  AHO" << std::endl;
             integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
                        quadRuleTetra4pt,
                        super::M_dispETFESpace,
@@ -1903,7 +1903,8 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
             
             auto dP = dPvol + ddPvol + 40 * 0.5 * 4960 * d2I1bardF;
             // auto dP = eval(nkm, matrices, vectors, gf);
-            
+            std::cout << "\n  NH" << std::endl;
+
             integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
                        quadRuleTetra4pt,
                        super::M_dispETFESpace,
