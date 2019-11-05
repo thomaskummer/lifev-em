@@ -1911,14 +1911,6 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
                        dot ( dP , grad (phi_i) )
                        ) >> this->M_jacobian;
         }
-
-        
-//        integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
-//                   quadRuleTetra4pt,
-//                   super::M_dispETFESpace,
-//                   super::M_dispETFESpace,
-//                   dot ( dP , grad (phi_i) )
-//                   ) >> this->M_jacobian;
         
     }
     
@@ -2042,13 +2034,6 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
                        ) >> M_residualVectorPtr;
         }
 
-        
-//        integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
-//                   quadRuleTetra4pt,
-//                   super::M_dispETFESpace,
-//                   dot ( P, grad (phi_i) )
-//                   ) >> M_residualVectorPtr;
-    
     }
 
     this->M_residualVectorPtr->globalAssemble();
