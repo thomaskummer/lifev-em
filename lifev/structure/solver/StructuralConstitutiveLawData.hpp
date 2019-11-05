@@ -378,6 +378,15 @@ public:
         return M_lawType;
     }
 
+    //! Get law type
+    /*!
+     * @return material law type
+     */
+    const std::string& materialLawType()
+    {
+        return M_materialLawType;
+    }
+    
     //! Get whether to use or not exact Jacobian
     /*!
      * @return true: if using exact Jacobian, false: otherwise

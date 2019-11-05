@@ -71,6 +71,7 @@ monodomain_xml_file = ParamListE.xml
     gammaf          = 0.0
     solidType       = EMMaterial
     lawType         = nonlinear
+    materialLaw     = AHO  # AHO or NH
 
     [../boundary_conditions]
     numPreloadSteps  = 50

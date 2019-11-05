@@ -600,6 +600,8 @@ protected:
     passiveMaterialPtr_Type                        M_passiveMaterialPtr;
     activeMaterialPtr_Type                         M_activeStressMaterialPtr;
 
+    std::string                                    M_material;s
+    
     vectorPtr_Type                                 M_fiberActivationPtr;
     vectorPtr_Type                                 M_sheetActivationPtr;
     vectorPtr_Type                                 M_normalActivationPtr;
@@ -1737,6 +1739,8 @@ EMStructuralConstitutiveLaw<MeshType>::setup ( const FESpacePtr_Type&           
 
     std::string passiveMaterialType ( dataMaterial -> passiveType() );
     std::string activeStressMaterialType (dataMaterial -> activeStressType() );
+    
+    std::string ( dataMaterial -> materialLawType() );
     
     if (displayer->isLeader())
     {
