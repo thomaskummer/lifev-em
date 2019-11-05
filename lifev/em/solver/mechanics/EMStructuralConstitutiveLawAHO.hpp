@@ -1740,11 +1740,11 @@ EMStructuralConstitutiveLaw<MeshType>::setup ( const FESpacePtr_Type&           
     std::string passiveMaterialType ( dataMaterial -> passiveType() );
     std::string activeStressMaterialType (dataMaterial -> activeStressType() );
     
-    std::string ( dataMaterial -> materialLawType() );
+    std::string M_material ( dataMaterial -> materialLawType() );
     
     if (displayer->isLeader())
     {
-        std::cout << "EMStructuralConstitutiveLawAHO: setup - done\n";
+        std::cout << "EMStructuralConstitutiveLawAHO: material type: " << M_material << " - setup done\n";
     }
 
 }
