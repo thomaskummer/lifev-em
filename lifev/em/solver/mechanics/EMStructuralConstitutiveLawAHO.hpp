@@ -1850,6 +1850,8 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
         
         if ( M_material == "AHO" )
         {
+            std::cout << "\nAHO-\n";
+
             using namespace ExpressionAssembly;
 
             auto grad_u =  grad(super::M_dispETFESpace, disp, 0);
@@ -1875,6 +1877,8 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
         
         if ( M_material == "NH" )
         {
+            std::cout << "\nNH-\n";
+            
             using namespace ExpressionAssembly;
 
             auto dF = grad(phi_j);
@@ -1946,6 +1950,8 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
 
         if ( M_material == "AHO" )
         {
+            std::cout << "\nAHO_\n";
+
             using namespace ExpressionAssembly;
                     
             // General nonlinear material variables
@@ -2022,6 +2028,8 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
         
         if ( M_material == "NH" )
         {
+            std::cout << "\nNH_\n";
+
             using namespace ExpressionAssembly;
                     
             // General nonlinear material variables
