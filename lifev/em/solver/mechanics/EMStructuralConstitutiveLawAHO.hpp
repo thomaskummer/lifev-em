@@ -1849,8 +1849,6 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
     {
         using namespace ExpressionAssembly;
         
-        auto dP = I;
-
         
         if ( M_material == "AHO" )
         {
@@ -1865,6 +1863,13 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
             auto matrices = eval(msv, grad_u, grad(phi_j));
                         
             dP = eval(hom, matrices, vectors, gf);
+            
+            integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
+                       quadRuleTetra4pt,
+                       super::M_dispETFESpace,
+                       super::M_dispETFESpace,
+                       dot ( dP , grad (phi_i) )
+                       ) >> this->M_jacobian;
         }
         
         
@@ -1898,15 +1903,22 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
             
             dP = dPvol + ddPvol + 40 * 0.5 * 4960 * d2I1bardF;
             // auto dP = eval(nkm, matrices, vectors, gf);
+            
+            integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
+                       quadRuleTetra4pt,
+                       super::M_dispETFESpace,
+                       super::M_dispETFESpace,
+                       dot ( dP , grad (phi_i) )
+                       ) >> this->M_jacobian;
         }
 
         
-        integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
-                   quadRuleTetra4pt,
-                   super::M_dispETFESpace,
-                   super::M_dispETFESpace,
-                   dot ( dP , grad (phi_i) )
-                   ) >> this->M_jacobian;
+//        integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
+//                   quadRuleTetra4pt,
+//                   super::M_dispETFESpace,
+//                   super::M_dispETFESpace,
+//                   dot ( dP , grad (phi_i) )
+//                   ) >> this->M_jacobian;
         
     }
     
@@ -1939,9 +1951,7 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
     
     {
         using namespace ExpressionAssembly;
-        
-        auto P = I;
-        
+                
         
         // General nonlinear material variables
         auto F = I + grad(super::M_dispETFESpace, disp, 0);
@@ -2011,21 +2021,33 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
 
 
             // Sum up contributions and integrate /
-            P = Pvol + P1E + P4fE + P4sE + P8fsE;
+            auto P = Pvol + P1E + P4fE + P4sE + P8fsE;
+            
+            integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
+                       quadRuleTetra4pt,
+                       super::M_dispETFESpace,
+                       dot ( P, grad (phi_i) )
+                       ) >> M_residualVectorPtr;
         }
         
         
         if ( M_material == "NH" )
         {
-            P = Pvol + 40 * 0.5 * 4960 * dI1bar ;
+            auto P = Pvol + 40 * 0.5 * 4960 * dI1bar ;
+            
+            integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
+                       quadRuleTetra4pt,
+                       super::M_dispETFESpace,
+                       dot ( P, grad (phi_i) )
+                       ) >> M_residualVectorPtr;
         }
 
         
-        integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
-                   quadRuleTetra4pt,
-                   super::M_dispETFESpace,
-                   dot ( P, grad (phi_i) )
-                   ) >> M_residualVectorPtr;
+//        integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
+//                   quadRuleTetra4pt,
+//                   super::M_dispETFESpace,
+//                   dot ( P, grad (phi_i) )
+//                   ) >> M_residualVectorPtr;
     
     }
 
