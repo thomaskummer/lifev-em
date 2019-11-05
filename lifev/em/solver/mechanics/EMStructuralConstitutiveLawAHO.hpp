@@ -1849,7 +1849,7 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
     {
         using namespace ExpressionAssembly;
         
-        MatrixSmall dP;
+        MatrixSmall<3,3> dP;
 
         
         if ( M_material == "AHO" )
@@ -1940,7 +1940,7 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
     {
         using namespace ExpressionAssembly;
         
-        MatrixSmall P;
+        MatrixSmall<3,3> P;
         
         
         // General nonlinear material variables
