@@ -1847,11 +1847,11 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
 //    boost::shared_ptr<NeoHookeanMaterial> nkm (new NeoHookeanMaterial);
 
     {
-        using namespace ExpressionAssembly;
-        
         
         if ( M_material == "AHO" )
         {
+            using namespace ExpressionAssembly;
+
             auto grad_u =  grad(super::M_dispETFESpace, disp, 0);
 
             auto f_0 = value (super::M_dispETFESpace, *M_fiberVectorPtr);
@@ -1863,7 +1863,7 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
             auto matrices = eval(msv, grad_u, grad(phi_j));
                         
             auto dP = eval(hom, matrices, vectors, gf);
-            std::cout << "\n  AHO" << std::endl;
+
             integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
                        quadRuleTetra4pt,
                        super::M_dispETFESpace,
@@ -1875,6 +1875,8 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
         
         if ( M_material == "NH" )
         {
+            using namespace ExpressionAssembly;
+
             auto dF = grad(phi_j);
             auto GradU = grad(super::M_dispETFESpace, disp, 0);
             auto F = I + GradU;
@@ -1894,7 +1896,6 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
             auto dJ = J * FmT;
             auto dJdF = dot(dJ,dF);
             auto dFT = transpose(dF);
-            // auto dFmTdF = - 1.0 * FmT * dFT * FmT;
             auto d2JdF = dJdF * FmT + J * dFmTdF;
             auto dWvol = 3500000 * ( J*(J-1) + log(J) ) / ( 2 * J );
             auto dPvol = dWvol * d2JdF;
@@ -1903,7 +1904,6 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
             
             auto dP = dPvol + ddPvol + 40 * 0.5 * 4960 * d2I1bardF;
             // auto dP = eval(nkm, matrices, vectors, gf);
-            std::cout << "\n  NH" << std::endl;
 
             integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
                        quadRuleTetra4pt,
@@ -1943,30 +1943,26 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
     boost::shared_ptr<OrthonormalizeVector> orthonormalizeVector (new OrthonormalizeVector);
     
     {
-        using namespace ExpressionAssembly;
-                
-        
-        // General nonlinear material variables
-        auto F = I + grad(super::M_dispETFESpace, disp, 0);
-        auto J = det(F);
-        auto Jm23 = pow(J, 2 / (-3.) );
-        auto FmT = minusT(F);
-        auto I1 = dot(F, F);
-        auto dI1bar = value(2.0) * Jm23 * ( F + value(1/(-3.)) * I1 * FmT );
-        
-        
-        // Pvol
-        //auto dWvol = ( 3500000 * ( J + J * log(J) - 1. ) ) / ( 2 * J );
-        auto dWvol = 3500000 * ( J*(J-1) + log(J) ) / ( 2 * J );
-        auto dJ = det(F) * minusT(F);
-        auto Pvol = dWvol * dJ;
-        
-        
+
         if ( M_material == "AHO" )
         {
+            using namespace ExpressionAssembly;
+                    
+            // General nonlinear material variables
+            auto F = I + grad(super::M_dispETFESpace, disp, 0);
+            auto J = det(F);
+            auto Jm23 = pow(J, 2 / (-3.) );
+            auto FmT = minusT(F);
+            auto I1 = dot(F, F);
+            auto dI1bar = value(2.0) * Jm23 * ( F + value(1/(-3.)) * I1 * FmT );
+            
+            // Pvol
+            auto dWvol = 3500000 * ( J*(J-1) + log(J) ) / ( 2 * J );
+            auto dJ = det(F) * minusT(F);
+            auto Pvol = dWvol * dJ;
+            
             // Orthotropic activation
             auto k = 4.0;
-
             auto gf = value (M_scalarETFESpacePtr, *M_fiberActivationPtr);
             auto gn = k * gf;
             auto gs = 1 / ( (gf + 1) * (gn + 1) ) - 1;
@@ -2013,7 +2009,7 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
             auto P8fsE = dW8fsE * dI8fsE * dI8fs;
 
 
-            // Sum up contributions and integrate /
+            // Sum up contributions and integrate
             auto P = Pvol + P1E + P4fE + P4sE + P8fsE;
             
             integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
@@ -2026,7 +2022,27 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
         
         if ( M_material == "NH" )
         {
-            auto P = Pvol + 40 * 0.5 * 4960 * dI1bar ;
+            using namespace ExpressionAssembly;
+                    
+            // General nonlinear material variables
+            auto F = I + grad(super::M_dispETFESpace, disp, 0);
+            auto J = det(F);
+            auto Jm23 = pow(J, 2 / (-3.) );
+            auto FmT = minusT(F);
+            auto I1 = dot(F, F);
+            auto dI1bar = value(2.0) * Jm23 * ( F + value(1/(-3.)) * I1 * FmT );
+            
+            // Pvol
+            auto dWvol = 3500000 * ( J*(J-1) + log(J) ) / ( 2 * J );
+            auto dJ = det(F) * minusT(F);
+            auto Pvol = dWvol * dJ;
+            
+            // Pnh
+            auto Pnh = 40 * 0.5 * 4960 * dI1bar;
+            
+            
+            // Sum up contributions and integrate
+            auto P = Pvol + Pnh;
             
             integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
                        quadRuleTetra4pt,
