@@ -1848,10 +1848,8 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
 
     {
         
-        if ( M_material == "AHO" )
+//        if ( M_material == "AHO" )
         {
-            std::cout << "\nAHO-\n";
-
             using namespace ExpressionAssembly;
 
             auto grad_u =  grad(super::M_dispETFESpace, disp, 0);
@@ -1875,47 +1873,45 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
         }
         
         
-        if ( M_material == "NH" )
-        {
-            std::cout << "\nNH-\n";
-            
-            using namespace ExpressionAssembly;
-
-            auto dF = grad(phi_j);
-            auto GradU = grad(super::M_dispETFESpace, disp, 0);
-            auto F = I + GradU;
-            auto FmT = minusT(F);
-            auto dFmTdF = value(-1.0) * FmT * transpose(dF) * FmT;
-            auto J = det(F);
-            auto Jm23 = pow(J, - 2. / 3.);
-            auto dJm23 = value(- 2. / 3. ) * Jm23 * FmT;
-            auto d2Jm23dF = value( -2. / 3. ) * ( dot( dJm23, dF ) * FmT + Jm23 * dFmTdF );
-            auto I1 = dot(F, F);
-            auto dI1 = value(2.0) * F;
-            auto d2I1 = value(2.0) * dF;
-            auto I1bar = Jm23 * I1;
-            auto dI1bar = dJm23 * I1 + Jm23 * dI1;
-            auto d2I1bardF = dot(dJm23, dF) * dI1 + Jm23 * d2I1 + dJm23 * dot(dI1, dF) + d2Jm23dF * I1;
-            
-            auto dJ = J * FmT;
-            auto dJdF = dot(dJ,dF);
-            auto dFT = transpose(dF);
-            auto d2JdF = dJdF * FmT + J * dFmTdF;
-            auto dWvol = 3500000 * ( J*(J-1) + log(J) ) / ( 2 * J );
-            auto dPvol = dWvol * d2JdF;
-            auto ddWvol = 3500000  / (2 * J * J) * ( 1 + J * J - log(J) );
-            auto ddPvol = ddWvol * dJdF * dJ;
-            
-            auto dP = dPvol + ddPvol + 40 * 0.5 * 4960 * d2I1bardF;
-            // auto dP = eval(nkm, matrices, vectors, gf);
-
-            integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
-                       quadRuleTetra4pt,
-                       super::M_dispETFESpace,
-                       super::M_dispETFESpace,
-                       dot ( dP , grad (phi_i) )
-                       ) >> this->M_jacobian;
-        }
+//        if ( M_material == "NH" )
+//        {
+//            using namespace ExpressionAssembly;
+//
+//            auto dF = grad(phi_j);
+//            auto GradU = grad(super::M_dispETFESpace, disp, 0);
+//            auto F = I + GradU;
+//            auto FmT = minusT(F);
+//            auto dFmTdF = value(-1.0) * FmT * transpose(dF) * FmT;
+//            auto J = det(F);
+//            auto Jm23 = pow(J, - 2. / 3.);
+//            auto dJm23 = value(- 2. / 3. ) * Jm23 * FmT;
+//            auto d2Jm23dF = value( -2. / 3. ) * ( dot( dJm23, dF ) * FmT + Jm23 * dFmTdF );
+//            auto I1 = dot(F, F);
+//            auto dI1 = value(2.0) * F;
+//            auto d2I1 = value(2.0) * dF;
+//            auto I1bar = Jm23 * I1;
+//            auto dI1bar = dJm23 * I1 + Jm23 * dI1;
+//            auto d2I1bardF = dot(dJm23, dF) * dI1 + Jm23 * d2I1 + dJm23 * dot(dI1, dF) + d2Jm23dF * I1;
+//
+//            auto dJ = J * FmT;
+//            auto dJdF = dot(dJ,dF);
+//            auto dFT = transpose(dF);
+//            auto d2JdF = dJdF * FmT + J * dFmTdF;
+//            auto dWvol = 3500000 * ( J*(J-1) + log(J) ) / ( 2 * J );
+//            auto dPvol = dWvol * d2JdF;
+//            auto ddWvol = 3500000  / (2 * J * J) * ( 1 + J * J - log(J) );
+//            auto ddPvol = ddWvol * dJdF * dJ;
+//
+//            auto dP = dPvol + ddPvol + 40 * 0.5 * 4960 * d2I1bardF;
+//            // auto dP = eval(nkm, matrices, vectors, gf);
+//
+//            integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
+//                       quadRuleTetra4pt,
+//                       super::M_dispETFESpace,
+//                       super::M_dispETFESpace,
+//                       dot ( dP , grad (phi_i) )
+//                       ) >> this->M_jacobian;
+//        }
         
     }
     
@@ -1948,10 +1944,8 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
     
     {
 
-        if ( M_material == "AHO" )
+//        if ( M_material == "AHO" )
         {
-            std::cout << "\nAHO_\n";
-
             using namespace ExpressionAssembly;
                     
             // General nonlinear material variables
@@ -2026,38 +2020,36 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
         }
         
         
-        if ( M_material == "NH" )
-        {
-            std::cout << "\nNH_\n";
-
-            using namespace ExpressionAssembly;
-                    
-            // General nonlinear material variables
-            auto F = I + grad(super::M_dispETFESpace, disp, 0);
-            auto J = det(F);
-            auto Jm23 = pow(J, 2 / (-3.) );
-            auto FmT = minusT(F);
-            auto I1 = dot(F, F);
-            auto dI1bar = value(2.0) * Jm23 * ( F + value(1/(-3.)) * I1 * FmT );
-            
-            // Pvol
-            auto dWvol = 3500000 * ( J*(J-1) + log(J) ) / ( 2 * J );
-            auto dJ = det(F) * minusT(F);
-            auto Pvol = dWvol * dJ;
-            
-            // Pnh
-            auto Pnh = 40 * 0.5 * 4960 * dI1bar;
-            
-            
-            // Sum up contributions and integrate
-            auto P = Pvol + Pnh;
-            
-            integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
-                       quadRuleTetra4pt,
-                       super::M_dispETFESpace,
-                       dot ( P, grad (phi_i) )
-                       ) >> M_residualVectorPtr;
-        }
+//        if ( M_material == "NH" )
+//        {
+//            using namespace ExpressionAssembly;
+//
+//            // General nonlinear material variables
+//            auto F = I + grad(super::M_dispETFESpace, disp, 0);
+//            auto J = det(F);
+//            auto Jm23 = pow(J, 2 / (-3.) );
+//            auto FmT = minusT(F);
+//            auto I1 = dot(F, F);
+//            auto dI1bar = value(2.0) * Jm23 * ( F + value(1/(-3.)) * I1 * FmT );
+//
+//            // Pvol
+//            auto dWvol = 3500000 * ( J*(J-1) + log(J) ) / ( 2 * J );
+//            auto dJ = det(F) * minusT(F);
+//            auto Pvol = dWvol * dJ;
+//
+//            // Pnh
+//            auto Pnh = 40 * 0.5 * 4960 * dI1bar;
+//
+//
+//            // Sum up contributions and integrate
+//            auto P = Pvol + Pnh;
+//
+//            integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
+//                       quadRuleTetra4pt,
+//                       super::M_dispETFESpace,
+//                       dot ( P, grad (phi_i) )
+//                       ) >> M_residualVectorPtr;
+//        }
 
     }
 
