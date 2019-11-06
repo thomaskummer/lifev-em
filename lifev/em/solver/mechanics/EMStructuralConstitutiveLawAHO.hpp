@@ -1853,7 +1853,7 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
 
 //    {
         
-        if ( M_material == "AHO" )
+        if ( M_material.compare("AHO") == 0 )
         {
             using namespace ExpressionAssembly;
 
@@ -1878,7 +1878,7 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
         }
         
         
-        if ( M_material == "NH" )
+        if ( M_material.compare("NH") == 0 )
         {
             using namespace ExpressionAssembly;
 
@@ -1949,7 +1949,7 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
     
 //    {
 
-        if ( M_material == "AHO" )
+        if ( M_material.compare("AHO") == 0 )
         {
             using namespace ExpressionAssembly;
                     
@@ -2025,7 +2025,7 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
         }
         
         
-        if ( M_material == "NH" )
+        if ( M_material.compare("NH") == 0 )
         {
             using namespace ExpressionAssembly;
 
