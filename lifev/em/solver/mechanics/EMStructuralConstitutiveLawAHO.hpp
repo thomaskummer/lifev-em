@@ -1829,10 +1829,10 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
                                                                    const mapMarkerIndexesPtr_Type mapsMarkerIndexes,
                                                                    const displayerPtr_Type& displayer )
 {
-    std::cout << "\nEMStructuralConstitutiveLawAHO: material type: " << M_material << " - setup done\n";
-    if (M_material == "AHO") std::cout << "\n\n" << "AHolzapfelOgden" << "\n\n";
-    else if (M_material == "NH") std::cout << "\n\n" << "NeoHookean" << "\n\n";
-    else std::cout << "\n\n" << "no material model loaded" << "\n\n";
+//    std::cout << "\nEMStructuralConstitutiveLawAHO: material type: " << M_material << " - setup done\n";
+//    if (M_material == "AHO") std::cout << "\n\n" << "AHolzapfelOgden" << "\n\n";
+//    else if (M_material == "NH") std::cout << "\n\n" << "NeoHookean" << "\n\n";
+//    else std::cout << "\n\n" << "no material model loaded" << "\n\n";
 
     
     this->M_jacobian.reset (new matrix_Type (*this->M_localMap) );
@@ -1910,12 +1910,12 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
             auto dP = dPvol + ddPvol + 40 * 0.5 * 4960 * d2I1bardF;
             // auto dP = eval(nkm, matrices, vectors, gf);
 
-//            integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
-//                       quadRuleTetra4pt,
-//                       super::M_dispETFESpace,
-//                       super::M_dispETFESpace,
-//                       dot ( dP , grad (phi_i) )
-//                       ) >> this->M_jacobian;
+            integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
+                       quadRuleTetra4pt,
+                       super::M_dispETFESpace,
+                       super::M_dispETFESpace,
+                       dot ( dP , grad (phi_i) )
+                       ) >> this->M_jacobian;
         }
         
 //    }
@@ -2049,11 +2049,11 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
             // Sum up contributions and integrate
             auto P = Pvol + Pnh;
 
-//            integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
-//                       quadRuleTetra4pt,
-//                       super::M_dispETFESpace,
-//                       dot ( P, grad (phi_i) )
-//                       ) >> M_residualVectorPtr;
+            integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
+                       quadRuleTetra4pt,
+                       super::M_dispETFESpace,
+                       dot ( P, grad (phi_i) )
+                       ) >> M_residualVectorPtr;
         }
 
 //    }
