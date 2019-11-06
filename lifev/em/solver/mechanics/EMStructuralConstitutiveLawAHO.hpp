@@ -1845,7 +1845,7 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
     boost::shared_ptr<HolzapfelOgdenMaterial> hom (new HolzapfelOgdenMaterial);
 //    boost::shared_ptr<NeoHookeanMaterial> nkm (new NeoHookeanMaterial);
 
-    {
+//    {
         
         if ( M_material == "AHO" )
         {
@@ -1912,7 +1912,7 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
                        ) >> this->M_jacobian;
         }
         
-    }
+//    }
     
     this->M_jacobian->globalAssemble();
 }
@@ -1941,7 +1941,7 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
     boost::shared_ptr<CrossProduct> crossProduct (new CrossProduct);
     boost::shared_ptr<OrthonormalizeVector> orthonormalizeVector (new OrthonormalizeVector);
     
-    {
+//    {
 
         if ( M_material == "AHO" )
         {
@@ -2050,7 +2050,7 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
                        ) >> M_residualVectorPtr;
         }
 
-    }
+//    }
 
     this->M_residualVectorPtr->globalAssemble();
 }
