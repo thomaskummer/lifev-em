@@ -1829,7 +1829,7 @@ void EMStructuralConstitutiveLaw<MeshType>::updateJacobianMatrix ( const vector_
                                                                    const mapMarkerIndexesPtr_Type mapsMarkerIndexes,
                                                                    const displayerPtr_Type& displayer )
 {
-    std::cout << "\n\n" << M_material << "\n\n";
+    std::cout << "\nEMStructuralConstitutiveLawAHO: material type: " << M_material << " - setup done\n";
     if (M_material == "AHO") std::cout << "\n\n" << "AHolzapfelOgden" << "\n\n";
     else if (M_material == "NH") std::cout << "\n\n" << "NeoHookean" << "\n\n";
     else std::cout << "\n\n" << "no material model loaded" << "\n\n";
