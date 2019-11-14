@@ -423,10 +423,10 @@ int main ( int argc, char** argv )
     // each term. With the ET way, only one loop over the elements
     // is required, computations are reused and only one local
     // contribution is computed and added to the global matrix.
-    //
-    // In general, the longer is the expression, the better is the
+    //    // In general, the longer is the expression, the better is the
     // performance of the ET with respect to the classical way.
     //
+
     // We finally need to check that both yield the same matrix. In
     // that aim, we need to finalize both matrices.
     // ---------------------------------------------------------------

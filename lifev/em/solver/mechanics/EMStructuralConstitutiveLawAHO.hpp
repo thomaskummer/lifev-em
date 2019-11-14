@@ -2024,7 +2024,39 @@ void EMStructuralConstitutiveLaw<MeshType>::computeStiffness ( const vector_Type
                        ) >> M_residualVectorPtr;
         }
         
-        
+    
+//        if ( M_material.compare("MR") == 0 )
+//        {
+//            using namespace ExpressionAssembly;
+//
+//            // General nonlinear material variables
+//            auto F = I + grad(super::M_dispETFESpace, disp, 0);
+//            auto J = det(F);
+//            auto Jm23 = pow(J, 2 / (-3.) );
+//            auto FmT = minusT(F);
+//            auto I1 = dot(F, F);
+//            auto dI1bar = value(2.0) * Jm23 * ( F + value(1/(-3.)) * I1 * FmT );
+//
+//            // Pvol
+//            auto dWvol = 3500000 * ( J*(J-1) + log(J) ) / ( 2 * J );
+//            auto dJ = det(F) * minusT(F);
+//            auto Pvol = dWvol * dJ;
+//
+//            // Pnh
+//            auto Pmr = 40 * 0.5 * 4960 * dI1bar;
+//
+//
+//            // Sum up contributions and integrate
+//            auto P = Pvol + Pmr;
+//
+//            integrate ( elements ( super::M_dispETFESpace->mesh() ) ,
+//                       quadRuleTetra4pt,
+//                       super::M_dispETFESpace,
+//                       dot ( P, grad (phi_i) )
+//                       ) >> M_residualVectorPtr;
+//        }
+
+    
         if ( M_material.compare("NH") == 0 )
         {
             using namespace ExpressionAssembly;
