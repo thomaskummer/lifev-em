@@ -398,22 +398,6 @@ public:
         return Y;
     }
     
-    Epetra_SerialDenseMatrix matrixTimesMatrix( const Epetra_SerialDenseMatrix& A, const Epetra_SerialDenseMatrix& X ) const
-    {
-        Epetra_SerialDenseMatrix Y (3,3);
-        for (UInt i (0); i < 3; ++i)
-        {
-            for (UInt j (0); j < 3; ++j)
-            {
-                for (UInt k (0); k < 3; ++k)
-                {
-                    Y(i,j) = A(i,k) * X(k,j);
-                }
-            }
-        }
-        return Y;
-    }
-    
     Epetra_SerialDenseMatrix transpose( const Epetra_SerialDenseMatrix& A ) const
     {
         Epetra_SerialDenseMatrix B (3,3);
@@ -425,6 +409,19 @@ public:
             }
         }
         return B;
+    }
+    
+    Epetra_SerialDenseMatrix tensorProduct( const Epetra_SerialDenseVector& v, const Epetra_SerialDenseVector& w ) const
+    {
+        Epetra_SerialDenseMatrix m (3,3);
+        for (UInt i (0); i < 3; ++i)
+        {
+            for (UInt j (0); j < 3; ++j)
+            {
+                m(i,j) = v(i) * w(j);
+            }
+        }
+        return m;
     }
     
     Epetra_SerialDenseVector crossProduct( const Epetra_SerialDenseVector& v, const Epetra_SerialDenseVector& w ) const
