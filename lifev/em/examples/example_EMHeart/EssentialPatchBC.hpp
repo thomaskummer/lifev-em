@@ -93,13 +93,12 @@ public:
                 {
                     face.setMarkerID(m_patchFlag);
                     numNodesOnPatch++;
-                    std::cout << "rank: " << solver.comm()->MyPID() << " - " << m_Name << ": " << numNodesOnPatch << " nodes found" << std::endl;
                 }
             }
         }
         
-        MPI_Barrier(MPI_COMM_WORLD);
-        MPI_Bcast(&numNodesOnPatch, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD);
+        MPI_Barrier(MPI_COMM_WORLD);        
+        MPI_Allreduce(&numNodesOnPatch, &numNodesOnPatch, 1, MPI_UNSIGNED, MPI_SUM, MPI_COMM_WORLD);
         
         if ( solver.comm()->MyPID() == 0 ) std::cout << "\nEssentialPatchBC: " << __FUNCTION__ << ": " << m_Name << ": " << numNodesOnPatch << " nodes found";
         
