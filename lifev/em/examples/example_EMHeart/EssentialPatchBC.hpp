@@ -69,7 +69,7 @@ public:
 
         // Create patches by changing the markerID (flag) locally
         unsigned int numNodesOnPatch(0);
-        for (int j(0); j < mesh->numBoundaryFacets(); j++)
+        for (int j(0); j < mesh->numBoundaryFacets(); ++j)
         {
             auto& face = mesh->boundaryFacet(j);
             auto faceFlag = face.markerID();
@@ -96,6 +96,9 @@ public:
                 }
             }
         }
+        
+        MPI_Barrier(MPI_COMM_WORLD);
+        MPI_Bcast(&numNodesOnPatch, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD);
         
         if ( solver.comm()->MyPID() == 0 ) std::cout << "\nEssentialPatchBC: " << __FUNCTION__ << ": " << m_Name << ": " << numNodesOnPatch << " nodes found";
         
