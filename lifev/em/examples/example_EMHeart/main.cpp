@@ -591,6 +591,8 @@ int main (int argc, char** argv)
         
         if ( testPatchesAtPreload )
         {
+            MPI_Barrier(MPI_COMM_WORLD);
+
             #ifdef HAVE_MPI
                 MPI_Finalize();
             #endif
