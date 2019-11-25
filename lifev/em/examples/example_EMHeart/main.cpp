@@ -571,7 +571,7 @@ int main (int argc, char** argv)
             }
 
             // Update b.c.
-            if (!testPatchesAtPreload)
+            if ( !testPatchesAtPreload )
             {
                 modifyPressureBC(preloadPressure(bcValues, i, preloadSteps));
             }
@@ -586,6 +586,14 @@ int main (int argc, char** argv)
             solver.solveMechanics();
             
             if (testPatchesAtPreload) heartSolver.postProcess(i-1);
+        }
+        
+        if ( testPatchesAtPreload )
+        {
+            #ifdef HAVE_MPI
+                MPI_Finalize();
+            #endif
+                return 0;
         }
 
         auto maxI4fValue ( solver.activationModelPtr()->I4f().maxValue() );
