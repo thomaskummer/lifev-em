@@ -382,7 +382,7 @@ public:
     }
     
     
-    Epetra_SerialDenseMatrix matrixTimeMatrix( const Epetra_SerialDenseMatrix& A, const Epetra_SerialDenseMatrix& X ) const
+    Epetra_SerialDenseMatrix matrixTimesMatrix( const Epetra_SerialDenseMatrix& A, const Epetra_SerialDenseMatrix& X ) const
     {
         Epetra_SerialDenseMatrix Y (3,3);
         for (UInt i (0); i < 3; ++i)
@@ -398,20 +398,34 @@ public:
         return Y;
     }
     
-    
-    Epetra_SerialDenseMatrix tensorProduct( const Epetra_SerialDenseVector& v, const Epetra_SerialDenseVector& w ) const
+    Epetra_SerialDenseMatrix matrixTimesMatrix( const Epetra_SerialDenseMatrix& A, const Epetra_SerialDenseMatrix& X ) const
     {
-        Epetra_SerialDenseMatrix m (3,3);
+        Epetra_SerialDenseMatrix Y (3,3);
         for (UInt i (0); i < 3; ++i)
         {
             for (UInt j (0); j < 3; ++j)
             {
-                m(i,j) = v(i) * w(j);
+                for (UInt k (0); k < 3; ++k)
+                {
+                    Y(i,j) = A(i,k) * X(k,j);
+                }
             }
         }
-        return m;
+        return Y;
     }
     
+    Epetra_SerialDenseMatrix transpose( const Epetra_SerialDenseMatrix& A ) const
+    {
+        Epetra_SerialDenseMatrix B (3,3);
+        for (UInt i (0); i < 3; ++i)
+        {
+            for (UInt j (0); j < 3; ++j)
+            {
+                B(i,j) = A(j,i);
+            }
+        }
+        return B;
+    }
     
     Epetra_SerialDenseVector crossProduct( const Epetra_SerialDenseVector& v, const Epetra_SerialDenseVector& w ) const
     {
@@ -471,13 +485,14 @@ public:
         auto s_f0 = tensorProduct(s, fiber);
 
         
-//        Epetra_SerialDenseMatrix FAinv (3,3);
-//        FAinv += I;
-//        FAinv += scalarTimesMatrix(- gammaf/(gammaf+1), tensorProduct(fiber, fiber));
-//        FAinv += scalarTimesMatrix(- gammas/(gammas+1), tensorProduct(sheet, sheet));
-//        FAinv += scalarTimesMatrix(- gamman/(gamman+1), tensorProduct(normal, normal));
-//        auto FE = matrixTimeMatrix(tensorF, FAinv);
-        
+        Epetra_SerialDenseMatrix FAinv (3,3);
+        FAinv += I;
+        FAinv += scalarTimesMatrix(- gammaf/(gammaf+1), tensorProduct(fiber, fiber));
+        FAinv += scalarTimesMatrix(- gammas/(gammas+1), tensorProduct(sheet, sheet));
+        FAinv += scalarTimesMatrix(- gamman/(gamman+1), tensorProduct(normal, normal));
+        auto FE = matrixTimesMatrix(tensorF, FAinv);
+        auto FETrans = transpose(FE);
+        auto CE = matrixTimesMatrix(FETrans, FE);
         
         // Pvol
         Epetra_SerialDenseMatrix Pvol (3,3);
@@ -514,11 +529,12 @@ public:
 
         // Assemble first piola kirchhoff tensor
         firstPiola.Scale(0.0);
-        firstPiola += Pvol;
-        firstPiola += P1;
-        firstPiola += P4f;
-        firstPiola += P4s;
-        firstPiola += P8fs;
+//        firstPiola += Pvol;
+//        firstPiola += P1;
+//        firstPiola += P4f;
+//        firstPiola += P4s;
+//        firstPiola += P8fs;
+        firstPiola += CE;
     }
 
     
