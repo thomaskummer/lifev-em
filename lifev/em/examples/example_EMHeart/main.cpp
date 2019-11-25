@@ -538,6 +538,7 @@ int main (int argc, char** argv)
         const int preloadSteps = dataFile ( "solid/boundary_conditions/numPreloadSteps", 0);
         const bool exportPreload = dataFile ( "exporter/preload", false );
         const bool testPatchesAtPreload = dataFile ( "solid/patches/testAtPreload", false );
+        const int testPatchesAtPreloadDt = dataFile ( "solid/patches/testAtPreloadDt", 1);
 
         auto preloadPressure = [] (std::vector<double> p, const int& step, const int& steps)
         {
@@ -578,7 +579,7 @@ int main (int argc, char** argv)
             else
             {
                 //modifyEssentialPatchBC(t);
-                patchHandler.modifyPatchBC(solver, i);
+                patchHandler.modifyPatchBC(solver, i * testPatchesAtPreloadDt);
             }
 
             // Solve mechanics
