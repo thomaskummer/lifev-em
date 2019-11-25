@@ -398,7 +398,7 @@ public:
         return Y;
     }
     
-    Epetra_SerialDenseMatrix transpose( const Epetra_SerialDenseMatrix& A ) const
+    Epetra_SerialDenseMatrix transposeMatrix( const Epetra_SerialDenseMatrix& A ) const
     {
         Epetra_SerialDenseMatrix B (3,3);
         for (UInt i (0); i < 3; ++i)
@@ -488,7 +488,7 @@ public:
         FAinv += scalarTimesMatrix(- gammas/(gammas+1), tensorProduct(sheet, sheet));
         FAinv += scalarTimesMatrix(- gamman/(gamman+1), tensorProduct(normal, normal));
         auto FE = matrixTimesMatrix(tensorF, FAinv);
-        auto FETrans = transpose(FE);
+        auto FETrans = transposeMatrix(FE);
         auto CE = matrixTimesMatrix(FETrans, FE);
         
         // Pvol
