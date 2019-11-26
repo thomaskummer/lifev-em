@@ -481,7 +481,7 @@ public:
         auto f_s0 = tensorProduct(f, sheet);
         auto s_f0 = tensorProduct(s, fiber);
 
-        auto Finv = cofactorF;
+        auto Finv = scalarTimesMatrix( 1/J , transposeMatrix(cofactorF) );
         auto FminusT = transposeMatrix(Finv);
         Epetra_SerialDenseMatrix FAinv (3,3);
         FAinv += I;
@@ -495,8 +495,8 @@ public:
         // Pvol
         Epetra_SerialDenseMatrix Pvol (3,3);
         Pvol.Scale(0.0);
-        Pvol += J * FminusT;
-        Pvol.Scale( J * (3500000 / (2.0 * J)) * (J - 1.0 + (1.0 / J) * std::log(J) ) );
+        Pvol += FminusT;
+        Pvol.Scale( J * (3500000 / 2.0) * (J - 1.0 + (1.0 / J) * std::log(J) ) );
 
         // P1
         Epetra_SerialDenseMatrix P1 (3,3);

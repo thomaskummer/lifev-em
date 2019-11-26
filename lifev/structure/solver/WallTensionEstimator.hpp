@@ -1305,7 +1305,7 @@ WallTensionEstimator<Mesh >::computeInvariantsRightCauchyGreenTensor (std::vecto
     invariants[4] = I8fs;
     invariants[5] = gammaf;
     
-    // Computation of the Cofactor of F --> cofactorF / detF = invF
+    // Computation of the Cofactor matrix of F --> inv(F) = transposed(cofactorF) / det(F)
     cofactorF ( 0 , 0 ) =   ( tensorF (1, 1) * tensorF (2, 2) - tensorF (1, 2) * tensorF (2, 1) );
     cofactorF ( 0 , 1 ) = - ( tensorF (1, 0) * tensorF (2, 2) - tensorF (2, 0) * tensorF (1, 2) );
     cofactorF ( 0 , 2 ) =   ( tensorF (1, 0) * tensorF (2, 1) - tensorF (1, 1) * tensorF (2, 0) );
@@ -1316,7 +1316,7 @@ WallTensionEstimator<Mesh >::computeInvariantsRightCauchyGreenTensor (std::vecto
     cofactorF ( 2 , 1 ) = - ( tensorF (0, 0) * tensorF (1, 2) - tensorF (0, 2) * tensorF (1, 0) );
     cofactorF ( 2 , 2 ) =   ( tensorF (0, 0) * tensorF (1, 1) - tensorF (1, 0) * tensorF (0, 1) );
   
-    cofactorF.Scale (1 / J);
+    //cofactorF.Scale (1 / J);
 }
     
 template <typename Mesh>
