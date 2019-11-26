@@ -481,8 +481,8 @@ public:
         auto f_s0 = tensorProduct(f, sheet);
         auto s_f0 = tensorProduct(s, fiber);
 
-        Finv = cofactorF;
-        FminusT = transposeMatrix(Finv);
+        auto Finv = cofactorF;
+        auto FminusT = transposeMatrix(Finv);
         Epetra_SerialDenseMatrix FAinv (3,3);
         FAinv += I;
         FAinv += scalarTimesMatrix(- gammaf/(gammaf+1), tensorProduct(fiber, fiber));
