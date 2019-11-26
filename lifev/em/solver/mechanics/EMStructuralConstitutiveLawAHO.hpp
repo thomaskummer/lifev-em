@@ -481,7 +481,8 @@ public:
         auto f_s0 = tensorProduct(f, sheet);
         auto s_f0 = tensorProduct(s, fiber);
 
-        
+        Finv = cofactorF;
+        FminusT = transposeMatrix(Finv);
         Epetra_SerialDenseMatrix FAinv (3,3);
         FAinv += I;
         FAinv += scalarTimesMatrix(- gammaf/(gammaf+1), tensorProduct(fiber, fiber));
@@ -494,13 +495,13 @@ public:
         // Pvol
         Epetra_SerialDenseMatrix Pvol (3,3);
         Pvol.Scale(0.0);
-        Pvol += cofactorF;
-        Pvol.Scale( J * (3500000 / 2.0) * (J - 1.0 + (1.0 / J) * std::log(J) ) );
+        Pvol += J * FminusT;
+        Pvol.Scale( J * (3500000 / (2.0 * J) * (J - 1.0 + (1.0 / J) * std::log(J) ) );
 
         // P1
         Epetra_SerialDenseMatrix P1 (3,3);
         P1.Scale(0.0);
-        P1 += cofactorF;
+        P1 += FminusT;
         P1.Scale(-I1/3);
         P1 += tensorF;
         P1.Scale( 2.0 * g1 * W1E * std::pow(J, -2.0/3.0 ) );
@@ -526,12 +527,13 @@ public:
 
         // Assemble first piola kirchhoff tensor
         firstPiola.Scale(0.0);
-//        firstPiola += Pvol;
-//        firstPiola += P1;
+        firstPiola += Pvol;
+        firstPiola += P1;
 //        firstPiola += P4f;
 //        firstPiola += P4s;
 //        firstPiola += P8fs;
-        firstPiola += CE;
+                   
+//        firstPiola += CE;
     }
 
     
