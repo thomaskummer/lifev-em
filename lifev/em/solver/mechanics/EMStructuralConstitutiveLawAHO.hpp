@@ -530,7 +530,7 @@ public:
         firstPiola += Pvol;
         firstPiola += P1;
         firstPiola += P4f;
-//        firstPiola += P4s;
+        firstPiola += P4s;
 //        firstPiola += P8fs;
                    
 //        firstPiola += CE;
