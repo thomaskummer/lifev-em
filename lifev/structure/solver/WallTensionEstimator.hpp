@@ -1290,9 +1290,9 @@ WallTensionEstimator<Mesh >::computeInvariantsRightCauchyGreenTensor (std::vecto
     {
         for (UInt j (0); j < 3; ++j)
         {
-            I4f = C(i,j) * fiberDirection(i) * fiberDirection(j);
-            I4s = C(i,j) * sheetDirection(i) * sheetDirection(j);
-            I8fs = C(i,j) * fiberDirection(i) * sheetDirection(j);
+            I4f += C(i,j) * fiberDirection(i) * fiberDirection(j);
+            I4s += C(i,j) * sheetDirection(i) * sheetDirection(j);
+            I8fs += C(i,j) * fiberDirection(i) * sheetDirection(j);
         }
     }
     
