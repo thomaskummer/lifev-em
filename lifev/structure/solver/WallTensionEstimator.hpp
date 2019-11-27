@@ -1286,6 +1286,7 @@ WallTensionEstimator<Mesh >::computeInvariantsRightCauchyGreenTensor (std::vecto
     I1 =  C(0,0) + C(1,1) + C(2,2);
     J = tensorF (0, 0) * ( tensorF (1, 1) * tensorF (2, 2) - tensorF (1, 2) * tensorF (2, 1) ) - tensorF (0, 1) * ( tensorF (1, 0) * tensorF (2, 2) - tensorF (1, 2) * tensorF (2, 0) ) + tensorF (0, 2) * ( tensorF (1, 0) * tensorF (2, 1) - tensorF (1, 1) * tensorF (2, 0) );
     
+    I4f = 0.; I4s = 0.; I8fs = 0;
     for (UInt i (0); i < 3; ++i)
     {
         for (UInt j (0); j < 3; ++j)
