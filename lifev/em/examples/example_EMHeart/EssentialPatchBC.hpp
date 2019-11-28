@@ -355,25 +355,25 @@ public:
 
 private:
     
-    void updatePatchDisplacementSum(EMSolver<RegionMesh<LinearTetra>, EMMonodomainSolver<RegionMesh<LinearTetra> > >& solver)
-    {
-        *m_patchDisplacementVecSumPtr *= 0.0;
-
-        for (auto& patch : m_patchBCPtrVec)
-        {
-            *m_patchDisplacementVecSumPtr += patch->patchDisplacement(solver);
-        }
-    }
-    
-    void updatePatchLocationSum(EMSolver<RegionMesh<LinearTetra>, EMMonodomainSolver<RegionMesh<LinearTetra> > >& solver)
-    {
-        *m_patchLocationScalarSumPtr *= 0.0;
-
-        for (auto& patch : m_patchBCPtrVec)
-        {
-            *m_patchLocationScalarSumPtr += patch->patchLocation();
-        }
-    }
+//    void updatePatchDisplacementSum(EMSolver<RegionMesh<LinearTetra>, EMMonodomainSolver<RegionMesh<LinearTetra> > >& solver)
+//    {
+//        *m_patchDisplacementVecSumPtr *= 0.0;
+//
+//        for (auto& patch : m_patchBCPtrVec)
+//        {
+//            *m_patchDisplacementVecSumPtr += patch->patchDisplacement(solver);
+//        }
+//    }
+//
+//    void updatePatchLocationSum(EMSolver<RegionMesh<LinearTetra>, EMMonodomainSolver<RegionMesh<LinearTetra> > >& solver)
+//    {
+//        *m_patchLocationScalarSumPtr *= 0.0;
+//
+//        for (auto& patch : m_patchBCPtrVec)
+//        {
+//            *m_patchLocationScalarSumPtr += patch->patchLocation();
+//        }
+//    }
     
     const std::string m_patchListName;
     const GetPot& m_dataFile;
