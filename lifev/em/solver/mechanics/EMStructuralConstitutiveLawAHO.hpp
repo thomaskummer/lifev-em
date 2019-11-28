@@ -391,7 +391,7 @@ public:
             {
                 for (UInt k (0); k < 3; ++k)
                 {
-                    Y(i,j) = A(i,k) * X(k,j);
+                    Y(i,j) += A(i,k) * X(k,j);
                 }
             }
         }
