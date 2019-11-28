@@ -313,8 +313,8 @@ public:
             patch->applyBC(solver, m_dataFile);
         }
 
-        updatePatchDisplacementSum(solver);
-        updatePatchLocationSum(solver);
+//        updatePatchDisplacementSum(solver);
+//        updatePatchLocationSum(solver);
         
         if ( solver.comm()->MyPID() == 0 ) std::cout << "\nEssentialPatchBCHandler: " << __FUNCTION__ << " - done" << std::endl;
     }
@@ -326,8 +326,8 @@ public:
             patch->modifyPatchBC(solver, time);
         }
 
-        updatePatchDisplacementSum(solver);
-        updatePatchLocationSum(solver);
+//        updatePatchDisplacementSum(solver);
+//        updatePatchLocationSum(solver);
         
         if ( solver.comm()->MyPID() == 0 ) std::cout << "\nEssentialPatchBCHandler: " << __FUNCTION__ << " - done" << std::endl;
     }
