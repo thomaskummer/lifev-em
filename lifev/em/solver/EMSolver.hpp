@@ -1063,7 +1063,7 @@ template<typename Mesh , typename ElectroSolver>
 void
 EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, VectorEpetra& f0_, VectorEpetra& disp, solidFESpacePtr_Type feSpacePtr)
 {
-    f_ = VectorEpetra(disp.map(), Unique);
+//    f_ = VectorEpetra(disp.map(), Unique);
     
     VectorEpetra dUdx (disp);
     VectorEpetra dUdy (disp);
