@@ -531,12 +531,12 @@ public:
         firstPiola += P1;
         firstPiola += P4f;
         firstPiola += P4s;
-        firstPiola += P8fs;
+        //firstPiola += P8fs;
                    
-        if ( this->M_displayer->isLeader() )
-        {
-            std::cout << "Pvol: " << Pvol << "P1: " << P1 << "P4f: " << P4f << "P4s: " << P4s << "P8fs: " << P8fs << std::endl;
-        }
+//        if ( this->M_displayer->isLeader() )
+//        {
+//            std::cout << "Pvol: " << Pvol << "P1: " << P1 << "P4f: " << P4f << "P4s: " << P4s << "P8fs: " << P8fs << std::endl;
+//        }
     }
 
     
