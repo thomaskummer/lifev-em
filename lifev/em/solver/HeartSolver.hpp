@@ -247,12 +247,10 @@ public:
                                      UInt (0) );
         
         m_exporter->addVariable (    ExporterData<RegionMesh<LinearTetra> >::VectorField,
-                                     "Fibers",
+                                     "Fibers0",
                                      M_emSolver.structuralOperatorPtr()->dispFESpacePtr(),
                                      //M_emSolver.structuralOperatorPtr()->fPtr(),
-                                     //M_emSolver.structuralOperatorPtr()->EMMaterial()->fiberVectorPtr(),
-                                        //abc
-                                     M_emSolver.structuralOperatorPtr()->displacementPtr(),
+                                     M_emSolver.structuralOperatorPtr()->EMMaterial()->fiberVectorPtr(),
                                      UInt (0) );
         
         m_exporter->addVariable (    ExporterData<RegionMesh<LinearTetra> >::VectorField,
