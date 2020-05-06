@@ -42,7 +42,7 @@ monodomain_xml_file = ParamListE.xml
     [./physics]
     ActivationModel         = ActiveStrainRossi14
     CalciumIndex            = 3
-    ActiveForceCoefficient  = -0.0  # -6.25  # -7.0 # -7.3
+    ActiveForceCoefficient  = -6.25  # -6.25  # -7.0 # -7.3
     InverseViscosity        = 0.0002
     ChemicalThreshold       = 0.21
 
@@ -209,27 +209,29 @@ monodomain_xml_file = ParamListE.xml
     listEssentialPatchBC = 'EssentialPatchCircular1 EssentialPatchCircular2'
     patchRotationAngle = 45
     #listEssentialPatchBC = 'EssentialPatchEllipsoid1 EssentialPatchEllipsoid2'
-    
+
         [./EssentialPatchCircular1]
         flag                = 464
         type                = EssentialPatchBCCircular
-        center              = '-1.8 -7.0 -4.5'
+        center              = '-1.8 -7.0 -4.5' #-7.0
+        #center              = '-1.05 -7.0 -3.95' #-1.8 -7.0 -4.5' #-7.0
         radius              = 2.0
         component           = '0 2'
-        direction           = '1.0 0.0 1.0'
+        direction           = '1.0 0.0 1.73' # '1.0 0.0 1.0'
         edgeDispFactor      = 0.5
-        displacement        = 1.2
+        displacement        = 0.9
 
 
         [../EssentialPatchCircular2]
         flag                = 464
         type                = EssentialPatchBCCircular
-        center              = '3.5 -7.0 1.0'
+        center              = '3.5 -7.0 1.0' #-7.0
+     	#center              = '2.55 -7.0 2.75' #'3.5 -7.0 1.0' #-7.0
         radius              = 2.0
         component           = '0 2'
-        direction           = '-1.0 0.0 -1.0'
+        direction           = '-1.0 0.0 -1.73' # '-1.0 0.0 -1.0'
         edgeDispFactor      = 0.5
-        displacement        = 1.2
+        displacement        = 0.9
 
         [../EssentialPatchEllipsoid1]
         flag                = 464
@@ -258,8 +260,8 @@ monodomain_xml_file = ParamListE.xml
     [../patches]
     testAtPreload       = false
     testAtPreloadDt     = 2
-    tmax                = 176 #175 #250 #150 #200 #250
-    tduration           = 350 #300
+    tmax                = 250 #176 #150 #200  Sync. with heart-muscle: 250, Only patches: 176
+    tduration           = 300 #300
 
     [../coupling]
     pPerturbationFe         = 1e-3
@@ -282,12 +284,12 @@ monodomain_xml_file = ParamListE.xml
 
     [../space_discretization]
     mesh_type           = .mesh
-    mesh_name           = humanHeart160
+    mesh_name           = humanHeart500
     mesh_scaling        = '1.2 1.2 1.2'
     #mesh_translation    = '-66 -72 -94.5'
     #mesh_rotation       = '0.9 0.0 -0.5'
     order               = P2
-    quad_rule           = 5pt
+    quad_rule           = 4pt
     anisotropic         = true
     fiber_name          = FiberDirection
     fiber_fieldname     = fibers
@@ -323,7 +325,7 @@ monodomain_xml_file = ParamListE.xml
     xmlName         = ParamList.xml #xmlParameters.xml
 
         [./ifpack]
-        overlap  	= 3
+        overlap  	= 2
 
             [./fact]
             ilut_level-of-fill      = 1
