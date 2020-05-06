@@ -552,6 +552,9 @@ int main (int argc, char** argv)
         //solver.saveSolution (-1.0);
         heartSolver.postProcess( (exportPreload ? -preloadSteps : -1.0) );
 
+        LV.volume(disp, dETFESpace, - 1);
+        RV.volume(disp, dETFESpace, 1);
+        
         if ( 0 == comm->MyPID() )
         {
             std::cout << "\n*****************************************************************";
