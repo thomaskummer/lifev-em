@@ -1065,9 +1065,9 @@ EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, 
 {
 //    f_ = VectorEpetra(disp.map(), Unique);
     
-    VectorEpetra dUdx (disp);
-    VectorEpetra dUdy (disp);
-    VectorEpetra dUdz (disp);
+    VectorEpetra dUdx (disp.map(), Repeated);
+    VectorEpetra dUdy (disp.map(), Repeated);
+    VectorEpetra dUdz (disp.map(), Repeated);
     
     dUdx = GradientRecovery::ZZGradient (feSpacePtr, disp, 0);
     dUdy = GradientRecovery::ZZGradient (feSpacePtr, disp, 1);
@@ -1110,7 +1110,7 @@ EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, 
         f0.normalize();
         
         auto f = F * f0;
-        f_[i] = 5.; //f(0);
+        f_[i] = f(0);
         f_[j] = f(1);
         f_[k] = f(2);
     }
