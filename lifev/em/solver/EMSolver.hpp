@@ -1063,17 +1063,17 @@ template<typename Mesh , typename ElectroSolver>
 void
 EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, VectorEpetra& f0_, VectorEpetra& disp, solidFESpacePtr_Type feSpacePtr)
 {
-//    f_ = VectorEpetra(disp.map(), Unique);
+//    f_ = VectorEpetra(disp, Unique);
     
-    VectorEpetra dUdx (disp.map(), Repeated);
-    VectorEpetra dUdy (disp.map(), Repeated);
-    VectorEpetra dUdz (disp.map(), Repeated);
+    VectorEpetra dUdx (Unique);
+    VectorEpetra dUdy (disp.map());
+    VectorEpetra dUdz (disp.map());
     
     dUdx = GradientRecovery::ZZGradient (feSpacePtr, disp, 0);
     dUdy = GradientRecovery::ZZGradient (feSpacePtr, disp, 1);
     dUdz = GradientRecovery::ZZGradient (feSpacePtr, disp, 2);
     
-    f_ = dUdx;
+    f_.reset(new vector_Type (dUdx ));
     return;
     
     int n = f_.epetraVector().MyLength() / 3;
