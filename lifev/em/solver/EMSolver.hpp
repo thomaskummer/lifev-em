@@ -1083,9 +1083,9 @@ EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, 
     
     for (int p (0); p < n; p++)
     {
-        i = dUdx.blockMap().GID (p);
-        j = dUdx.blockMap().GID (p + n);
-        k = dUdx.blockMap().GID (p + 2 * n);
+        i = f_.blockMap().GID (p);
+        j = f_.blockMap().GID (p + n);
+        k = f_.blockMap().GID (p + 2 * n);
         
 //        F(0,0) = 1.0 + dUdx[i];
 //        F(0,1) =       dUdy[i];

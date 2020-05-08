@@ -81,7 +81,7 @@ public:
                 }
             }
         }
-        
+
         M_boundaryPoints.clear();
         for (auto it = vertexIds.begin(); it != vertexIds.end(); ++it) M_boundaryPoints.push_back(*it);
     }
