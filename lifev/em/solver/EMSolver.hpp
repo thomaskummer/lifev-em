@@ -1123,6 +1123,8 @@ EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, 
         f_[j] = f(1);
         f_[k] = f(2);
     }
+
+    f_.globalAssemble();
     
 //    {
 //        using namespace ExpressionAssembly;
