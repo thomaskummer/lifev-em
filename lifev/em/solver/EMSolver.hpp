@@ -1080,7 +1080,7 @@ EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, 
     int n = f_.epetraVector().MyLength() / 3;
     int i (0); int j (0); int k (0);
     MatrixSmall<3,3> F; VectorSmall<3> f0;
-    
+    f_ = f0_; break;
     for (int p (0); p < n; p++)
     {
         i = f_.blockMap().GID (p);
