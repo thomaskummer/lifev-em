@@ -1065,17 +1065,17 @@ EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, 
 {
 //    f_ = VectorEpetra(disp, Unique);
     
-    VectorEpetra dUdx (disp);
-    VectorEpetra dUdy (disp);
-    VectorEpetra dUdz (disp);
+//    VectorEpetra dUdx (disp);
+//    VectorEpetra dUdy (disp);
+//    VectorEpetra dUdz (disp);
     
 //    dUdx = GradientRecovery::ZZGradient (feSpacePtr, disp, 0);
 //    dUdy = GradientRecovery::ZZGradient (feSpacePtr, disp, 1);
 //    dUdz = GradientRecovery::ZZGradient (feSpacePtr, disp, 2);
     
-    dUdx = feSpacePtr->gradientRecovery(disp, 0);
-    dUdy = feSpacePtr->gradientRecovery(disp, 1);
-    dUdz = feSpacePtr->gradientRecovery(disp, 2);
+//    dUdx = feSpacePtr->gradientRecovery(disp, 0);
+//    dUdy = feSpacePtr->gradientRecovery(disp, 1);
+//    dUdz = feSpacePtr->gradientRecovery(disp, 2);
     
     int n = f_.epetraVector().MyLength() / 3;
     int i (0); int j (0); int k (0);
@@ -1099,32 +1099,32 @@ EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, 
 //        F(2,1) =       dUdy[k];
 //        F(2,2) = 1.0 + dUdz[k];
   
-        F(0,0) = 1.0 + dUdx[i];
-        F(0,1) =       dUdx[j];
-        F(0,2) =       dUdx[k];
-        F(1,0) =       dUdy[i];
-        F(1,1) = 1.0 + dUdy[j];
-        F(1,2) =       dUdy[k];
-        F(2,0) =       dUdz[i];
-        F(2,1) =       dUdz[j];
-        F(2,2) = 1.0 + dUdz[k];
+// this is right
+//        F(0,0) = 1.0 + dUdx[i];
+//        F(0,1) =       dUdx[j];
+//        F(0,2) =       dUdx[k];
+//        F(1,0) =       dUdy[i];
+//        F(1,1) = 1.0 + dUdy[j];
+//        F(1,2) =       dUdy[k];
+//        F(2,0) =       dUdz[i];
+//        F(2,1) =       dUdz[j];
+//        F(2,2) = 1.0 + dUdz[k];
         
 //        F *= 0.;
 //        F(0,0) = 1.; F(1,1) = 1.; F(2,2) = 1.;
         
-        f0(0) = f0_[i];
-        f0(1) = f0_[j];
-        f0(2) = f0_[k];
-        
-        f0.normalize();
-        
-        auto f = F * f0;
-        f_[i] = f(0);
-        f_[j] = f(1);
-        f_[k] = f(2);
+//        f0(0) = f0_[i];
+//        f0(1) = f0_[j];
+//        f0(2) = f0_[k];
+//
+//        f0.normalize();
+//
+//        auto f = F * f0;
+        f_[i] = 5.; //f(0);
+        f_[j] = 3.; //f(1);
+        f_[k] = 1.; //sf(2);
     }
 
-    f_.globalAssemble();
     
 //    {
 //        using namespace ExpressionAssembly;
