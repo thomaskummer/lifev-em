@@ -28,7 +28,7 @@
     @file
     @brief Generation muscular fibers and sheets
 
-    @author Simone Rossi <simone.rossi@epfl.ch>
+    @author Simone Rossi <simone.rossi@epfl.ch>, Thomas Kummer
     @maintainer Simone Palamara <palamara.simone@gmail.com>
     @date 31-01-2014
 

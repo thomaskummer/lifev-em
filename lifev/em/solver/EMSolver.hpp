@@ -1063,7 +1063,7 @@ template<typename Mesh , typename ElectroSolver>
 void
 EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, VectorEpetra& f0_, VectorEpetra& disp, solidFESpacePtr_Type feSpacePtr)
 {
-//    f_ = VectorEpetra(disp.map(), Unique);
+//    f_ = VectorEpetra(disp, Unique);
     
     VectorEpetra dUdx (disp);
     VectorEpetra dUdy (disp);
@@ -1080,8 +1080,9 @@ EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, 
     int n = f_.epetraVector().MyLength() / 3;
     int i (0); int j (0); int k (0);
     MatrixSmall<3,3> F; VectorSmall<3> f0;
-    f_ = f0_;
-    return;
+    
+//    f_ = f0_; return;
+    
     for (int p (0); p < n; p++)
     {
         i = f_.blockMap().GID (p);
@@ -1108,8 +1109,8 @@ EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, 
         F(2,1) =       dUdz[j];
         F(2,2) = 1.0 + dUdz[k];
         
-        F *= 0.;
-        F(0,0) = 1.; F(1,1) = 1.; F(2,2) = 1.;
+//        F *= 0.;
+//        F(0,0) = 1.; F(1,1) = 1.; F(2,2) = 1.;
         
         f0(0) = f0_[i];
         f0(1) = f0_[j];
@@ -1117,11 +1118,35 @@ EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, 
         
         f0.normalize();
         
-        auto f = f0;
+        auto f = F * f0;
         f_[i] = f(0);
         f_[j] = f(1);
         f_[k] = f(2);
     }
+    
+//    {
+//        using namespace ExpressionAssembly;
+//
+//        auto I = value(Id);
+//        auto Grad_u = grad( dispETFESpace, dispCurrent, 0);
+//        auto F =  Grad_u + I;
+//        auto FmT = minusT(F);
+//        auto J = det(F);
+//        auto p = value(pressure);
+//
+//        QuadratureBoundary myBDQR (buildTetraBDQR (quadRuleTria7pt) );
+//
+//        integrate ( boundary ( dispETFESpace->mesh(), bdFlag),
+//                   myBDQR,
+//                   dispETFESpace,
+//                   value(-1.0) * p * J * dot( FmT * Nface,  phi_i)
+//                   //p * J * dot( FmT * Nface,  phi_i)
+//                   //value(-1.0) * J * dot (vE1, FmT * Nface) * phi_i) >> intergral
+//                   ) >> traction;
+//
+//        traction.globalAssemble();
+//    }
+    
 }
 
 
