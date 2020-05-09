@@ -425,7 +425,8 @@ public:
     
     void computeI4f (VectorEpetra& i4f, VectorEpetra& f0_, VectorEpetra& disp, solidFESpacePtr_Type feSpacePtr);
 
-    void computeDeformedFiberDirection (VectorEpetra& f, VectorEpetra& f0_, VectorEpetra& disp, solidFESpacePtr_Type feSpacePtr);
+    //void computeDeformedFiberDirection (VectorEpetra& f, VectorEpetra& f0_, VectorEpetra& disp, solidFESpacePtr_Type feSpacePtr);
+    void computeDeformedFiberDirection (boost::shared_ptr<VectorEpetra> f_, boost::shared_ptr<VectorEpetra> f0_, boost::shared_ptr<VectorEpetra> disp, solidFESpacePtr_Type feSpacePtr);
     
     vectorPtr_Type getElectroFibers()
     {
