@@ -299,9 +299,8 @@ public:
         exporter.setPostDir (folder);
     }
     
-    template<typename Mesh , typename ElectroSolver>
-    void
-    EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (boost::shared_ptr<VectorEpetra> f_, boost::shared_ptr<VectorEpetra> f0_, boost::shared_ptr<VectorEpetra> disp, solidFESpacePtr_Type feSpacePtr)
+    
+    void computeDeformedFiberDirection (boost::shared_ptr<VectorEpetra> f_, boost::shared_ptr<VectorEpetra> f0_, boost::shared_ptr<VectorEpetra> disp, boost::shared_ptr<FESpace< RegionMesh<LinearTetra>, MapEpetra > > feSpacePtr)
     {
         int n = f_->epetraVector().MyLength() / 3;
         MatrixSmall<3,3> F; VectorSmall<3> f0;
