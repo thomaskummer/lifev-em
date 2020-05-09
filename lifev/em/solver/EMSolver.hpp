@@ -44,6 +44,13 @@
 #ifndef _EMSOLVER_H_
 #define _EMSOLVER_H_
 
+#ifdef EPETRA_MPI
+#include <mpi.h>
+#include <Epetra_MpiComm.h>
+#else
+#include <Epetra_SerialComm.h>
+#endif
+
 #include <lifev/core/mesh/MeshLoadingUtility.hpp>
 
 #include <lifev/em/solver/electrophysiology/EMMonodomainSolver.hpp>
