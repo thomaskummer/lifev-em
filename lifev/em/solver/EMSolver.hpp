@@ -44,13 +44,6 @@
 #ifndef _EMSOLVER_H_
 #define _EMSOLVER_H_
 
-#ifdef EPETRA_MPI
-#include <mpi.h>
-#include <Epetra_MpiComm.h>
-#else
-#include <Epetra_SerialComm.h>
-#endif
-
 #include <lifev/core/mesh/MeshLoadingUtility.hpp>
 
 #include <lifev/em/solver/electrophysiology/EMMonodomainSolver.hpp>
@@ -1090,7 +1083,7 @@ EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (boost::shared_ptr<
     
 //    *f_ = *f0_; return;
     
-    for (int p (0); p < n; p++)
+    for (int p (0); p < n; ++p)
     {
         int i = f_->blockMap().GID (p);
         int j = f_->blockMap().GID (p + n);
