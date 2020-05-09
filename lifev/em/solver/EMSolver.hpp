@@ -1110,19 +1110,19 @@ EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, 
 //        F(2,1) =       dUdz[j];
 //        F(2,2) = 1.0 + dUdz[k];
         
-//        F *= 0.;
-//        F(0,0) = 1.; F(1,1) = 1.; F(2,2) = 1.;
+        F *= 0.;
+        F(0,0) = 1.; F(1,1) = 1.; F(2,2) = 1.;
         
-//        f0(0) = f0_[i];
-//        f0(1) = f0_[j];
-//        f0(2) = f0_[k];
+        f0(0) = 1.;//f0_[i];
+        f0(1) = 2.;//f0_[j];
+        f0(2) = 5.;//f0_[k];
 //
 //        f0.normalize();
 //
-//        auto f = F * f0;
-        f_[i] = 5.; //f(0);
-        f_[j] = 3.; //f(1);
-        f_[k] = 1.; //sf(2);
+        auto f = F * f0;
+        f_[i] = f(0);
+        f_[j] = f(1);
+        f_[k] = f(2);
     }
 
     
