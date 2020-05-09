@@ -1061,7 +1061,7 @@ EMSolver<Mesh, ElectroSolver>::computeI4f (VectorEpetra& i4f, VectorEpetra& f0_,
     
 template<typename Mesh , typename ElectroSolver>
 void
-EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, VectorEpetra& f0_, VectorEpetra& disp, solidFESpacePtr_Type feSpacePtr)
+EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (boost::shared_ptr<VectorEpetra> f_, boost::shared_ptr<VectorEpetra> f0_, boost::shared_ptr<VectorEpetra> disp, solidFESpacePtr_Type feSpacePtr)
 {
 //    f_ = VectorEpetra(disp, Unique);
     
@@ -1077,7 +1077,7 @@ EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, 
 //    dUdy = feSpacePtr->gradientRecovery(disp, 1);
 //    dUdz = feSpacePtr->gradientRecovery(disp, 2);
     
-    int n = f_.epetraVector().MyLength() / 3;
+    int n = f_->epetraVector().MyLength() / 3;
     int i (0); int j (0); int k (0);
     MatrixSmall<3,3> F; VectorSmall<3> f0;
     
@@ -1085,9 +1085,9 @@ EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, 
     
     for (int p (0); p < n; p++)
     {
-        i = f_.blockMap().GID (p);
-        j = f_.blockMap().GID (p + n);
-        k = f_.blockMap().GID (p + 2 * n);
+        i = f_->blockMap().GID (p);
+        j = f_->blockMap().GID (p + n);
+        k = f_->blockMap().GID (p + 2 * n);
         
 //        F(0,0) = 1.0 + dUdx[i];
 //        F(0,1) =       dUdy[i];
@@ -1113,16 +1113,16 @@ EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, 
         F *= 0.;
         F(0,0) = 1.; F(1,1) = 1.; F(2,2) = 1.;
         
-        f0(0) = 1.;//f0_[i];
-        f0(1) = 2.;//f0_[j];
-        f0(2) = 5.;//f0_[k];
+        f0(0) = (*f0_)[i];
+        f0(1) = (*f0_)[j];
+        f0(2) = (*f0_)[k];
 //
 //        f0.normalize();
 //
         auto f = F * f0;
-        f_[i] = f(0);
-        f_[j] = f(1);
-        f_[k] = f(2);
+        (*f_)[i] = f(0);
+        (*f_)[j] = f(1);
+        (*f_)[k] = f(2);
     }
 
     

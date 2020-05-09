@@ -309,10 +309,10 @@ public:
         //M_emSolver.tensionEstimator().analyzeTensionsRecoveryEigenvalues();
 
         // Compute deformed fiber direction
-        M_emSolver.computeDeformedFiberDirection (M_emSolver.structuralOperatorPtr()->f(), *M_emSolver.structuralOperatorPtr()->EMMaterial()->fiberVectorPtr(), *M_emSolver.structuralOperatorPtr()->displacementPtr(), M_emSolver.structuralOperatorPtr()->dispFESpacePtr());
+        M_emSolver.computeDeformedFiberDirection (M_emSolver.structuralOperatorPtr()->fPtr(), M_emSolver.structuralOperatorPtr()->EMMaterial()->fiberVectorPtr(), M_emSolver.structuralOperatorPtr()->displacementPtr(), M_emSolver.structuralOperatorPtr()->dispFESpacePtr());
 
         // Compute deformed sheet direction
-        M_emSolver.computeDeformedFiberDirection (M_emSolver.structuralOperatorPtr()->s(), *M_emSolver.structuralOperatorPtr()->EMMaterial()->sheetVectorPtr(), *M_emSolver.structuralOperatorPtr()->displacementPtr(), M_emSolver.structuralOperatorPtr()->dispFESpacePtr());
+        M_emSolver.computeDeformedFiberDirection (M_emSolver.structuralOperatorPtr()->sPtr(), M_emSolver.structuralOperatorPtr()->EMMaterial()->sheetVectorPtr(), M_emSolver.structuralOperatorPtr()->displacementPtr(), M_emSolver.structuralOperatorPtr()->dispFESpacePtr());
                 
         // Write on hdf5 output file
         m_exporter->postProcess(time);
