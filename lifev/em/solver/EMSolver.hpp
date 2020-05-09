@@ -1084,47 +1084,47 @@ EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (boost::shared_ptr<
     
     f_ = f0_; return;
     
-    for (int p (0); p < n; p++)
-    {
-        i = f_->blockMap().GID (p);
-        j = f_->blockMap().GID (p + n);
-        k = f_->blockMap().GID (p + 2 * n);
-        
-//        F(0,0) = 1.0 + dUdx[i];
-//        F(0,1) =       dUdy[i];
-//        F(0,2) =       dUdz[i];
-//        F(1,0) =       dUdx[j];
-//        F(1,1) = 1.0 + dUdy[j];
-//        F(1,2) =       dUdz[j];
-//        F(2,0) =       dUdx[k];
-//        F(2,1) =       dUdy[k];
-//        F(2,2) = 1.0 + dUdz[k];
-  
-// this is right
-//        F(0,0) = 1.0 + dUdx[i];
-//        F(0,1) =       dUdx[j];
-//        F(0,2) =       dUdx[k];
-//        F(1,0) =       dUdy[i];
-//        F(1,1) = 1.0 + dUdy[j];
-//        F(1,2) =       dUdy[k];
-//        F(2,0) =       dUdz[i];
-//        F(2,1) =       dUdz[j];
-//        F(2,2) = 1.0 + dUdz[k];
-        
-        F *= 0.;
-        F(0,0) = 1.; F(1,1) = 1.; F(2,2) = 1.;
-        
-        f0(0) = (*f0_)[i];
-        f0(1) = (*f0_)[j];
-        f0(2) = (*f0_)[k];
+//    for (int p (0); p < n; p++)
+//    {
+//        i = f_->blockMap().GID (p);
+//        j = f_->blockMap().GID (p + n);
+//        k = f_->blockMap().GID (p + 2 * n);
 //
-//        f0.normalize();
+////        F(0,0) = 1.0 + dUdx[i];
+////        F(0,1) =       dUdy[i];
+////        F(0,2) =       dUdz[i];
+////        F(1,0) =       dUdx[j];
+////        F(1,1) = 1.0 + dUdy[j];
+////        F(1,2) =       dUdz[j];
+////        F(2,0) =       dUdx[k];
+////        F(2,1) =       dUdy[k];
+////        F(2,2) = 1.0 + dUdz[k];
 //
-        auto f = F * f0;
-        (*f_)[i] = f(0);
-        (*f_)[j] = f(1);
-        (*f_)[k] = f(2);
-    }
+//// this is right
+////        F(0,0) = 1.0 + dUdx[i];
+////        F(0,1) =       dUdx[j];
+////        F(0,2) =       dUdx[k];
+////        F(1,0) =       dUdy[i];
+////        F(1,1) = 1.0 + dUdy[j];
+////        F(1,2) =       dUdy[k];
+////        F(2,0) =       dUdz[i];
+////        F(2,1) =       dUdz[j];
+////        F(2,2) = 1.0 + dUdz[k];
+//
+//        F *= 0.;
+//        F(0,0) = 1.; F(1,1) = 1.; F(2,2) = 1.;
+//
+//        f0(0) = (*f0_)[i];
+//        f0(1) = (*f0_)[j];
+//        f0(2) = (*f0_)[k];
+////
+////        f0.normalize();
+////
+//        auto f = F * f0;
+//        (*f_)[i] = f(0);
+//        (*f_)[j] = f(1);
+//        (*f_)[k] = f(2);
+//    }
 
     
 //    {
