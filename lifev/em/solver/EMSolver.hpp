@@ -1082,7 +1082,7 @@ EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (boost::shared_ptr<
 //    int i (0); int j (0); int k (0);
 //    MatrixSmall<3,3> F; VectorSmall<3> f0;
     
-    f_ = f0_; return;
+    *f_ = *f0_; return;
     
 //    for (int p (0); p < n; p++)
 //    {
