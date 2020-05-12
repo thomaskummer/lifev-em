@@ -302,6 +302,7 @@ public:
     
     void computeDeformedFiberDirection (boost::shared_ptr<VectorEpetra> f_, boost::shared_ptr<VectorEpetra> f0_, boost::shared_ptr<VectorEpetra> disp, boost::shared_ptr<FESpace< RegionMesh<LinearTetra>, MapEpetra > > feSpacePtr)
     {
+        *f_ *= 0.;
         int n = f_->epetraVector().MyLength() / 3;
         MatrixSmall<3,3> F; VectorSmall<3> f0;
                 
@@ -321,9 +322,9 @@ public:
     //        f0.normalize();
     //
             auto f = F * f0;
-            (*f_)[i] += f(0);
-            (*f_)[j] += f(1);
-            (*f_)[k] += f(2);
+            (*f_)[i] = f(0);
+            (*f_)[j] = f(1);
+            (*f_)[k] = f(2);
         }
     }
     
