@@ -300,6 +300,33 @@ public:
     }
     
     
+    void computeDeformedFiberDirection (boost::shared_ptr<VectorEpetra> f_, boost::shared_ptr<VectorEpetra> f0_, boost::shared_ptr<VectorEpetra> disp, boost::shared_ptr<FESpace< RegionMesh<LinearTetra>, MapEpetra > > feSpacePtr)
+    {
+        int n = f_->epetraVector().MyLength() / 3;
+        MatrixSmall<3,3> F; VectorSmall<3> f0;
+                
+        for (int p (0); p < n; ++p)
+        {
+            int i = f_->blockMap().GID (p);
+            int j = f_->blockMap().GID (p + n);
+            int k = f_->blockMap().GID (p + 2 * n);
+            
+            F *= 0.;
+            F(0,0) = 1.; F(1,1) = 1.; F(2,2) = 1.;
+
+            f0(0) = (*f0_)[i];
+            f0(1) = (*f0_)[j];
+            f0(2) = (*f0_)[k];
+    //
+    //        f0.normalize();
+    //
+            auto f = F * f0;
+            (*f_)[i] = f(0);
+            (*f_)[j] = f(1);
+            (*f_)[k] = f(2);
+        }
+    }
+    
     void postProcess(const Real& time)
     {        
         // Compute Von Mises stress, principal stresses and Cauchy stresses
@@ -309,10 +336,11 @@ public:
         //M_emSolver.tensionEstimator().analyzeTensionsRecoveryEigenvalues();
 
         // Compute deformed fiber direction
-        M_emSolver.computeDeformedFiberDirection (M_emSolver.structuralOperatorPtr()->f(), *M_emSolver.structuralOperatorPtr()->EMMaterial()->fiberVectorPtr(), *M_emSolver.structuralOperatorPtr()->displacementPtr(), M_emSolver.structuralOperatorPtr()->dispFESpacePtr());
-
+        //M_emSolver.computeDeformedFiberDirection (M_emSolver.structuralOperatorPtr()->fPtr(), M_emSolver.structuralOperatorPtr()->EMMaterial()->fiberVectorPtr(), M_emSolver.structuralOperatorPtr()->displacementPtr(), M_emSolver.structuralOperatorPtr()->dispFESpacePtr());
+        computeDeformedFiberDirection (M_emSolver.structuralOperatorPtr()->fPtr(), M_emSolver.structuralOperatorPtr()->EMMaterial()->fiberVectorPtr(), M_emSolver.structuralOperatorPtr()->displacementPtr(), M_emSolver.structuralOperatorPtr()->dispFESpacePtr());
+        
         // Compute deformed sheet direction
-        M_emSolver.computeDeformedFiberDirection (M_emSolver.structuralOperatorPtr()->s(), *M_emSolver.structuralOperatorPtr()->EMMaterial()->sheetVectorPtr(), *M_emSolver.structuralOperatorPtr()->displacementPtr(), M_emSolver.structuralOperatorPtr()->dispFESpacePtr());
+        M_emSolver.computeDeformedFiberDirection (M_emSolver.structuralOperatorPtr()->sPtr(), M_emSolver.structuralOperatorPtr()->EMMaterial()->sheetVectorPtr(), M_emSolver.structuralOperatorPtr()->displacementPtr(), M_emSolver.structuralOperatorPtr()->dispFESpacePtr());
                 
         // Write on hdf5 output file
         m_exporter->postProcess(time);

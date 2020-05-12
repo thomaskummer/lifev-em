@@ -428,7 +428,8 @@ public:
     
     void computeI4f (VectorEpetra& i4f, VectorEpetra& f0_, VectorEpetra& disp, solidFESpacePtr_Type feSpacePtr);
 
-    void computeDeformedFiberDirection (VectorEpetra& f, VectorEpetra& f0_, VectorEpetra& disp, solidFESpacePtr_Type feSpacePtr);
+    //void computeDeformedFiberDirection (VectorEpetra& f, VectorEpetra& f0_, VectorEpetra& disp, solidFESpacePtr_Type feSpacePtr);
+    void computeDeformedFiberDirection (boost::shared_ptr<VectorEpetra> f_, boost::shared_ptr<VectorEpetra> f0_, boost::shared_ptr<VectorEpetra> disp, solidFESpacePtr_Type feSpacePtr);
     
     vectorPtr_Type getElectroFibers()
     {
@@ -1064,7 +1065,7 @@ EMSolver<Mesh, ElectroSolver>::computeI4f (VectorEpetra& i4f, VectorEpetra& f0_,
     
 template<typename Mesh , typename ElectroSolver>
 void
-EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, VectorEpetra& f0_, VectorEpetra& disp, solidFESpacePtr_Type feSpacePtr)
+EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (boost::shared_ptr<VectorEpetra> f_, boost::shared_ptr<VectorEpetra> f0_, boost::shared_ptr<VectorEpetra> disp, solidFESpacePtr_Type feSpacePtr)
 {
 //    f_ = VectorEpetra(disp, Unique);
     
@@ -1080,18 +1081,17 @@ EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, 
 //    dUdy = feSpacePtr->gradientRecovery(disp, 1);
 //    dUdz = feSpacePtr->gradientRecovery(disp, 2);
     
-    int n = f_.epetraVector().MyLength() / 3;
-    int i (0); int j (0); int k (0);
+    int n = f_->epetraVector().MyLength() / 3;
     MatrixSmall<3,3> F; VectorSmall<3> f0;
     
-//    f_ = f0_; return;
+//    *f_ = *f0_; return;
     
-    for (int p (0); p < n; p++)
+    for (int p (0); p < n; ++p)
     {
-        i = f_.blockMap().GID (p);
-        j = f_.blockMap().GID (p + n);
-        k = f_.blockMap().GID (p + 2 * n);
-        
+        int i = f_->blockMap().GID (p);
+        int j = f_->blockMap().GID (p + n);
+        int k = f_->blockMap().GID (p + 2 * n);
+
 //        F(0,0) = 1.0 + dUdx[i];
 //        F(0,1) =       dUdy[i];
 //        F(0,2) =       dUdz[i];
@@ -1101,7 +1101,7 @@ EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, 
 //        F(2,0) =       dUdx[k];
 //        F(2,1) =       dUdy[k];
 //        F(2,2) = 1.0 + dUdz[k];
-  
+
 // this is right
 //        F(0,0) = 1.0 + dUdx[i];
 //        F(0,1) =       dUdx[j];
@@ -1112,20 +1112,22 @@ EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, 
 //        F(2,0) =       dUdz[i];
 //        F(2,1) =       dUdz[j];
 //        F(2,2) = 1.0 + dUdz[k];
+    
         
-//        F *= 0.;
-//        F(0,0) = 1.; F(1,1) = 1.; F(2,2) = 1.;
-        
-//        f0(0) = f0_[i];
-//        f0(1) = f0_[j];
-//        f0(2) = f0_[k];
+        F *= 0.;
+        F(0,0) = 1.; F(1,1) = 1.; F(2,2) = 1.;
+
+        f0(0) = (*f0_)[i];
+        f0(1) = (*f0_)[j];
+        f0(2) = (*f0_)[k];
 //
 //        f0.normalize();
 //
-//        auto f = F * f0;
-        f_[i] = 5.; //f(0);
-        f_[j] = 3.; //f(1);
-        f_[k] = 1.; //sf(2);
+        auto f = F * f0;
+        (*f_)[i] = f(0);
+        (*f_)[j] = f(1);
+        (*f_)[k] = f(2);
+        
     }
 
     
