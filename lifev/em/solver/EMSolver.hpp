@@ -76,6 +76,9 @@ public:
 
     typedef VectorEpetra                                      vector_Type;
     
+    typedef MatrixEpetra<Real>                                matrix_Type;
+    typedef boost::shared_ptr<matrix_Type>                    matrixPtr_Type;
+    
     typedef StructuralConstitutiveLawData                     structureData_Type;
 
     typedef boost::shared_ptr<structureData_Type>             structureDataPtr_Type;
@@ -84,37 +87,37 @@ public:
 
     typedef boost::shared_ptr< structuralOperator_Type >      structuralOperatorPtr_Type;
 
-    typedef BCHandler                                          bc_Type;
+    typedef BCHandler                                         bc_Type;
 
-    typedef boost::shared_ptr< bc_Type >                       bcPtr_Type;
+    typedef boost::shared_ptr< bc_Type >                      bcPtr_Type;
 
     typedef StructuralOperator< mesh_Type >                   physicalSolver_Type;
 
-    typedef BCInterface3D< bc_Type, physicalSolver_Type >  bcInterface_Type;
+    typedef BCInterface3D< bc_Type, physicalSolver_Type >     bcInterface_Type;
 
-    typedef boost::shared_ptr< bcInterface_Type >              bcInterfacePtr_Type;
+    typedef boost::shared_ptr< bcInterface_Type >             bcInterfacePtr_Type;
 
     typedef boost::shared_ptr<Activation>                     activationModelPtr_Type;
 
-    typedef ElectroSolver                                      electroSolver_Type;
+    typedef ElectroSolver                                     electroSolver_Type;
 
-    typedef boost::shared_ptr<electroSolver_Type>              electroSolverPtr_Type;
+    typedef boost::shared_ptr<electroSolver_Type>             electroSolverPtr_Type;
 
-    typedef ElectroIonicModel                                  ionicModel_Type;
+    typedef ElectroIonicModel                                 ionicModel_Type;
 
-    typedef boost::shared_ptr<ionicModel_Type>                 ionicModelPtr_Type;
+    typedef boost::shared_ptr<ionicModel_Type>                ionicModelPtr_Type;
 
-    typedef ExporterHDF5< Mesh >                               exporter_Type;
+    typedef ExporterHDF5< Mesh >                              exporter_Type;
 
-    typedef boost::shared_ptr<ExporterHDF5< Mesh > >           exporterPtr_Type;
+    typedef boost::shared_ptr<ExporterHDF5< Mesh > >          exporterPtr_Type;
 
-    typedef FESpace< RegionMesh<LinearTetra>, MapEpetra >      solidFESpace_Type;
+    typedef FESpace< RegionMesh<LinearTetra>, MapEpetra >     solidFESpace_Type;
 
-    typedef boost::shared_ptr<solidFESpace_Type>                solidFESpacePtr_Type;
+    typedef boost::shared_ptr<solidFESpace_Type>              solidFESpacePtr_Type;
 
     typedef ETFESpace< RegionMesh<LinearTetra>, MapEpetra, 3, 3 > solidETFESpace_Type;
 
-    typedef boost::shared_ptr<solidETFESpace_Type>              solidETFESpacePtr_Type;
+    typedef boost::shared_ptr<solidETFESpace_Type>            solidETFESpacePtr_Type;
 
     typedef boost::function < Real (const Real& t,
                                     const Real&    x,
@@ -1126,30 +1129,158 @@ EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, 
     }
 
     
+//    VectorEpetra rhs ( disp.map() );
+//    MatrixEpetra<Real> systemMatrix ( feSpacePtr->mapPtr() );
+//
 //    {
 //        using namespace ExpressionAssembly;
 //
 //        auto I = value(Id);
+//        auto f_0 = value (dispETFESpace, f0);
 //        auto Grad_u = grad( dispETFESpace, dispCurrent, 0);
 //        auto F =  Grad_u + I;
-//        auto FmT = minusT(F);
-//        auto J = det(F);
-//        auto p = value(pressure);
+//        auto Fm1 = F.transpose()
 //
-//        QuadratureBoundary myBDQR (buildTetraBDQR (quadRuleTria7pt) );
-//
-//        integrate ( boundary ( dispETFESpace->mesh(), bdFlag),
-//                   myBDQR,
+//        integrate ( elements ( dispETFESpace->mesh() ),
+//                   quadRuleTetra4pt,
 //                   dispETFESpace,
-//                   value(-1.0) * p * J * dot( FmT * Nface,  phi_i)
-//                   //p * J * dot( FmT * Nface,  phi_i)
-//                   //value(-1.0) * J * dot (vE1, FmT * Nface) * phi_i) >> intergral
-//                   ) >> traction;
+//                   dot( f_0 ,  phi_i )
+//                   ) >> rhs;
 //
-//        traction.globalAssemble();
+//        rhs.globalAssemble();
+//
+//        integrate ( elements ( dispETFESpace->mesh() ) ,
+//                   quadRuleTetra4pt,
+//                   dispETFESpace,
+//                   dispETFESpace,
+//                   dot ( Fm1 * phi_j , phi_i )
+//                   ) >> systemMatrix;
+//
+//        systemMatrix.globalAssemble();
 //    }
+//
+//
+//    LinearSolver linearSolver;
+//    linearSolver.setCommunicator (M_commPtr);
+//
+//    vectorPtr_Type solution ( new vector_Type ( feSpacePtr -> map() ) );
+//
+//    linearSolver.setOperator (systemMatrix);
+//    linearSolver.setRightHandSide (rhs);
+//    linearSolver.solve (solution);
     
 }
+
+/*
+template<typename Mesh , typename ElectroSolver>
+void
+EMSolver<Mesh, ElectroSolver>::computeDeformedFiberDirection (VectorEpetra& f_, VectorEpetra& f0_, VectorEpetra& disp, solidFESpacePtr_Type feSpacePtr)
+{
+//    f_ = VectorEpetra(disp, Unique);
+    
+//    VectorEpetra dUdx (disp);
+//    VectorEpetra dUdy (disp);
+//    VectorEpetra dUdz (disp);
+    
+//    dUdx = GradientRecovery::ZZGradient (feSpacePtr, disp, 0);
+//    dUdy = GradientRecovery::ZZGradient (feSpacePtr, disp, 1);
+//    dUdz = GradientRecovery::ZZGradient (feSpacePtr, disp, 2);
+    
+//    dUdx = feSpacePtr->gradientRecovery(disp, 0);
+//    dUdy = feSpacePtr->gradientRecovery(disp, 1);
+//    dUdz = feSpacePtr->gradientRecovery(disp, 2);
+    
+    int n = f_.epetraVector().MyLength() / 3;
+    int i (0); int j (0); int k (0);
+    MatrixSmall<3,3> F; VectorSmall<3> f0;
+    
+//    f_ = f0_; return;
+    
+    for (int p (0); p < n; p++)
+    {
+        i = f_.blockMap().GID (p);
+        j = f_.blockMap().GID (p + n);
+        k = f_.blockMap().GID (p + 2 * n);
+        
+//        F(0,0) = 1.0 + dUdx[i];
+//        F(0,1) =       dUdy[i];
+//        F(0,2) =       dUdz[i];
+//        F(1,0) =       dUdx[j];
+//        F(1,1) = 1.0 + dUdy[j];
+//        F(1,2) =       dUdz[j];
+//        F(2,0) =       dUdx[k];
+//        F(2,1) =       dUdy[k];
+//        F(2,2) = 1.0 + dUdz[k];
+  
+// this is right
+//        F(0,0) = 1.0 + dUdx[i];
+//        F(0,1) =       dUdx[j];
+//        F(0,2) =       dUdx[k];
+//        F(1,0) =       dUdy[i];
+//        F(1,1) = 1.0 + dUdy[j];
+//        F(1,2) =       dUdy[k];
+//        F(2,0) =       dUdz[i];
+//        F(2,1) =       dUdz[j];
+//        F(2,2) = 1.0 + dUdz[k];
+        
+//        F *= 0.;
+//        F(0,0) = 1.; F(1,1) = 1.; F(2,2) = 1.;
+        
+//        f0(0) = f0_[i];
+//        f0(1) = f0_[j];
+//        f0(2) = f0_[k];
+//
+//        f0.normalize();
+//
+//        auto f = F * f0;
+        f_[i] = 5.; //f(0);
+        f_[j] = 3.; //f(1);
+        f_[k] = 1.; //sf(2);
+    }
+
+    
+//    VectorEpetra rhs ( disp.map() );
+//    MatrixEpetra<Real> systemMatrix ( feSpacePtr->mapPtr() );
+//
+//    {
+//        using namespace ExpressionAssembly;
+//
+//        auto I = value(Id);
+//        auto f_0 = value (dispETFESpace, f0);
+//        auto Grad_u = grad( dispETFESpace, dispCurrent, 0);
+//        auto F =  Grad_u + I;
+//        auto Fm1 = F.transpose()
+//
+//        integrate ( elements ( dispETFESpace->mesh() ),
+//                   quadRuleTetra4pt,
+//                   dispETFESpace,
+//                   dot( f_0 ,  phi_i )
+//                   ) >> rhs;
+//
+//        rhs.globalAssemble();
+//
+//        integrate ( elements ( dispETFESpace->mesh() ) ,
+//                   quadRuleTetra4pt,
+//                   dispETFESpace,
+//                   dispETFESpace,
+//                   dot ( Fm1 * phi_j , phi_i )
+//                   ) >> systemMatrix;
+//
+//        systemMatrix.globalAssemble();
+//    }
+//
+//
+//    LinearSolver linearSolver;
+//    linearSolver.setCommunicator (M_commPtr);
+//
+//    vectorPtr_Type solution ( new vector_Type ( feSpacePtr -> map() ) );
+//
+//    linearSolver.setOperator (systemMatrix);
+//    linearSolver.setRightHandSide (rhs);
+//    linearSolver.solve (solution);
+    
+}
+*/
 
 
 } // namespace LifeV
