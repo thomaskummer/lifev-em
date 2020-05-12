@@ -247,6 +247,12 @@ public:
                                      UInt (0) );
         
         m_exporter->addVariable (    ExporterData<RegionMesh<LinearTetra> >::VectorField,
+                                     "Fibers 0",
+                                     M_emSolver.structuralOperatorPtr()->dispFESpacePtr(),
+                                     M_emSolver.structuralOperatorPtr()->EMMaterial()->fiberVectorPtr(),
+                                     UInt (0) );
+        
+        m_exporter->addVariable (    ExporterData<RegionMesh<LinearTetra> >::VectorField,
                                      "Fibers",
                                      M_emSolver.structuralOperatorPtr()->dispFESpacePtr(),
                                      M_emSolver.structuralOperatorPtr()->fPtr(),
@@ -322,9 +328,9 @@ public:
     //        f0.normalize();
     //
             auto f = F * f0;
-            (*f_)[i] = f(0);
-            (*f_)[j] = f(1);
-            (*f_)[k] = f(2);
+            (*f_)[i] += f(0);
+            (*f_)[j] += f(1);
+            (*f_)[k] += f(2);
         }
     }
     
