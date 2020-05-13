@@ -314,9 +314,9 @@ public:
                 
         for (int p (0); p < n; ++p)
         {
-            int i = f_->blockMap().GID (p);
-            int j = f_->blockMap().GID (p + n);
-            int k = f_->blockMap().GID (p + 2 * n);
+            int i = f0_->blockMap().GID (p);
+            int j = f0_->blockMap().GID (p + n);
+            int k = f0_->blockMap().GID (p + 2 * n);
             
             F *= 0.;
             F(0,0) = 1.; F(1,1) = 1.; F(2,2) = 1.;
@@ -328,9 +328,9 @@ public:
     //        f0.normalize();
     //
             auto f = F * f0;
-            (*f_)[i] += f(0);
-            (*f_)[j] += f(1);
-            (*f_)[k] += f(2);
+            (*f_)[i] = f(0);
+            (*f_)[j] = f(1);
+            (*f_)[k] = f(2);
         }
     }
     
