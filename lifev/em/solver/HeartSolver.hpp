@@ -311,7 +311,10 @@ public:
         *f_ *= 0.;
         int n = f_->epetraVector().MyLength() / 3;
         MatrixSmall<3,3> F; VectorSmall<3> f0;
-                
+        
+        *M_emSolver.structuralOperatorPtr()->fPtr() = *M_emSolver.structuralOperatorPtr()->EMMaterial()->fiberVectorPtr();
+        return;
+        
         for (int p (0); p < n; ++p)
         {
             int i = f_->blockMap().GID (p);
